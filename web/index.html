@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TV Wormhole</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<aside id="panel">
+  <header>
+    <h1>TV Wormhole</h1>
+    <p class="tag">Pick a spot. See the local TV stations that reach it, watch their newscasts, read their political ad files.</p>
+    <form id="search">
+      <input id="q" type="search" placeholder="Address, ZIP, city, or lat, lon" autocomplete="off">
+      <button type="submit" title="Look up">Go</button>
+      <button type="button" id="locate" title="Use my location">⌖</button>
+    </form>
+    <p class="hint" id="hint">…or click anywhere on the map.</p>
+  </header>
+  <section id="results" hidden>
+    <div id="where"></div>
+    <label class="filter"><input type="checkbox" id="onlystream"> Only stations with a live stream</label>
+    <ol id="list"></ol>
+  </section>
+  <footer>
+    <span id="status">Loading station data…</span>
+    <span>Contours: FCC F(50,90) service contours. Streams: NewsON. Ads: FCC public political files.</span>
+  </footer>
+</aside>
+<div id="map"></div>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+<script src="app.js"></script>
+</body>
+</html>
