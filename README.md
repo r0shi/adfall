@@ -4,6 +4,9 @@ Prototype: pick any spot in the US and see which broadcast TV stations reach it
 (FCC predicted service contours), with a link to each station's live newscast
 stream on NewsON and to its FCC political advertising file.
 
+Docs: [docs/research.md](docs/research.md) (findings, data sources, pitfalls) and
+[docs/spec.md](docs/spec.md) (proto-spec and v1 plan).
+
 ## Run
 
 ```bash
