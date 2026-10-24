@@ -348,3 +348,33 @@ Design decisions that landed while building:
   the input), Postgres as the direct crawl target (the crawler still writes
   SQLite and `load_pg` upserts from it; cheap to flip once the crawl ends),
   block-group population (county area share for now).
+
+## Presentation layer v1: what exists (2026-10-24)
+
+`app/` is a SvelteKit 2 / Svelte 5 site built with adapter-static (pure
+static output in `app/build`), reading the exported JSON under `web/data`
+(symlinked as `app/static/data`). The `web/` prototype stays until the new
+app reaches parity on hosting.
+
+| Piece | Where | Notes |
+| --- | --- | --- |
+| Map | `src/lib/Map.svelte` | MapLibre GL with OpenFreeMap "positron" tiles (no key, public use allowed); contour, highlight and marker layers; lazy deck.gl `MapboxOverlay` for data layers |
+| Charts | `src/lib/Chart.svelte` | Observable Plot wrapper, re-renders on container resize |
+| Shared state | `src/lib/location.svelte.js` | one rune store: place, label, covering stations; synced to the URL hash so every view shares the place |
+| Data | `src/lib/data.js`, `src/lib/geo.js` | fetch-and-cache of the JSON artifacts; point-in-polygon coverage; Nominatim geocoding (to be replaced before launch) |
+| Stations `/` | `src/routes/+page.svelte` | lookup, contour map, station cards with spend and buyer drill-down (parity with the prototype) |
+| Buyers `/buyers` | `src/routes/buyers/+page.svelte` | ranked bar chart + list; "reaching here" scope re-aggregates from the per-station files so amounts cover only the stations that reach the place |
+| Ads `/ads` | `src/routes/ads/+page.svelte` | creative cloud sized by airings (per-station airings when scoped to a place), list mode, airings-by-buyer chart |
+| Over time `/time` | `src/routes/time/+page.svelte` | deck.gl `H3HexagonLayer` over weekly res-5 frames with a scrubber and play; weekly booked/invoiced chart for the place's stations |
+
+Run: `npm --prefix app run dev` (port 5173) or `npm --prefix app run build`.
+Layout is a map-plus-panel grid that stacks at phone width.
+
+Gotchas met: `<svelte:head>` must be top-level; importing the map
+component as `Map` shadows the global `Map` (renamed `MapView`); the
+SvelteKit plugin is `@sveltejs/kit/vite`, not the Svelte plugin package;
+use `replaceState` from `$app/navigation`, not `history.replaceState`.
+
+Not yet: PMTiles for contours and hexes (the JSON artifacts are small
+enough for now), a static place index instead of Nominatim, buyer pages
+with FEC enrichment, the res-7 layer in the UI, DuckDB-WASM explore mode.

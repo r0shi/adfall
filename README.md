@@ -27,6 +27,17 @@ station list. To refresh it:
 3. `python3 scripts/fetch_newson.py` (writes `dl/newson_stations.json`).
 4. `python3 scripts/build_data.py --tvq-dir RAW/tvq --contour RAW/TV_service_contour_current.txt --newson RAW/newson_stations.json --out web/data/stations.json`
 
+## Web app (SvelteKit)
+
+```bash
+npm --prefix app install
+npm --prefix app run dev        # http://localhost:5173 — Stations, Buyers, Ads, Over time
+npm --prefix app run build      # static site in app/build
+```
+
+The app reads the exported JSON in `web/data` (symlinked as `app/static/data`). The
+single-file prototype under `web/` still runs with the python server above.
+
 ## Data layer
 
 Postgres with PostGIS via docker compose; see [docs/design.md](docs/design.md).

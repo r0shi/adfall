@@ -67,12 +67,62 @@ def export_hex(con):
         print(f"  hex/total_r{res}.json: {len(cells)} cells", file=sys.stderr)
 
 
+def export_buyers(con):
+    rows = con.execute("""SELECT b.buyer_id, b.canonical_name, b.category, b.kind, b.party, b.office,
+                                 COALESCE(SUM(bs.booked),0), COALESCE(SUM(bs.invoiced),0), COALESCE(SUM(bs.orders),0), COALESCE(SUM(bs.spots_aired),0),
+                                 COUNT(DISTINCT bs.facility_id), array_agg(DISTINCT s.state), array_agg(bs.facility_id)
+                          FROM buyer b JOIN buyer_station bs USING (buyer_id) JOIN station s USING (facility_id)
+                          GROUP BY 1,2,3,4,5,6 ORDER BY 7 DESC""").fetchall()
+    out = [{"id": r[0], "name": r[1], "category": CAT_LABEL.get(r[2], r[2]), "kind": r[3], "party": r[4], "office": r[5],
+            "booked": float(r[6]), "invoiced": float(r[7]), "orders": int(r[8]), "spots_aired": int(r[9]), "stations": r[10],
+            "states": sorted(x for x in r[11] if x), "facs": r[12]} for r in rows]
+    json.dump({"buyers": out}, open(os.path.join(WEB, "buyers.json"), "w"), separators=(",", ":"))
+    print(f"  buyers.json: {len(out)} buyers", file=sys.stderr)
+
+
+def export_creatives(con):
+    os.makedirs(os.path.join(WEB, "creatives"), exist_ok=True)
+    rows = con.execute("""SELECT c.ad_id, c.prefix, c.airings, c.first_aired, c.last_aired, b.canonical_name, b.category, b.buyer_id,
+                                 jsonb_object_agg(x.facility_id, x.n)
+                          FROM creative c LEFT JOIN buyer b ON b.buyer_id = c.buyer_id
+                          JOIN (SELECT ad_id, facility_id, COUNT(*) n FROM spot GROUP BY 1,2) x ON x.ad_id = c.ad_id
+                          GROUP BY 1,2,3,4,5,6,7,8 ORDER BY c.airings DESC""").fetchall()
+    out = [{"ad_id": r[0], "prefix": r[1], "airings": r[2], "first": str(r[3]), "last": str(r[4]), "buyer": r[5], "category": CAT_LABEL.get(r[6], r[6]),
+            "buyer_id": r[7], "facs": r[8]} for r in rows]       # facs: {facility_id: airings}
+    json.dump({"creatives": out}, open(os.path.join(WEB, "creatives", "all.json"), "w"), separators=(",", ":"))
+    print(f"  creatives/all.json: {len(out)} creatives", file=sys.stderr)
+
+
+def export_time(con):
+    rows = con.execute("SELECT facility_id, day, booked, invoiced, spots_aired FROM station_daily ORDER BY 1,2").fetchall()
+    json.dump({"columns": ["fac", "day", "booked", "invoiced", "spots_aired"],
+               "rows": [[r[0], str(r[1]), round(float(r[2])), round(float(r[3])), int(r[4])] for r in rows]},
+              open(os.path.join(WEB, "station_daily.json"), "w"), separators=(",", ":"))
+    print(f"  station_daily.json: {len(rows)} rows", file=sys.stderr)
+    rows = con.execute("""
+        WITH w AS (SELECT sh.facility_id, sh.h3, COALESCE(h.pop,0)*sh.coverage_share AS w, SUM(COALESCE(h.pop,0)*sh.coverage_share) OVER (PARTITION BY sh.facility_id) wsum
+                   FROM station_hex sh JOIN hex h USING (h3) WHERE h.res = 5),
+             sd AS (SELECT facility_id, date_trunc('week', day)::date AS week, SUM(booked) booked, SUM(invoiced) invoiced, SUM(spots_aired) spots_aired
+                    FROM station_daily GROUP BY 1,2)
+        SELECT sd.week, w.h3, SUM(sd.booked*w.w/NULLIF(w.wsum,0)), SUM(sd.invoiced*w.w/NULLIF(w.wsum,0)), SUM(sd.spots_aired*w.w/NULLIF(w.wsum,0)), MAX(h.pop)
+        FROM sd JOIN w USING (facility_id) JOIN hex h ON h.h3 = w.h3 GROUP BY 1,2 ORDER BY 1,2""").fetchall()
+    weeks = {}
+    for week, h3, b, i, sp, pop in rows:
+        weeks.setdefault(str(week), []).append([h3, round(float(b or 0)), round(float(i or 0)), round(float(sp or 0), 1), round(float(pop or 0))])
+    json.dump({"res": 5, "columns": ["h3", "booked", "invoiced", "spots_aired", "pop"], "weeks": weeks},
+              open(os.path.join(WEB, "hex", "weekly_r5.json"), "w"), separators=(",", ":"))
+    print(f"  hex/weekly_r5.json: {len(weeks)} weeks, {len(rows)} rows", file=sys.stderr)
+
+
 def main():
     year = 2026
     build = {"id": datetime.datetime.now(datetime.timezone.utc).strftime("%Y%m%dT%H%M%SZ"), "date": datetime.date.today().isoformat()}
     with pg.connect() as con:
         export_stations(con, year, build)
         export_hex(con)
+        export_buyers(con)
+        export_creatives(con)
+        export_time(con)
         parquet(con, "station", "SELECT facility_id, call, service, city, state, licensee, station_group, newson_id, public_file_slug, ST_Y(tx) lat, ST_X(tx) lon FROM station")
         parquet(con, "buyer", "SELECT * FROM buyer")
         parquet(con, "buyer_station", "SELECT * FROM buyer_station")
