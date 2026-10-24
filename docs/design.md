@@ -336,6 +336,12 @@ Design decisions that landed while building:
 - **Booked-over-time uses order lines when present** (58k lines so far),
   else the flight window. Invoiced uses the billing period. Aired spots are
   exact. `spend_daily` carries all three.
+- **Per-person density is uniform inside one station's footprint** by
+  construction: money is spread in proportion to population, so $/person
+  only varies where coverage sets differ (overlaps, edges). Block-group
+  population will add texture to the population map, not to $/person. If a
+  finer signal is wanted, it has to come from the orders themselves (e.g.
+  program dayparts, or zoned cable buys), not from geography.
 - **Sinclair invoices stay unlinked to orders** (different contract
   numbering) but count toward station invoiced totals and creatives.
 - **Not built yet**: PMTiles (no tippecanoe on this machine; the Parquet is
