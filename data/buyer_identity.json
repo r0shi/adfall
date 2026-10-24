@@ -1489,7 +1489,7 @@
 "method": "fec-candidate"
 },
 "federal|no going back pac": {
-"name": "No Going Back PAC INC",
+"name": "No Going Back PAC",
 "method": "fec-committee"
 },
 "federal|north carolina democratic party": {
@@ -2129,7 +2129,7 @@
 "method": "fec-candidate"
 },
 "federal|winsenate": {
-"name": "Winsenate",
+"name": "WinSenate",
 "method": "fec-committee"
 },
 "federal|w lawrence": {
@@ -2697,8 +2697,8 @@
 "method": "manual"
 },
 "issue|clf26": {
-"name": "Clf26",
-"method": "name-rule"
+"name": "Congressional Leadership Fund",
+"method": "manual"
 },
 "issue|clf26 - congressional leadership fund": {
 "name": "Clf26 Congressional Leadership Fund",
@@ -3705,19 +3705,19 @@
 "method": "name-rule"
 },
 "issue|no going back": {
-"name": "No Going Back PAC INC",
+"name": "No Going Back PAC",
 "method": "fec-committee"
 },
 "issue|no going back pac": {
-"name": "No Going Back PAC INC",
+"name": "No Going Back PAC",
 "method": "fec-committee"
 },
 "issue|no going back pac 2026": {
-"name": "No Going Back PAC INC",
+"name": "No Going Back PAC",
 "method": "fec-committee"
 },
 "issue|no going back pac inc": {
-"name": "No Going Back PAC INC",
+"name": "No Going Back PAC",
 "method": "fec-committee"
 },
 "issue|no going back political issue": {
@@ -4461,11 +4461,11 @@
 "method": "name-rule"
 },
 "issue|winsenate": {
-"name": "Winsenate",
+"name": "WinSenate",
 "method": "fec-committee"
 },
 "issue|winsenate 2026": {
-"name": "Winsenate",
+"name": "WinSenate",
 "method": "fec-committee"
 },
 "issue|winsenate nc": {
@@ -4473,7 +4473,7 @@
 "method": "name-rule"
 },
 "issue|winsenate pac": {
-"name": "Winsenate",
+"name": "WinSenate",
 "method": "fec-committee"
 },
 "issue|wisconsin forward fund": {
@@ -11269,10 +11269,10 @@
 "fec_committee_id": "C00934901",
 "fec_committee_name": "NICK LEWIS FOR CONGRESS"
 },
-"federal|no going back pac inc": {
+"federal|no going back pac": {
 "category": "federal",
-"name": "No Going Back PAC INC",
-"fec_name": "No Going Back PAC INC",
+"name": "No Going Back PAC",
+"fec_name": "No Going Back PAC",
 "labels": [
 "NO GOING BACK PAC"
 ],
@@ -11886,8 +11886,8 @@
 },
 "federal|winsenate": {
 "category": "federal",
-"name": "Winsenate",
-"fec_name": "Winsenate",
+"name": "WinSenate",
+"fec_name": "WinSenate",
 "labels": [
 "WINSENATE"
 ],
@@ -12927,6 +12927,7 @@
 "fec_name": null,
 "labels": [
 "CLF",
+"CLF26",
 "CLF PAC",
 "Congressional Leadership Fund",
 "CONGRESSIONAL LEADERSHIP FUND",
@@ -12938,16 +12939,6 @@
 "kind": "pac",
 "fec_committee_id": "C00504530",
 "fec_committee_name": "CLF"
-},
-"issue|clf26": {
-"category": "issue",
-"name": "Clf26",
-"fec_name": null,
-"labels": [
-"CLF26"
-],
-"method": "name-rule",
-"kind": "issue"
 },
 "issue|clf26 congressional leadership fund": {
 "category": "issue",
@@ -15027,10 +15018,10 @@
 "method": "name-rule",
 "kind": "issue"
 },
-"issue|no going back pac inc": {
+"issue|no going back pac": {
 "category": "issue",
-"name": "No Going Back PAC INC",
-"fec_name": "No Going Back PAC INC",
+"name": "No Going Back PAC",
+"fec_name": "No Going Back PAC",
 "labels": [
 "No Going Back",
 "NO Going Back",
@@ -16596,8 +16587,8 @@
 },
 "issue|winsenate": {
 "category": "issue",
-"name": "Winsenate",
-"fec_name": "Winsenate",
+"name": "WinSenate",
+"fec_name": "WinSenate",
 "labels": [
 "WinSenate",
 "WINSENATE",
