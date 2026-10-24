@@ -18,6 +18,8 @@ geo:          ## counties, population, H3 cells, station coverage
 	$(PY) -m ingest.geo
 marts:        ## refresh materialized marts
 	$(PY) -m ingest.pg marts
+places:       ## static place index for search (Census Gazetteer ZIPs + places)
+	$(PY) -m ingest.places
 export:       ## write web/data artifacts and Parquet marts
 	$(PY) -m ingest.export
 pipeline: load entities identity entities marts export   ## identity needs a first entities pass for the raw labels

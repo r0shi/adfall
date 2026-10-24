@@ -161,6 +161,29 @@ def export_details(con):
     print(f"  stations/: {m} detail files", file=sys.stderr)
 
 
+def export_creative_pages(con):
+    """web/data/creatives/<ad_id>.json: airings by station, by day and by hour for one creative."""
+    os.makedirs(os.path.join(WEB, "creatives", "id"), exist_ok=True)
+    st = {r[0]: (r[1], r[2]) for r in con.execute("SELECT facility_id, call, state FROM station")}
+    rows = con.execute("""SELECT s.ad_id, s.facility_id, s.aired_on, s.aired_time, s.buyer_id FROM spot s WHERE s.ad_id IS NOT NULL ORDER BY 1""").fetchall()
+    bname = {r[0]: (r[1], r[2]) for r in con.execute("SELECT buyer_id, canonical_name, category FROM buyer")}
+    by = collections.defaultdict(lambda: {"by_station": collections.Counter(), "by_day": collections.Counter(), "by_hour": [0] * 24, "buyers": collections.Counter()})
+    for ad, fac, day, t, bid in rows:
+        e = by[ad]; e["by_station"][fac] += 1; e["by_day"][str(day)] += 1; e["buyers"][bid] += 1
+        m = re.match(r"\s*(\d{1,2}):\d\d\s*([AP])M", t or "", re.I)
+        if m:
+            h = int(m.group(1)) % 12 + (12 if m.group(2).upper() == "P" else 0); e["by_hour"][h] += 1
+    for ad, e in by.items():
+        bid = e["buyers"].most_common(1)[0][0]
+        name, cat = bname.get(bid, (None, None))
+        out = {"ad_id": ad, "prefix": ad[:4], "buyer": name, "slug": slug(cat, name) if name else None, "category": CAT_LABEL.get(cat, cat),
+               "airings": sum(e["by_station"].values()), "first": min(e["by_day"]), "last": max(e["by_day"]),
+               "by_station": sorted(({"fac": f, "call": st[f][0], "state": st[f][1], "airings": n} for f, n in e["by_station"].items()), key=lambda x: -x["airings"]),
+               "by_day": sorted(e["by_day"].items()), "by_hour": e["by_hour"]}
+        json.dump(out, open(os.path.join(WEB, "creatives", "id", f"{ad}.json"), "w"), separators=(",", ":"))
+    print(f"  creatives/id/: {len(by)} files", file=sys.stderr)
+
+
 def export_time(con):
     rows = con.execute("SELECT facility_id, day, booked, invoiced, spots_aired FROM station_daily ORDER BY 1,2").fetchall()
     json.dump({"columns": ["fac", "day", "booked", "invoiced", "spots_aired"],
@@ -192,6 +215,7 @@ def main():
         export_creatives(con)
         export_time(con)
         export_details(con)
+        export_creative_pages(con)
         parquet(con, "station", "SELECT facility_id, call, service, city, state, licensee, station_group, newson_id, public_file_slug, ST_Y(tx) lat, ST_X(tx) lon FROM station")
         parquet(con, "buyer", "SELECT * FROM buyer")
         parquet(con, "buyer_station", "SELECT * FROM buyer_station")

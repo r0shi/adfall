@@ -42,14 +42,14 @@
       {#if mode === 'cloud'}
         <div class="cloud" style="margin:12px 0">
           {#each top as c (c.ad_id)}
-            <span style="font-size:{size(c.airings).toFixed(0)}px;color:{CATS[c.category] || CATS.Other}" title="{c.ad_id} · {c.buyer || 'unknown buyer'} · {num(c.airings)} airings · {c.first} to {c.last}">{c.buyer ? c.buyer.split(/[-–]/)[0].trim() : c.ad_id}</span>
+            <a href="/ads/{c.ad_id}" style="font-size:{size(c.airings).toFixed(0)}px;color:{CATS[c.category] || CATS.Other};text-decoration:none" title="{c.ad_id} · {c.buyer || 'unknown buyer'} · {num(c.airings)} airings · {c.first} to {c.last}">{c.buyer ? c.buyer.split(/[-–]/)[0].trim() : c.ad_id}</a>
           {/each}
         </div>
         <div class="legend">{#each Object.entries(CATS) as [c, col]}<span><span class="dot" style="background:{col}"></span>{catShort(c)}</span>{/each}<span>· label is the buyer, one entry per creative</span></div>
       {:else}
         {#each list.slice(0, 150) as c (c.ad_id)}
           <div class="card" style="padding:7px 12px">
-            <div class="row small"><span class="dot" style="background:{CATS[c.category] || CATS.Other}"></span><b style="font-family:ui-monospace,monospace">{c.ad_id}</b>{#if c.buyer}<a href="/buyers/{slugOf(c.category, c.buyer)}" class="muted" style="text-decoration:none">{c.buyer}</a>{:else}<span class="muted">unknown buyer</span>{/if}<span class="amt">{num(c.airings)}</span></div>
+            <div class="row small"><span class="dot" style="background:{CATS[c.category] || CATS.Other}"></span><a href="/ads/{c.ad_id}" style="font-family:ui-monospace,monospace;font-weight:700;text-decoration:none">{c.ad_id}</a>{#if c.buyer}<a href="/buyers/{slugOf(c.category, c.buyer)}" class="muted" style="text-decoration:none">{c.buyer}</a>{:else}<span class="muted">unknown buyer</span>{/if}<span class="amt">{num(c.airings)}</span></div>
             <div class="bar"><i style="width:{(100 * c.airings / maxA).toFixed(1)}%;background:{CATS[c.category] || CATS.Other}"></i></div>
             <div class="muted" style="font-size:11.5px">{c.first} → {c.last} · {Object.keys(c.facs).length} station{Object.keys(c.facs).length === 1 ? '' : 's'}</div>
           </div>

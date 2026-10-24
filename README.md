@@ -34,6 +34,7 @@ npm --prefix app install
 npm --prefix app run dev        # http://localhost:5173 — Stations, Buyers, Ads, Over time
 npm --prefix app run build      # static site in app/build (data included)
 npm --prefix app run preview -- --host 0.0.0.0 --port 4173   # serve the build on the LAN/tailnet; `tailscale serve --bg 4173` for HTTPS
+# any Host header is accepted by default; ALLOWED_HOSTS=ix.carp-gopher.ts.net,localhost narrows it
 ```
 
 The app reads the exported JSON in `web/data` (symlinked as `app/static/data`). The

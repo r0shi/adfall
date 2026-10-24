@@ -51,7 +51,7 @@
       {#if d.creatives.length}
         <h2>Creatives aired</h2>
         {#each d.creatives.slice(0, 30) as c}
-          <div class="row small" style="padding:3px 0;border-bottom:1px solid var(--line)"><b style="font-family:ui-monospace,monospace">{c.ad_id}</b><span class="muted">{c.first} → {c.last} · {c.stations.join(', ')}</span><span class="amt">{num(c.airings)}</span></div>
+          <div class="row small" style="padding:3px 0;border-bottom:1px solid var(--line)"><a href="/ads/{c.ad_id}" style="font-family:ui-monospace,monospace;font-weight:700;text-decoration:none">{c.ad_id}</a><span class="muted">{c.first} → {c.last} · {c.stations.join(', ')}</span><span class="amt">{num(c.airings)}</span></div>
         {/each}
       {/if}
       {#if d.agencies.length}<h2>Agencies</h2><div class="chips">{#each d.agencies as a}<span class="chip">{a}</span>{/each}</div>{/if}

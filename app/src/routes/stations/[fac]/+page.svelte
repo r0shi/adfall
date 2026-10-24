@@ -49,7 +49,7 @@
       {#if d.creatives.length}
         <h2>Most-aired creatives</h2>
         {#each d.creatives.slice(0, 30) as c}
-          <div class="row small" style="padding:3px 0;border-bottom:1px solid var(--line)"><span class="dot" style="background:{CATS[c.category] || CATS.Other}"></span><b style="font-family:ui-monospace,monospace">{c.ad_id}</b>{#if c.slug}<a href="/buyers/{c.slug}" class="muted" style="text-decoration:none">{c.buyer}</a>{/if}<span class="muted">{c.first} → {c.last}</span><span class="amt">{num(c.airings)}</span></div>
+          <div class="row small" style="padding:3px 0;border-bottom:1px solid var(--line)"><span class="dot" style="background:{CATS[c.category] || CATS.Other}"></span><a href="/ads/{c.ad_id}" style="font-family:ui-monospace,monospace;font-weight:700;text-decoration:none">{c.ad_id}</a>{#if c.slug}<a href="/buyers/{c.slug}" class="muted" style="text-decoration:none">{c.buyer}</a>{/if}<span class="muted">{c.first} → {c.last}</span><span class="amt">{num(c.airings)}</span></div>
         {/each}
       {/if}
     </section>
