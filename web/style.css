@@ -70,3 +70,20 @@ h1 { margin: 0 0 4px; font-size: 22px; letter-spacing: -0.01em; }
   #results { padding: 10px 16px; }
   .tag { display: none; }
 }
+
+.spend { margin-top: 8px; font-size: 13px; }
+.spend.none { color: var(--muted); font-size: 12.5px; }
+.spend .row { display: flex; align-items: baseline; gap: 5px; }
+.spend .more { margin-left: auto; color: var(--accent); cursor: pointer; font-size: 12px; }
+.catbar { display: flex; height: 6px; border-radius: 3px; overflow: hidden; background: var(--chip); margin-top: 5px; }
+.catbar i { display: block; height: 100%; }
+.rollup { margin-top: 8px; padding: 8px 10px; background: var(--chip); border-radius: 8px; font-size: 13px; font-weight: 400; }
+.buyers { margin-top: 8px; border-top: 1px solid var(--line); padding-top: 6px; }
+.buyer { margin: 6px 0; }
+.bname { display: flex; gap: 6px; align-items: center; font-size: 13px; }
+.bname .amt { margin-left: auto; font-weight: 600; font-variant-numeric: tabular-nums; }
+.dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; flex: none; margin-right: 2px; }
+.bar { height: 5px; background: var(--chip); border-radius: 3px; overflow: hidden; margin: 3px 0 2px; }
+.bar i { display: block; height: 100%; }
+.bmeta { font-size: 11.5px; color: var(--muted); }
+.legend { margin-top: 8px; }

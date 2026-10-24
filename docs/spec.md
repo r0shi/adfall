@@ -108,6 +108,13 @@ Must
   political documents this year, last one today".
 
 Should
+- **Postgres behind the data.** The ingest pipeline writes SQLite for the
+  pilot. Once the full crawl exists, move `files` and `docs` to Postgres via
+  docker compose (one `postgres` service, a volume, a loader that reads the
+  SQLite or writes directly) so pivots and visualizations can run real SQL.
+  Keep the schema identical in both; `ingest/db.py` is the only place that
+  knows the engine. DuckDB over the SQLite file is a zero-setup bridge for
+  analysis in the meantime.
 - **Market view.** Group results by Nielsen DMA and offer "whole market" as
   an alternative to point coverage.
 - **Newscast schedule.** NewsON's station detail already lists live and
@@ -144,3 +151,52 @@ Could
   a working "Watch" link.
 - Every station card shows a political-file count and last-upload date.
 - Hosting cost under $20 per month at 10,000 lookups a day.
+
+## Political-file ingest (added 2026-10-24)
+
+Pipeline, all under `ingest/`, SQLite at `data/political.sqlite`, PDFs under
+`data/pdfs/<facility>/<year>/`, OCR text under `data/ocr/`:
+
+| Step | Module | What it does |
+| --- | --- | --- |
+| crawl | `ingest.crawl` | walks `Political Files/<year>` per station via the OPIF API, records every file, downloads PDFs (resumable) |
+| update | `ingest.update` | applies the global file-history feed (new/delete/move/rename/purge) from the last sync date; the daily delta mechanism |
+| ocr | `ingest.ocr` | pypdfium2 render + tesseract for PDFs with no text layer; cached per file |
+| parse | `ingest.parse` | classifies each PDF and extracts order number, advertiser, agency, flight, gross, net, spots, per-spot Ad-IDs, PB-19 form fields |
+| aggregate | `ingest.aggregate` | spend per station per buyer; exports `web/data/spend/<facility>.json` and `index.json` |
+
+Templates seen so far
+- **WideOrbit text PDFs** (Hearst, Tegna): orders and invoices parse at ~99%.
+- **WideOrbit image PDFs** (Nexstar): same layout printed to image; OCR then a
+  tolerant regex set. Totals sit on an inner page.
+- **Katz/Sinclair contracts** (Sinclair): image PDFs with inline labels
+  (`Contract #`, `Advertiser:`, `Total $:`, `Flight:`).
+- **NAB PB-19 / issue-ad forms**: AcroForm fields; candidate, committee,
+  agency, party, office, election date, treasurer, sponsor.
+
+Spend rule: per order number, sum of invoices if any exist (what aired), else
+the latest order revision's gross (what was booked). Cancellations are $0
+orders. Both figures are kept so "booked vs invoiced" is visible; invoices lag
+airing by a billing cycle, so invoiced totals keep rising into December.
+
+Keeping it current: run `python3 -m ingest.update --download --parse --aggregate`
+daily from cron or launchd. Orders keep arriving through election day and
+invoices for a month after.
+
+## Visualizations to build next
+
+- **Spenders**: ranked buyers per station and per location, split
+  federal / state / local / issue; already in the map cards.
+- **Spend per person**: population inside each contour from the Census
+  Gazetteer county file (population + centroid, public domain), centroids
+  summed inside the polygon. Directional by design; no Nielsen DMA data.
+- **Ads actually aired**: Ad-ID creative codes from invoices with air date and
+  time. Rank creatives by airings per station or buyer; a word cloud or ranked
+  list. The four-character Ad-ID prefix identifies the advertiser company.
+  Video lives on campaigns' YouTube channels, not in the FCC file.
+- **Who the buyers are**: join committee names from PB-19 forms to OpenFEC
+  (federal committees, donors), FollowTheMoney (state candidates) and
+  OpenSecrets (PACs, outside groups). Agency names on orders cluster buyers
+  by consultant.
+- **Postgres** once the crawl goes beyond the pilot, via docker compose, so
+  these pivots are plain SQL.
