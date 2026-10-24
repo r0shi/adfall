@@ -1,7 +1,7 @@
 <script>
   import Chart from '$lib/Chart.svelte';
   import { loc } from '$lib/location.svelte.js';
-  import { creatives, num, CATS, catShort } from '$lib/data.js';
+  import { creatives, num, CATS, catShort, slugOf } from '$lib/data.js';
   let all = $state([]), scope = $state('here'), cat = $state('All'), q = $state(''), mode = $state('cloud');
   creatives().then(c => all = c);
   const facsHere = $derived(new Set(loc.found.map(s => s.fac)));
@@ -49,7 +49,7 @@
       {:else}
         {#each list.slice(0, 150) as c (c.ad_id)}
           <div class="card" style="padding:7px 12px">
-            <div class="row small"><span class="dot" style="background:{CATS[c.category] || CATS.Other}"></span><b style="font-family:ui-monospace,monospace">{c.ad_id}</b><span class="muted">{c.buyer || 'unknown buyer'}</span><span class="amt">{num(c.airings)}</span></div>
+            <div class="row small"><span class="dot" style="background:{CATS[c.category] || CATS.Other}"></span><b style="font-family:ui-monospace,monospace">{c.ad_id}</b>{#if c.buyer}<a href="/buyers/{slugOf(c.category, c.buyer)}" class="muted" style="text-decoration:none">{c.buyer}</a>{:else}<span class="muted">unknown buyer</span>{/if}<span class="amt">{num(c.airings)}</span></div>
             <div class="bar"><i style="width:{(100 * c.airings / maxA).toFixed(1)}%;background:{CATS[c.category] || CATS.Other}"></i></div>
             <div class="muted" style="font-size:11.5px">{c.first} → {c.last} · {Object.keys(c.facs).length} station{Object.keys(c.facs).length === 1 ? '' : 's'}</div>
           </div>

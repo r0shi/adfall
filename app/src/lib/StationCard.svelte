@@ -8,7 +8,7 @@
   const searchUrl = $derived(`https://duckduckgo.com/?q=${encodeURIComponent(`${s.call} ${s.city} ${s.state} live stream news`)}`);
 </script>
 <div class="card" role="button" tabindex="0" onmouseenter={() => onhover(s.fac)} onmouseleave={() => onhover(null)} onclick={() => onzoom(s)} onkeydown={e => e.key === 'Enter' && onzoom(s)}>
-  <div class="row"><b style="font-size:16px">{s.call}</b><span class="muted small">ch {s.vchan && s.vchan !== '-' ? s.vchan : s.rf}</span>
+  <div class="row"><a href="/stations/{s.fac}" style="font-size:16px;font-weight:700;text-decoration:none" onclick={e => e.stopPropagation()}>{s.call}</a><span class="muted small">ch {s.vchan && s.vchan !== '-' ? s.vchan : s.rf}</span>
     <span class="muted small" style="margin-left:auto;text-transform:uppercase;letter-spacing:.04em;font-size:11px">{s.svc === 'DCA' ? 'Class A' : 'Full power'}</span></div>
   <div class="muted small">{s.city}, {s.state} · {s.licensee}{dist !== null ? ` · transmitter ${dist} mi away` : ''}</div>
   {#if spend}
@@ -22,7 +22,7 @@
             {#if !detail}<span class="muted">Loading…</span>{:else}
               {#each detail.buyers.slice(0, 25) as b}
                 <div style="margin:6px 0">
-                  <div class="row small"><span class="dot" style="background:{CATS[b.category] || CATS.Other}"></span>{b.name}<span class="amt">{usd(b.gross)}</span></div>
+                  <div class="row small"><span class="dot" style="background:{CATS[b.category] || CATS.Other}"></span>{#if b.slug}<a href="/buyers/{b.slug}" style="text-decoration:none">{b.name}</a>{:else}{b.name}{/if}<span class="amt">{usd(b.gross)}</span></div>
                   <div class="bar"><i style="width:{(100 * b.gross / (detail.buyers[0]?.gross || 1)).toFixed(1)}%;background:{CATS[b.category] || CATS.Other}"></i></div>
                   <div class="muted" style="font-size:11.5px">{b.orders} order{b.orders === 1 ? '' : 's'}{b.invoiced ? ` · ${usd(b.invoiced)} invoiced` : ''}{b.ad_ids ? ` · ${b.ad_ids} creative${b.ad_ids === 1 ? '' : 's'}` : ''}{b.agencies?.length ? ` · via ${b.agencies.slice(0, 2).join(', ')}` : ''}</div>
                 </div>

@@ -8,7 +8,7 @@
 
   python3 -m ingest.export
 """
-import datetime, json, os, sys
+import collections, datetime, json, os, re, sys
 import pyarrow as pa, pyarrow.parquet as pq
 from . import pg
 
@@ -16,6 +16,11 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 WEB = os.path.join(ROOT, "web", "data")
 MARTS = os.path.join(ROOT, "data", "marts")
 CAT_LABEL = {"federal": "Federal", "state": "State", "local": "Local", "issue": "Non-Candidate Issue Ads", "other": "Other"}
+
+
+def slug(category, name):
+    """Stable buyer id across rebuilds: category + name, e.g. federal-jon-ossoff."""
+    return f"{category}-" + re.sub(r"[^a-z0-9]+", "-", name.lower()).strip("-")[:60]
 
 
 def parquet(con, name, sql, params=None):
@@ -39,7 +44,7 @@ def export_stations(con, year, build):
                                      (SELECT array_agg(DISTINCT a.name) FROM order_ o JOIN agency a USING (agency_id) WHERE o.facility_id=bs.facility_id AND o.buyer_id=bs.buyer_id) AS agencies,
                                      (SELECT array_agg(DISTINCT o.advertiser_text) FROM order_ o WHERE o.facility_id=bs.facility_id AND o.buyer_id=bs.buyer_id AND o.advertiser_text IS NOT NULL) AS advertisers
                               FROM buyer_station bs JOIN buyer b USING (buyer_id) WHERE bs.facility_id=%s ORDER BY bs.booked DESC NULLS LAST""", (fac,)).fetchall()
-        buyers = [{"name": r[0], "category": CAT_LABEL.get(r[1], r[1]), "kind": r[2], "party": r[3], "office": r[4],
+        buyers = [{"name": r[0], "slug": slug(r[1], r[0]), "category": CAT_LABEL.get(r[1], r[1]), "kind": r[2], "party": r[3], "office": r[4],
                    "gross": float(r[5] or 0), "invoiced": float(r[6] or 0), "orders": r[7], "spots_aired": r[8], "ad_ids": r[9],
                    "agencies": (r[10] or [])[:5], "advertisers": (r[11] or [])[:3]} for r in rows]
         by_cat = {}
@@ -74,7 +79,7 @@ def export_buyers(con):
                                  b.fec_candidate_id, b.fec_committee_id, b.fec_committee_name, b.identity_method, b.raw_labels, b.district
                           FROM buyer b JOIN buyer_station bs USING (buyer_id) JOIN station s USING (facility_id)
                           GROUP BY 1,2,3,4,5,6,14,15,16,17,18,19 ORDER BY 7 DESC""").fetchall()
-    out = [{"id": r[0], "name": r[1], "category": CAT_LABEL.get(r[2], r[2]), "kind": r[3], "party": r[4], "office": r[5],
+    out = [{"id": r[0], "slug": slug(r[2], r[1]), "name": r[1], "category": CAT_LABEL.get(r[2], r[2]), "kind": r[3], "party": r[4], "office": r[5],
             "booked": float(r[6]), "invoiced": float(r[7]), "orders": int(r[8]), "spots_aired": int(r[9]), "stations": r[10],
             "states": sorted(x for x in r[11] if x), "facs": r[12],
             "fec_candidate_id": r[13], "fec_committee_id": r[14], "fec_committee_name": r[15], "method": r[16], "labels": r[17], "district": r[18]} for r in rows]
@@ -93,6 +98,67 @@ def export_creatives(con):
             "buyer_id": r[7], "facs": r[8]} for r in rows]       # facs: {facility_id: airings}
     json.dump({"creatives": out}, open(os.path.join(WEB, "creatives", "all.json"), "w"), separators=(",", ":"))
     print(f"  creatives/all.json: {len(out)} creatives", file=sys.stderr)
+
+
+def export_details(con):
+    """web/data/buyers/<slug>.json and web/data/stations/<fac>.json: everything a detail page needs."""
+    os.makedirs(os.path.join(WEB, "buyers"), exist_ok=True); os.makedirs(os.path.join(WEB, "stations"), exist_ok=True)
+    st = {r[0]: {"fac": r[0], "call": r[1], "city": r[2], "state": r[3], "group": r[4], "newson": r[5], "slug": r[6]}
+          for r in con.execute("SELECT facility_id, call, city, state, station_group, newson_id, public_file_slug FROM station")}
+    weekly = collections.defaultdict(lambda: collections.defaultdict(lambda: [0.0, 0.0, 0]))
+    for fac, bid, day, booked, invoiced, spots in con.execute("SELECT facility_id, buyer_id, date_trunc('week', day)::date, booked, invoiced, spots_aired FROM spend_daily"):
+        w = weekly[(fac, bid)][str(day)]; w[0] += float(booked or 0); w[1] += float(invoiced or 0); w[2] += int(spots or 0)
+    def series(keys):
+        acc = collections.defaultdict(lambda: [0.0, 0.0, 0])
+        for k in keys:
+            for wk, v in weekly.get(k, {}).items():
+                a = acc[wk]; a[0] += v[0]; a[1] += v[1]; a[2] += v[2]
+        return [{"week": wk, "booked": round(v[0]), "invoiced": round(v[1]), "spots": v[2]} for wk, v in sorted(acc.items())]
+    creatives = collections.defaultdict(list)       # by (fac, buyer_id)
+    for ad, fac, bid, n, first, last in con.execute("SELECT ad_id, facility_id, buyer_id, COUNT(*), MIN(aired_on), MAX(aired_on) FROM spot WHERE ad_id IS NOT NULL GROUP BY 1,2,3"):
+        creatives[(fac, bid)].append({"ad_id": ad, "airings": n, "first": str(first), "last": str(last)})
+    buyers = con.execute("""SELECT b.buyer_id, b.canonical_name, b.category, b.kind, b.party, b.office, b.district, b.state,
+                                   b.fec_candidate_id, b.fec_committee_id, b.fec_committee_name, b.identity_method,
+                                   (SELECT array_agg(DISTINCT alias) FROM buyer_alias a WHERE a.buyer_id=b.buyer_id AND a.source='folder') labels
+                            FROM buyer b WHERE EXISTS (SELECT 1 FROM buyer_station bs WHERE bs.buyer_id=b.buyer_id)""").fetchall()
+    bs_rows = collections.defaultdict(list)
+    for r in con.execute("""SELECT bs.buyer_id, bs.facility_id, bs.booked, bs.invoiced, bs.orders, bs.spots_aired, bs.creatives,
+                                   (SELECT array_agg(DISTINCT a.name) FROM order_ o JOIN agency a USING (agency_id) WHERE o.facility_id=bs.facility_id AND o.buyer_id=bs.buyer_id)
+                            FROM buyer_station bs"""):
+        bs_rows[r[0]].append(r)
+    n = 0
+    for b in buyers:
+        bid = b[0]; rows = bs_rows.get(bid, [])
+        stations = sorted(({"fac": r[1], "call": st[r[1]]["call"], "city": st[r[1]]["city"], "state": st[r[1]]["state"], "group": st[r[1]]["group"],
+                            "booked": float(r[2] or 0), "invoiced": float(r[3] or 0), "orders": r[4], "spots_aired": r[5], "creatives": r[6], "agencies": (r[7] or [])[:4]}
+                           for r in rows), key=lambda x: -x["booked"])
+        cr = collections.defaultdict(lambda: {"airings": 0, "stations": set(), "first": "9", "last": "0"})
+        for r in rows:
+            for c in creatives.get((r[1], bid), []):
+                e = cr[c["ad_id"]]; e["airings"] += c["airings"]; e["stations"].add(st[r[1]]["call"]); e["first"] = min(e["first"], c["first"]); e["last"] = max(e["last"], c["last"])
+        out = {"slug": slug(b[2], b[1]), "name": b[1], "category": CAT_LABEL.get(b[2], b[2]), "kind": b[3], "party": b[4], "office": b[5], "district": b[6], "state": b[7],
+               "fec_candidate_id": b[8], "fec_committee_id": b[9], "fec_committee_name": b[10], "method": b[11], "labels": sorted(b[12] or []),
+               "booked": round(sum(s_["booked"] for s_ in stations)), "invoiced": round(sum(s_["invoiced"] for s_ in stations)),
+               "stations": stations, "weekly": series([(r[1], bid) for r in rows]),
+               "creatives": sorted(({"ad_id": k, "airings": v["airings"], "stations": sorted(v["stations"]), "first": v["first"], "last": v["last"]} for k, v in cr.items()), key=lambda x: -x["airings"])[:60],
+               "agencies": sorted({a for s_ in stations for a in s_["agencies"]})}
+        json.dump(out, open(os.path.join(WEB, "buyers", out["slug"] + ".json"), "w"), separators=(",", ":")); n += 1
+    print(f"  buyers/: {n} detail files", file=sys.stderr)
+    bname = {b[0]: (b[1], b[2]) for b in buyers}
+    m = 0
+    for fac, info in st.items():
+        rows = [r for bid in bs_rows for r in bs_rows[bid] if r[1] == fac]
+        if not rows:
+            continue
+        cr = collections.defaultdict(lambda: {"airings": 0, "buyer": None, "slug": None, "category": None, "first": "9", "last": "0"})
+        for r in rows:
+            for c in creatives.get((fac, r[0]), []):
+                e = cr[c["ad_id"]]; e["airings"] += c["airings"]; e["buyer"], cat = bname.get(r[0], (None, None)); e["slug"] = slug(cat, e["buyer"]) if e["buyer"] else None
+                e["category"] = CAT_LABEL.get(cat, cat); e["first"] = min(e["first"], c["first"]); e["last"] = max(e["last"], c["last"])
+        out = {**info, "weekly": series([(fac, r[0]) for r in rows]),
+               "creatives": sorted(({"ad_id": k, **v} for k, v in cr.items()), key=lambda x: -x["airings"])[:80]}
+        json.dump(out, open(os.path.join(WEB, "stations", f"{fac}.json"), "w"), separators=(",", ":")); m += 1
+    print(f"  stations/: {m} detail files", file=sys.stderr)
 
 
 def export_time(con):
@@ -125,6 +191,7 @@ def main():
         export_buyers(con)
         export_creatives(con)
         export_time(con)
+        export_details(con)
         parquet(con, "station", "SELECT facility_id, call, service, city, state, licensee, station_group, newson_id, public_file_slug, ST_Y(tx) lat, ST_X(tx) lon FROM station")
         parquet(con, "buyer", "SELECT * FROM buyer")
         parquet(con, "buyer_station", "SELECT * FROM buyer_station")

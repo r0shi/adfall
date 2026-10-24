@@ -19,3 +19,9 @@ export const CAT_RGB = { 'Federal': [200, 16, 46], 'State': [232, 116, 59], 'Loc
 export const catShort = (c) => c === 'Non-Candidate Issue Ads' ? 'Issue' : c;
 export const usd = (v) => v >= 1e9 ? `$${(v / 1e9).toFixed(1)}B` : v >= 1e6 ? `$${(v / 1e6).toFixed(v >= 1e7 ? 0 : 1)}M` : v >= 1e3 ? `$${Math.round(v / 1e3)}K` : `$${Math.round(v)}`;
 export const num = (v) => new Intl.NumberFormat('en-US').format(Math.round(v));
+
+const CAT_CODE = { 'Federal': 'federal', 'State': 'state', 'Local': 'local', 'Non-Candidate Issue Ads': 'issue', 'Other': 'other' };
+export const slugOf = (category, name) => `${CAT_CODE[category] || 'other'}-` + name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 60);
+export const buyerDetail = (slug) => get(`buyers/${slug}.json`);
+export const stationDetail = (fac) => get(`stations/${fac}.json`);
+export const PLOT_COLORS = { domain: Object.keys(CATS), range: ['#c8102e', '#e8743b', '#f2b705', '#5b6cff', '#9aa0ad'] };

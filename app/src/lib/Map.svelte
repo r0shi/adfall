@@ -27,10 +27,11 @@
     setMarker(p) { map.getSource('marker')?.setData({ type: 'FeatureCollection', features: p ? [{ type: 'Feature', geometry: { type: 'Point', coordinates: [p[1], p[0]] } }] : [] }); },
     flyTo(p, z) { map.flyTo({ center: [p[1], p[0]], zoom: z ?? Math.max(map.getZoom(), 7), duration: 600 }); },
     fitBounds(b) { map.fitBounds([[b[1], b[0]], [b[3], b[2]]], { padding: 30, duration: 600 }); },
-    async setDeckLayers(layers) {
-      if (!overlay) { const { MapboxOverlay } = await import('@deck.gl/mapbox'); overlay = new MapboxOverlay({ interleaved: false, layers }); map.addControl(overlay); }
-      else overlay.setProps({ layers });
-    }
+    async setDeckLayers(layers, getTooltip = null) {
+      if (!overlay) { const { MapboxOverlay } = await import('@deck.gl/mapbox'); overlay = new MapboxOverlay({ interleaved: false, layers, getTooltip }); map.addControl(overlay); }
+      else overlay.setProps({ layers, getTooltip });
+    },
+    onZoom(fn) { map.on('zoomend', () => fn(map.getZoom())); }
   };
 </script>
 <div class="map" bind:this={el}></div>

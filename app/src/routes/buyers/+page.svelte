@@ -1,7 +1,7 @@
 <script>
   import Chart from '$lib/Chart.svelte';
   import { loc } from '$lib/location.svelte.js';
-  import { buyers, stationSpend, usd, num, CATS, catShort } from '$lib/data.js';
+  import { buyers, stationSpend, usd, num, CATS, catShort, slugOf } from '$lib/data.js';
   let all = $state([]), here = $state([]), cat = $state('All'), scope = $state('here'), q = $state(''), openId = $state(null), detail = $state(null);
   buyers().then(b => all = b);
   const facsHere = $derived(new Set(loc.found.map(s => s.fac)));
@@ -62,7 +62,7 @@
       <h2>All {list.length}</h2>
       {#each list.slice(0, 200) as b (b.id)}
         <div class="card" style="cursor:pointer" onclick={() => open(b)} role="button" tabindex="0" onkeydown={e => e.key === 'Enter' && open(b)}>
-          <div class="row"><span class="dot" style="background:{CATS[b.category] || CATS.Other}"></span><b>{b.name}</b><span class="amt">{usd(b.booked)}</span></div>
+          <div class="row"><span class="dot" style="background:{CATS[b.category] || CATS.Other}"></span><a href="/buyers/{b.slug || slugOf(b.category, b.name)}" style="font-weight:700;text-decoration:none" onclick={e => e.stopPropagation()}>{b.name}</a><span class="amt">{usd(b.booked)}</span></div>
           <div class="muted small">{catShort(b.category)}{b.party ? ` · ${b.party}` : ''}{b.office ? ` · ${b.office}${b.district && b.district !== '00' ? ' ' + b.district.replace(/^0/, '') : ''}` : ''} · {b.stations} station{b.stations === 1 ? '' : 's'} in {b.states.join(', ')} · {b.orders} orders · {usd(b.invoiced)} invoiced · {num(b.spots_aired)} spots aired
             {#if b.fec_candidate_id}· <a href="https://www.fec.gov/data/candidate/{b.fec_candidate_id}/" target="_blank" rel="noopener" onclick={e => e.stopPropagation()}>FEC candidate</a>{:else if b.fec_committee_id}· <a href="https://www.fec.gov/data/committee/{b.fec_committee_id}/" target="_blank" rel="noopener" onclick={e => e.stopPropagation()}>FEC committee</a>{/if}
             {#if b.labels > 1}· merged from {b.labels} station labels{/if}</div>
@@ -70,7 +70,7 @@
             <div style="margin-top:8px;border-top:1px solid var(--line);padding-top:6px" onclick={e => e.stopPropagation()} role="presentation">
               {#if !detail}<span class="muted small">Loading…</span>{:else}
                 {#each detail as r}
-                  <div class="row small"><b>{r.call}</b><span class="muted">{r.state}</span><span class="amt">{usd(r.gross)}</span></div>
+                  <div class="row small"><a href="/stations/{r.fac}" style="font-weight:700;text-decoration:none">{r.call}</a><span class="muted">{r.state}</span><span class="amt">{usd(r.gross)}</span></div>
                   <div class="bar"><i style="width:{(100 * r.gross / (detail[0]?.gross || 1)).toFixed(1)}%;background:{CATS[b.category] || CATS.Other}"></i></div>
                   <div class="muted" style="font-size:11.5px">{r.orders} orders · {usd(r.invoiced)} invoiced · {r.ad_ids} creatives{r.agencies?.length ? ` · via ${r.agencies.slice(0, 2).join(', ')}` : ''}</div>
                 {/each}

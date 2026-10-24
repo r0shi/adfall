@@ -365,6 +365,9 @@ app reaches parity on hosting.
 | Stations `/` | `src/routes/+page.svelte` | lookup, contour map, station cards with spend and buyer drill-down (parity with the prototype) |
 | Buyers `/buyers` | `src/routes/buyers/+page.svelte` | ranked bar chart + list; "reaching here" scope re-aggregates from the per-station files so amounts cover only the stations that reach the place |
 | Ads `/ads` | `src/routes/ads/+page.svelte` | creative cloud sized by airings (per-station airings when scoped to a place), list mode, airings-by-buyer chart |
+| Map `/map` | `src/routes/map/+page.svelte` | density layer on H3 totals: money reaching, $/person, spots aired, $/spot, stations with buys; res 5 nationally, res 7 inside crawled coverage, auto by zoom; hover numbers, click to set the place |
+| Buyer `/buyers/[slug]` | `src/routes/buyers/[slug]/+page.svelte` | per-buyer page: FEC links, by-station bars (booked vs invoiced), weekly series, stations, creatives, agencies, raw station labels. Slug = category + name, stable across rebuilds |
+| Station `/stations/[fac]` | `src/routes/stations/[fac]/+page.svelte` | per-station page: links, totals, weekly series, buyers, most-aired creatives |
 | Over time `/time` | `src/routes/time/+page.svelte` | deck.gl `H3HexagonLayer` over weekly res-5 frames with a scrubber and play; weekly booked/invoiced chart for the place's stations |
 
 Run: `npm --prefix app run dev` (port 5173) or `npm --prefix app run build`.
@@ -375,6 +378,11 @@ component as `Map` shadows the global `Map` (renamed `MapView`); the
 SvelteKit plugin is `@sveltejs/kit/vite`, not the Svelte plugin package;
 use `replaceState` from `$app/navigation`, not `history.replaceState`.
 
+Local serving without any cloud: `npm --prefix app run build` then
+`npm --prefix app run preview -- --host 0.0.0.0 --port 4173` serves the
+23 MB static bundle (data included); `tailscale serve --bg 4173` puts it on
+the tailnet over HTTPS. Re-export then rebuild to refresh data.
+
 Not yet: PMTiles for contours and hexes (the JSON artifacts are small
-enough for now), a static place index instead of Nominatim, buyer pages
-with FEC enrichment, the res-7 layer in the UI, DuckDB-WASM explore mode.
+enough for now), a static place index instead of Nominatim, DuckDB-WASM
+explore mode, per-creative pages.
