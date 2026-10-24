@@ -224,3 +224,115 @@ part that would be ours.
   ProPublica crowdsourced this in 2012 and Wesleyan licenses commercial data
   rather than parsing it.
 - Would AdImpact license creative metadata to a small product at any price?
+
+## Political file deep dive (2026-10-23, evening)
+
+Question: can the FCC political files be bulk-downloaded legally, and how big
+are they? Short answer: yes, and about 400,000 PDFs per election year for
+full-power TV, roughly 150 GB.
+
+### Legal and terms
+
+- The files are public records that stations must keep under 47 CFR 73.1943
+  and 73.3526. The FCC hosts them and publishes the API it built the site on
+  (`publicfiles.fcc.gov/developer`), "free for use by anyone" under the FCC
+  API terms. The terms require the notice "This product uses the FCC Data API
+  but is not endorsed or certified by the FCC", allow commercial use, and
+  reserve a right to rate-limit or block abusive use.
+- There is no robots.txt (the path returns the site's error page).
+- Precedent for bulk use: ProPublica Free the Files (2012), Sunlight's
+  Political Ad Sleuth, Center for Responsive Politics Ad Data (2016), the
+  Internet Archive, Wesleyan Media Project.
+- The documents contain agency contact names, phone numbers and signatures.
+  Low sensitivity, but worth not indexing by person.
+
+### The API, as actually used
+
+Base `https://publicfiles.fcc.gov/api/manager`. All GET, JSON, no key.
+
+| Call | Purpose |
+| --- | --- |
+| `folder/path.json?entityId=<facility>&sourceService=tv&folderPath=Political Files/2026` | folder id for a station-year |
+| `folder/id/<folderId>.json?entityId=<facility>&sourceService=tv` | subfolders, files (with `file_size`, `file_manager_id`, `create_ts`) and `file_count` for the subtree |
+| `file/history.json?startDate=&endDate=&count=500&offset=` | every file added, deleted, moved or purged across **all** stations and services in a date range, with path, size, callsign and licensee. The incremental-sync primitive. |
+| `https://files.fcc.gov/download/<file_manager_id>.pdf` | the PDF itself (the `api/manager/download/<folder>/<file>.pdf` form 302s here) |
+
+Pitfalls
+- The edge (Akamai) returns 403 to Python `urllib` even with a browser
+  User-Agent, while curl with the same header works. Shell out to curl or
+  use a client with a browser-like TLS/header profile.
+- `file/history` with `count=5000` returns 503; 500 per page is safe. A
+  single day's listing can run to 14,000 rows (29 pages). `sourceService` is
+  ignored on this endpoint.
+- Results for 2026-10-22 came back dominated by `purge` rows and truncated by
+  a server error at page 6; treat per-day totals as approximate.
+- `folder/path` returns `file_count: null`; `folder/id` on the same folder
+  returns the real count.
+
+### Volume, measured
+
+Per-station folder counts for all 1,750 licensed full-power stations
+(`data/political_doc_counts.csv`, 7,000 API calls, 17 minutes with 6 workers):
+
+| | 2024 (full year) | 2026 (through Oct 23) |
+| --- | --- | --- |
+| Documents, full-power TV | 408,081 | 410,345 |
+| Mean / median per station | 234 / 51 | 234 / 72 |
+| 90th percentile station | 779 | 722 |
+| Busiest station | KYW-TV Philadelphia, 3,401 | 2,864 |
+| Stations with zero | 638 | 652 |
+| Top 100 stations' share | 37% | 31% |
+| Top 500 stations' share | 87% | 83% |
+
+2024 by state: PA 42.5k, MI 28.1k, WI 26.6k, OH 22.7k, NC 22.4k, TX 21.5k.
+Swing states dominate, as expected.
+
+File sizes, from a full walk of KCCI's 2026 folder (1,913 PDFs, 88 folder
+calls): total 520 MB, mean 272 KB, median 123 KB, max 13.7 MB. From one
+peak day in 2024 across all services: mean 465 KB, median 250 KB. Every file
+sampled was a PDF.
+
+Estimates that follow
+- One election year, full-power TV only: ~400k PDFs, 120 to 190 GB. Extracted
+  text ~4 GB, metadata under 1 GB.
+- All services (cable, radio, DBS, LPTV): TV was 28% of new political
+  documents on the 2024 peak day, so roughly 1.4M documents and 500 to 650 GB
+  per election year.
+- Everything since the online file began (2012 for TV): several TB across all
+  services; 1 to 2 TB for TV alone.
+- Crawl cost: about one folder call per 22 documents, so a full TV year is
+  ~19k listing calls (1 to 2 hours) plus 400k downloads (overnight at a
+  polite rate). Daily upkeep via `file/history` is a few thousand rows.
+
+### Granularity and parseability
+
+- Documents per contract: KCCI's 1,913 files collapse to ~1,017 distinct
+  order numbers. Kinds: 606 orders/contracts, 516 invoices, 488 NAB PB-19
+  disclosure forms, 266 revisions, 37 cancellations.
+- **Orders and invoices** are WideOrbit/traffic-system PDFs with a text layer.
+  They carry advertiser, agency, product, flight dates, demographic, total
+  ratings, and per-line program, daypart, spots, rate and amount. Invoices
+  add **per-spot air date, air time and the Ad-ID creative code**
+  (e.g. `JTFI2000HW1`). That is the link from dollars to a specific ad.
+- **NAB PB-19 forms** are fillable PDFs whose values live in AcroForm fields,
+  not page text: candidate, committee, agency, party, office sought, election
+  date, treasurer, signatories. `pypdf.get_fields()` reads them directly.
+- All 17 sampled PDFs had text layers. Scanned documents exist in the corpus
+  (the 13.7 MB outlier is probably one) but are a minority; OCR is a
+  long-tail job, not the main path.
+- Parsing plan: deterministic parsers for the two or three dominant traffic
+  system layouts (WideOrbit is the big one), form-field extraction for
+  PB-19s, and an LLM only for the residue that fails validation (totals that
+  don't sum, missing flight dates). A full year is on the order of a billion
+  tokens if every page went to a model, so routing matters.
+- Ad-ID lookup: the registry's search needs an account; no free public API.
+  The code still clusters spend by creative, and the same code appears in
+  CTV/online ad tags, which is a path to the video.
+
+### Normalizing to people
+
+For $/person, use population inside the station's contour: sum Census
+block-group populations (ACS 5-year, TIGER centroids, both public domain)
+whose centroids fall inside the polygon. That avoids Nielsen DMA boundaries,
+which are proprietary. Counties-to-DMA crosswalks circulate but their
+licensing is unclear.
