@@ -336,3 +336,81 @@ block-group populations (ACS 5-year, TIGER centroids, both public domain)
 whose centroids fall inside the polygon. That avoids Nielsen DMA boundaries,
 which are proprietary. Counties-to-DMA crosswalks circulate but their
 licensing is unclear.
+
+## Ingest pilot: Des Moines, 2026 (2026-10-24)
+
+Five commercial full-power stations, all 2026 political files: 5,892 PDFs,
+about 1.6 GB, crawled in 25 minutes with 4 download workers.
+
+| Station | Group | Docs | Booked (orders) | Invoiced | Buyers |
+| --- | --- | --- | --- | --- | --- |
+| KCCI | Hearst | 1,913 | $40.2M | $16.9M | 77 |
+| WHO-DT | Nexstar | 1,410 | $35.4M | $12.8M | 69 |
+| WOI-DT | Tegna | 1,223 | $9.8M | $6.1M | 71 |
+| KDSM-TV | Sinclair | 998 | $7.9M | (invoices unlinked) | 65 |
+| KCWI-TV | Tegna | 348 | $0.35M | $0.12M | 27 |
+
+Total booked: $93.6M, eleven days before the election, orders still arriving.
+Top buyers at KCCI: WinSenate $3.0M, Rob Sand for Governor $3.0M, Senate
+Leadership Fund $2.7M, Congressional Leadership Fund $2.3M, VoteVets $2.3M.
+Single largest order: $656,000 for eight NFL and Big Ten spots in the final
+week (Lower Costs Now).
+
+### Parse coverage
+
+| Kind | OK | Partial | Failed |
+| --- | --- | --- | --- |
+| Orders | 3,101 | 80 | 7 |
+| Invoices | 1,692 | 2 | 0 |
+| PB-19 forms | 449 | 0 | 134 |
+| Other / unrecognized | 417 | | |
+
+Over 90% of documents parse. The 134 failed forms are image-only forms with
+no AcroForm fields; they carry no dollar amounts. The 417 "other" are mostly
+NAB supplements, rebate forms and station certifications.
+
+### What each station group files
+
+- **Hearst, Tegna**: WideOrbit orders and invoices as text PDFs. Parse rate
+  about 99%. Invoices list each aired spot with Ad-ID.
+- **Nexstar**: the same WideOrbit documents printed to image-only PDFs. OCR
+  (pypdfium2 at ~160 dpi, tesseract psm 6) then tolerant regexes: the
+  advertiser is prefixed `POL/`, the slash in "Contract / Revision" reads as
+  7 or |, decimal points sometimes read as colons, a ratings number sometimes
+  precedes the spot count on the Totals line. 1,006 of 1,076 OCR'd orders
+  parsed with an amount. Invoices are text PDFs.
+- **Sinclair**: Katz contracts as image PDFs (inline labels: `Contract #`,
+  `Advertiser:`, `Total $:`, `Flight:`), a few ePort revision summaries, and
+  text-PDF "OFFICIAL BILLING INVOICE" documents whose header values
+  (advertiser, invoice and contract numbers, period) are not in the text
+  layer, only the totals and per-spot lines. The invoice's contract number is
+  a Sinclair number, not the Katz contract number, so invoices cannot be
+  linked to orders; they are reported separately as unlinked invoiced
+  amounts. KDSM's invoice Ad-IDs are still captured.
+
+### OCR cost
+
+1,939 image PDFs took about 70 minutes on 8 cores (M-series Mac), ~2 seconds
+per page. For a national crawl, roughly a third of documents will need OCR;
+budget a few hundred CPU-hours per election year, or route only the first
+and totals pages.
+
+### Creatives
+
+Distinct Ad-ID codes seen on invoices: KCCI 1,867, WOI 2,376, WHO 453, KCWI
+450, KDSM 25 (its invoices use short internal codes). The most-aired
+creatives at KCCI ran 45 times each in a billing month. Ad-ID prefixes group
+by advertiser (e.g. `RSFI` = Rob Sand for Iowa, `ONIA` = One Iowa).
+
+### Pitfalls found here
+
+- Buyer folders differ in depth by station group: Hearst files
+  `Federal/US House/<candidate>`, Tegna adds `FLIGHT <dates>` leaf folders,
+  Sinclair uses `State/<candidate>`. The aggregator strips office-level
+  folders above the buyer and flight folders below it.
+- `str.title()` on licensee and folder names is lossy; keep the station's own
+  capitalization for buyers.
+- Orders are revised often: 1,034 KCCI order documents collapse to ~650
+  order numbers. Take the latest print date per order number; never sum
+  revisions.
+- pypdf parsing runs about 8 PDFs per second; OCR is the real cost.

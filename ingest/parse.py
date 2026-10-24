@@ -16,7 +16,7 @@ from datetime import datetime
 from pypdf import PdfReader
 from . import db
 
-PARSER_VERSION = 2
+PARSER_VERSION = 4
 OCR_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data", "ocr")
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 MONEY = r"\$?\(?-?[\d,]+\.\d\d\)?"
@@ -26,6 +26,7 @@ def money(s):
     if s is None:
         return None
     neg = "(" in s or "-" in s
+    s = re.sub(r"(\d)[:;](\d\d)\b", r"\1.\2", s)          # OCR reads the decimal point as a colon
     v = float(re.sub(r"[^\d.]", "", s) or 0)
     return -v if neg else v
 
@@ -65,12 +66,16 @@ def classify(text, fields):
     head = text[:3000]
     if re.search(r"\bINVOICE\b", head) and re.search(r"Invoice\s*#", head):
         return "invoice"
+    if "OFFICIAL BILLING INVOICE" in head:
+        return "invoice"                                  # Sinclair billing system
     if re.search(r"\bCONTRACT\b", head) and re.search(r"Contract\s*/\s*Revision", head):
         return "order"
     if re.search(r"Contract #\s*\d+", head) and re.search(r"Total \$:", head):
         return "order"                                    # Katz / Sinclair template
-    if re.search(r"Contract Agreement Between", head) and re.search(r"Cont[ra]+ct\s*/\s*Revision", head):
-        return "order"                                    # WideOrbit print via OCR
+    if re.search(r"Contract Agreement Between", head) and re.search(r"Cont[ra]+ct\s*\W?\s*Revision|Alt Order", head):
+        return "order"                                    # WideOrbit print via OCR ("/" often reads as 7 or |)
+    if re.search(r"Airtime Dollars:", head) and re.search(r"Flight Start:", head):
+        return "order"                                    # Sinclair ePort order/revision summary
     if fields and any(re.search(r"candidate name|issue|sponsor|authorized committee", k, re.I) for k in fields):
         return "form"
     if re.search(r"ADVERTISEMENT AGREEMENT FORM|AGREEMENT FORM FOR (NON-CANDIDATE|POLITICAL)|PB-1[89]", text[:4000], re.I):
@@ -114,7 +119,7 @@ def parse_order(text):
 def parse_order_ocr(text):
     """WideOrbit contract read through OCR (Nexstar prints these to image PDFs)."""
     d = {}
-    m = re.search(r"\b(\d{7})\s*/", text[:2500])
+    m = re.search(r"\b(\d{7})\s*[/|]", text[:2500]) or re.search(r"Alt Order #.{0,80}?\b(\d{7})\b", text[:2500], re.S) or re.search(r"\b(5\d{6})\b", text[:1500])
     if m:
         d["order_no"] = m.group(1)
     m = re.search(r"(\d\d/\d\d/\d\d)\s*-\s*(\d\d/\d\d/\d\d)", text[:2500])
@@ -123,18 +128,20 @@ def parse_order_ocr(text):
     m = re.search(r"^(.*?)\s+(\d\d/\d\d/\d\d)\s*/\s*(\d\d/\d\d/\d\d)\s*$", text[:2500], re.M)
     if m:
         adv = m.group(1)
-        adv = adv[adv.index("POL/"):] if "POL/" in adv else re.sub(r"^[\W\d]*(\(?\d{3}\)?[\s.-]*\d{3}[\s.-]*\d{4})?[\W\d]*", "", adv)
+        pol = re.search(r"PO[LU]\s*[/I1l|]?\s*(.*)$", adv)       # Nexstar prefixes political advertisers with POL/
+        adv = ("POL/" + pol.group(1)) if pol else re.sub(r"^.*?\(?\d{3}\)?[\s.-]*\d{3}[\s.-]*\d{4}\s*", "", adv)
         adv = adv.strip(" |'‘")  # OCR glues the station phone number onto this line
         d["advertiser"] = adv or None
         d["print_date"] = iso(m.group(3))
     m = re.search(r"^Product\s*\n\W*([^\n]+)", text[:2500], re.M)
     if m:
         d["product"] = m.group(1).strip()
-    m = re.search(r"^\W*Totals\s+(\d+)\s+[$S]\s?([\d,]+\.\d\d)\s+\([$S]?([\d,]+\.\d\d)\)\s+[$S]\s?([\d,]+\.\d\d)", text, re.M)
+    NUM = r"[\d,]+[.:;]\d\d"
+    m = re.search(r"^\W*Totals\s+(?:[\d.]+\s+)?(\d+)\s+[$S]\s?(" + NUM + r")\s+\([$S]?(" + NUM + r")\)\s+[$S]\s?(" + NUM + ")", text, re.M)
     if m:
         d["spots"], d["gross"], d["net"] = int(m.group(1)), money(m.group(2)), money(m.group(4))
     else:
-        m = re.search(r"^\W*Totals\s+(\d+)\s+[$S]\s?([\d,]+\.\d\d)", text, re.M)
+        m = re.search(r"^\W*Totals\s+(?:[\d.]+\s+)?(\d+)\s+[$S]\s?(" + NUM + ")", text, re.M)
         if m:
             d["spots"], d["gross"] = int(m.group(1)), money(m.group(2))
     d["fields"] = {"template": "wideorbit-ocr"}
@@ -159,6 +166,45 @@ def parse_order_katz(text):
     v = g(r"Total Spots:\s*(\d+)")
     d["spots"] = int(v) if v else None
     d["fields"] = {"template": "katz"}
+    return d
+
+
+def parse_order_eport(text, file_name=""):
+    """Sinclair ePort order/revision summary: 'Agency: X Station: KDSM-TV Flight Start: .. Client: 275 - Name .. Airtime Dollars: $4,605.00'."""
+    d = {}
+    g = lambda rx: (lambda m: m.group(1).strip() if m else None)(re.search(rx, text[:4000], re.I | re.S))
+    d["order_no"] = g(r"Order(?: Number| #|#)?:?\s*(\d{7,9})\b") or (lambda m: m.group(1) if m else None)(re.search(r"\b(\d{8})\b", file_name))
+    d["revision"] = g(r"Version\s+(\d+)")
+    d["agency"] = g(r"Agency:\s*(.+?)\s+Station:")
+    d["advertiser"] = g(r"Client:\s*(?:\d+\s*-\s*)?(.+?)\s+(?:Cancel Date|Hiatus|Flight|Product):")
+    d["product"] = g(r"Product:\s*(?:\d+\s*-\s*)?([^\n]+?)\s+(?:Piggyback|Estimate|Received)")
+    d["flight_start"] = iso(g(r"Flight Start:\s*(\d\d/\d\d/\d{4})"))
+    d["flight_end"] = iso(g(r"Flight End:\s*(\d\d/\d\d/\d{4})"))
+    d["print_date"] = iso(g(r"Received in ePort:\s*(\d\d?/\d\d?/\d{4})"))
+    v = g(r"Airtime Dollars:\s*[$S]?\s?([\d,]+[.:]\d\d)")
+    d["gross"] = money(v) if v else None
+    d["fields"] = {"template": "eport"}
+    return d
+
+
+def parse_invoice_sinclair(text, file_name=""):
+    """Sinclair 'OFFICIAL BILLING INVOICE'. The header values (advertiser, invoice and contract numbers,
+    period) are not in the text layer, so invoice number and advertiser come from the file name the
+    station gave it ('Rob Sand, invoice #11747281'). Totals and per-spot lines are in the text."""
+    d = {}
+    m = re.search(r"invoice\s*#\s*(\d+)", file_name, re.I)
+    if m:
+        d["invoice_no"] = m.group(1)
+    m = re.match(r"\s*(.+?),\s*invoice", file_name, re.I)
+    if m:
+        d["advertiser"] = m.group(1).strip()
+    m = re.search(r"\$([\d,]+\.\d\d)\n\$[\d,]+\.\d\d\(\$[\d,]+\.\d\d\)\n\$([\d,]+\.\d\d)\nGross Total", text)
+    if m:
+        d["gross"], d["net"] = money(m.group(1)), money(m.group(2))
+    spots = re.findall(r"(\d\d/\d\d/\d\d)\s+(\d{1,2}:\d\d[AP]M).*?SPOT(?: M/G For [\d.]+)?([A-Z0-9]{6,16})\s*$", text, re.M)
+    d["spots"] = len(spots) or None
+    d["ad_ids"] = sorted({s[2] for s in spots})
+    d["fields"] = {"template": "sinclair", "aired": [{"date": iso(a), "time": t, "ad_id": c} for a, t, c in spots]}
     return d
 
 
@@ -225,18 +271,20 @@ def parse_form(text, fields):
     return d
 
 
-def parse_file(path):
+def parse_file(path, file_name=""):
     text, fields, pages, source = read(path)
     kind = classify(text, fields)
     if kind == "order":
         if re.search(r"Contract #\s*\d+", text[:3000]) and re.search(r"Total \$:", text[:3000]):
             d = parse_order_katz(text)
+        elif re.search(r"Airtime Dollars:", text[:3000]):
+            d = parse_order_eport(text, file_name)
         elif source == "ocr":
             d = parse_order_ocr(text)
         else:
             d = parse_order(text)
     elif kind == "invoice":
-        d = parse_invoice(text)
+        d = parse_invoice_sinclair(text, file_name) if "OFFICIAL BILLING INVOICE" in text[:3000] else parse_invoice(text)
     elif kind == "form":
         d = parse_form(text, fields)
     else:
@@ -244,6 +292,8 @@ def parse_file(path):
     d["kind"] = kind
     d.setdefault("fields", {})["source"] = source
     need = {"order": ("order_no", "gross"), "invoice": ("order_no", "gross"), "form": ("advertiser",), "other": ()}[kind]
+    if kind == "invoice" and d.get("fields", {}).get("template") == "sinclair":
+        need = ("invoice_no", "gross")                    # Sinclair invoices cannot be linked to a Katz contract number
     missing = [k for k in need if d.get(k) is None]
     d["parse_status"] = "ok" if not missing else ("partial" if len(missing) < len(need) else "failed")
     return d
@@ -265,7 +315,7 @@ def main():
         print(json.dumps(d, indent=1, default=str))
         return
     con = db.connect(a.db)
-    q = "SELECT file_manager_id, local_path FROM files WHERE downloaded=1"
+    q = "SELECT file_manager_id, local_path, file_name FROM files WHERE downloaded=1"
     if a.only_failed:
         q += " AND file_manager_id IN (SELECT file_manager_id FROM docs WHERE parse_status!='ok' OR kind='other')"
     elif not a.reparse:
@@ -275,7 +325,7 @@ def main():
     stats = {}
     for i, r in enumerate(rows, 1):
         try:
-            d = parse_file(os.path.join(ROOT, r["local_path"]))
+            d = parse_file(os.path.join(ROOT, r["local_path"]), r["file_name"] or "")
         except Exception as e:
             d = {"kind": "other", "parse_status": "failed", "fields": {"error": str(e)[:200]}}
         stats[(d["kind"], d["parse_status"])] = stats.get((d["kind"], d["parse_status"]), 0) + 1

@@ -44,7 +44,8 @@ def aggregate_station(con, fac, year):
         kinds[r["kind"] or "unparsed"] += 1; status[r["parse_status"] or "unparsed"] += 1
         if not r["kind"] or r["kind"] == "other":
             continue
-        key = r["order_no"] or ("form:" + r["file_manager_id"] if r["kind"] == "form" else None)
+        key = r["order_no"] or ("form:" + r["file_manager_id"] if r["kind"] == "form" else
+                                "inv:" + (r["invoice_no"] or r["file_manager_id"]) if r["kind"] == "invoice" else None)
         if not key:
             continue
         o = orders[key]
@@ -68,6 +69,8 @@ def aggregate_station(con, fac, year):
     for key, o in orders.items():
         if key.startswith("form:"):
             spend, src = 0.0, "form"
+        elif key.startswith("inv:"):
+            spend, src = sum(o["invoices"].values()), "unlinked"   # invoice with no order number: report, don't add to total
         elif o["invoices"]:
             spend, src = sum(o["invoices"].values()), "invoice"
         elif o["orders"]:
@@ -76,17 +79,20 @@ def aggregate_station(con, fac, year):
             continue
         cat, leaf = split_path(o["folder"] or "")
         name = leaf or o["advertiser"] or "Unknown"
-        b = buyers.setdefault((cat, name), {"name": name, "category": cat, "gross": 0.0, "invoiced": 0.0, "orders": 0, "forms": 0,
-                                            "agencies": set(), "ad_ids": set(), "advertisers": set()})
-        b["gross"] += spend; total += spend
+        b = buyers.setdefault((cat, name), {"name": name, "category": cat, "gross": 0.0, "invoiced": 0.0, "unlinked_invoiced": 0.0,
+                                            "orders": 0, "forms": 0, "agencies": set(), "ad_ids": set(), "advertisers": set()})
+        if src == "unlinked":
+            b["unlinked_invoiced"] += spend
+        else:
+            b["gross"] += spend; total += spend
         if src == "invoice":
             b["invoiced"] += spend; invoiced += spend
-        b["orders"] += 1 if src != "form" else 0
+        b["orders"] += 1 if src in ("invoice", "order") else 0
         b["forms"] += len(o["forms"])
         b["agencies"] |= o["agencies"]; b["ad_ids"] |= o["ad_ids"]
         if o["advertiser"]:
             b["advertisers"].add(o["advertiser"])
-    out_buyers = sorted(({**b, "gross": round(b["gross"], 2), "invoiced": round(b["invoiced"], 2),
+    out_buyers = sorted(({**b, "gross": round(b["gross"], 2), "invoiced": round(b["invoiced"], 2), "unlinked_invoiced": round(b["unlinked_invoiced"], 2),
                           "agencies": sorted(b["agencies"])[:5], "ad_ids": len(b["ad_ids"]), "advertisers": sorted(b["advertisers"])[:3]}
                          for b in buyers.values()), key=lambda b: -b["gross"])
     by_cat = collections.Counter()
