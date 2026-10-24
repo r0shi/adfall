@@ -442,9 +442,13 @@ Approach (`ingest/identity.py`), in order:
    merged within category. Handles "Josh Shapiro-D- Governor" / "JOSH
    SHAPIRO FOR GOVERNOR-D" / "Josh Shapiro" without any registry.
 
-Result on the current corpus (200 stations): 2,508 labels → 1,311 buyers,
-503 of them merged from two or more labels. By method: 1,831 labels by
-name rule, 523 to FEC candidates, 154 to FEC committees. The top federal
+Result on the current corpus (200 stations): 2,505 labels → 1,228 buyers,
+496 of them merged from two or more labels. By method: 1,689 labels by
+name rule, 523 to FEC candidates, 287 to FEC committees, 6 manual. A
+surname-and-nickname clustering pass (same category and state, one
+distinct first name allowing Rick/Richard, Josh/Joshua) merged 71 more
+buyers, e.g. "Rick Jackson" / "Richard Jackson" / "Jackson" into one
+$89M Georgia governor buyer. The top federal
 buyers all resolve to FEC candidate IDs with their familiar names (Jon
 Ossoff $22.1M, Roy Cooper $20.0M, Abdul El-Sayed $7.7M, Mike Rogers $5.9M,
 Ashley Hinson $4.6M across the stations crawled so far).
@@ -455,6 +459,11 @@ read as a buyer called "House of Representatives" holding 30 campaigns.
 The rule is now: an intermediate folder with no name tokens, or a county /
 city / school-district folder, is a level above the buyer; a leaf keeps
 its name.
+
+FEC naming surprise: the 2026 committee master lists the big super PACs
+under short legal names (HMP, CLF, SLF PAC, SMP). The overrides file maps
+`fec C00495028: House Majority PAC` so the id attaches and the familiar
+name displays; labels like "SLF" and "CLF26" map there too.
 
 Sources: FEC bulk master files `cn26`, `cm26`, `ccl26` from
 fec.gov/files/bulk-downloads/2026/ (redirect to S3; follow it). No key, no

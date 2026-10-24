@@ -17,7 +17,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 FEC = os.path.join(ROOT, "data", "fec")
 OUT = os.path.join(ROOT, "data", "buyer_identity.json")
 
-from .names import STATES, STATE_WORDS, PARTY, OFFICE, GENERIC, NOISE_RX, norm, name_tokens, org_key, title
+from .names import STATES, STATE_WORDS, PARTY, OFFICE, GENERIC, NOISE_RX, norm, name_tokens, org_key, org_tokens, title, first_key
 
 
 def load_fec():
@@ -99,17 +99,24 @@ def main():
     cands_by_state = collections.defaultdict(list)
     for c in cands:
         cands_by_state[c["state"]].append(c)
-    cm_names = {k: v["norm"] for k, v in cmtes.items() if v["norm"]}
+    cm_names = {k: org_key(v["name"]) for k, v in cmtes.items() if v["norm"]}
     print(f"FEC: {len(cands)} 2026 candidates, {len(cmtes)} committees", file=sys.stderr)
 
-    overrides = {}
+    overrides, fec_display = {}, {}
     path = os.path.join(ROOT, "data", "buyer_overrides.yaml")
     if os.path.exists(path):
         for line in open(path):
             line = line.split("#", 1)[0].rstrip()
-            if ":" in line:
-                a, c = line.rsplit(":", 1)
-                overrides[a.strip().lower()] = c.strip()
+            if ":" not in line:
+                continue
+            a, c = line.rsplit(":", 1)
+            a, c = a.strip(), c.strip()
+            m = re.match(r"fec\s+(C\d{8})$", a, re.I)
+            if m:
+                fec_display[m.group(1).upper()] = c
+            else:
+                overrides[a.lower()] = c
+    display_to_fec = {v.lower(): k for k, v in fec_display.items()}
 
     with pg.connect() as con:
         rows = con.execute("""SELECT b.category, a.alias, array_agg(DISTINCT s.state), COUNT(*) FROM buyer_alias a
@@ -124,6 +131,10 @@ def main():
         ident = None
         if label.lower() in overrides or key in overrides:
             ident = {"name": overrides.get(key) or overrides[label.lower()], "method": "manual"}
+            cid = display_to_fec.get(ident["name"].lower())
+            cm = cmtes.get(cid) if cid else next((v for v in cmtes.values() if v["norm"] == norm(ident["name"])), None)
+            if cm:
+                ident.update({"fec_committee_id": cm["id"], "fec_committee_name": cm["name"], "kind": "pac"})
         elif cat in ("federal", "issue", "other"):
             c = match_candidate(label, states, cands_by_state) if cat == "federal" else None
             if c:
@@ -135,10 +146,10 @@ def main():
             else:
                 q = org_key(label)
                 hit = process.extractOne(q, cm_names, scorer=fuzz.token_sort_ratio, score_cutoff=93) if q else None
-                distinctive = set(name_tokens(label)) & set(name_tokens(cmtes[hit[2]]["name"])) if hit else set()
+                distinctive = set(org_tokens(label)) & set(org_tokens(cmtes[hit[2]]["name"])) if hit else set()
                 if hit and distinctive:
                     cm = cmtes[hit[2]]
-                    ident = {"name": title(cm["norm"]), "method": "fec-committee", "kind": "pac" if cm["type"] in ("O", "U", "V", "W", "N", "Q", "I") else "committee",
+                    ident = {"name": fec_display.get(cm["id"]) or title(cm["norm"]), "method": "fec-committee", "kind": "pac" if cm["type"] in ("O", "U", "V", "W", "N", "Q", "I") else "committee",
                              "party": {"DEM": "Democratic", "REP": "Republican"}.get(cm["party"]) if cm["party"] else None,
                              "fec_committee_id": cm["id"], "fec_committee_name": cm["name"]}
         if not ident and cat in ("federal", "state", "local"):
@@ -147,13 +158,14 @@ def main():
                 ident = {"name": title(" ".join(toks)), "method": "name-rule", "kind": "candidate", "state": states[0] if len(states) == 1 else None}
         if not ident:
             q = org_key(label)
-            ident = {"name": title(q) if q else label, "method": "name-rule" if q else "raw", "kind": "issue" if cat == "issue" else "unknown"}
-        gk = f"{cat}|" + (ident.get("fec_candidate_id") or ident.get("fec_committee_id") or ident["name"].lower())
+            shown = " ".join(t for t in norm(NOISE_RX.sub(" ", label)).split() if t not in {"EST", "ORDER", "FLIGHT", "REV", "ISSUE", "INC", "LLC"})
+            ident = {"name": title(shown) if q else label, "method": "name-rule" if q else "raw", "kind": "issue" if cat == "issue" else "unknown", "org_key": q}
+        gk = f"{cat}|" + (ident.get("fec_candidate_id") or ident.get("fec_committee_id") or (("org:" + ident["org_key"]) if ident.get("org_key") else ident["name"].lower()))
         b = buyers.setdefault(gk, {"category": cat, "name": ident["name"], "fec_name": ident["name"] if ident["method"].startswith("fec") else None,
                                    "labels": [], "label_n": [], "method": ident["method"], "renderings": collections.Counter()})
         b["labels"].append(label); b["label_n"].append(n)
         toks = name_tokens(label)
-        if ident["method"] == "fec-candidate" and toks:
+        if toks and (ident["method"] == "fec-candidate" or cat in ("federal", "state", "local")):
             b["renderings"][title(" ".join(toks))] += n       # how stations spell the person, weighted by documents
         for k in ("kind", "party", "office", "district", "state", "fec_candidate_id", "fec_committee_id", "fec_committee_name"):
             if ident.get(k) and not b.get(k):
@@ -161,18 +173,63 @@ def main():
         aliases[key] = gk
         stats[ident["method"]] += 1
 
+    # cluster candidate buyers by surname within (category, state): "Rick Jackson" / "Richard Jackson" / "Jackson"
+    # (nickname-equivalent or missing first names merge; two different first names stay apart and a bare surname then stays alone)
+    groups = collections.defaultdict(list)
+    for gk, b in buyers.items():
+        if b.get("kind") == "candidate" or (b["method"] == "name-rule" and b["category"] in ("federal", "state", "local")):
+            toks = b["name"].upper().split()
+            if toks:
+                groups[(b["category"], b.get("state"), toks[-1])].append(gk)
+    merged_into = {}
+    for (cat, st, last), gks in groups.items():
+        if len(gks) < 2:
+            continue
+        firsts = {}
+        for gk in gks:
+            toks = buyers[gk]["name"].upper().split()
+            fk = first_key(toks[0]) if len(toks) > 1 else None
+            firsts.setdefault(fk, []).append(gk)
+        named = {k: v for k, v in firsts.items() if k}
+        if len(named) != 1:
+            continue                                     # ambiguous surname (two different people) or nothing to anchor on
+        anchor_gks = next(iter(named.values()))
+        anchor = max(anchor_gks, key=lambda g: (buyers[g]["method"] == "fec-candidate", len(buyers[g]["labels"])))
+        for gk in gks:
+            if gk != anchor:
+                a, b = buyers[anchor], buyers[gk]
+                a["labels"] += b["labels"]; a["label_n"] += b["label_n"]; a["renderings"].update(b["renderings"])
+                for k in ("party", "office", "district", "fec_candidate_id", "fec_committee_id", "fec_committee_name"):
+                    if b.get(k) and not a.get(k):
+                        a[k] = b[k]
+                merged_into[gk] = anchor
+    for gk in merged_into:
+        buyers.pop(gk)
+    aliases = {k: merged_into.get(gk, gk) for k, gk in aliases.items()}
+    print(f"surname clustering merged {len(merged_into)} buyers", file=sys.stderr)
+
     # display name: for FEC candidates, the most common station rendering that contains the FEC surname-ish token
     # (so "Ashley Hinson" beats "Ashley Arenholz", "Jon Ossoff" beats "Jonathan Ossoff"); else the FEC/name-rule name
     out_buyers = {}
     for gk, b in buyers.items():
-        if b["method"] == "fec-candidate" and b["renderings"]:
-            fec_last = b["fec_name"].split()[-1].upper()
+        if b["renderings"]:
             cands = [(c, r) for r, c in b["renderings"].items() if 2 <= len(r.split()) <= 3]
-            good = [(c, r) for c, r in cands if fec_last in r.upper() or any(t in r.upper().split() for t in b["fec_name"].upper().split()[1:])] or cands
-            if good:
-                b["name"] = max(good)[1]
+            if b["method"] == "fec-candidate":
+                fec_last = b["fec_name"].split()[-1].upper()
+                cands = [(c, r) for c, r in cands if fec_last in r.upper() or any(t in r.upper().split() for t in b["fec_name"].upper().split()[1:])] or cands
+            if cands:
+                b["name"] = max(cands)[1]
         b.pop("renderings"); b.pop("label_n")
-        out_buyers[f"{b['category']}|{b['name'].lower()}"] = b
+        ok = f"{b['category']}|{b['name'].lower()}"
+        if ok in out_buyers:                                  # same display name from two routes (e.g. override + name rule): merge, keep FEC fields
+            a = out_buyers[ok]; a["labels"] += b["labels"]
+            for k in ("kind", "party", "office", "district", "state", "fec_candidate_id", "fec_committee_id", "fec_committee_name"):
+                if b.get(k) and not a.get(k):
+                    a[k] = b[k]
+            if b["method"].startswith("fec") and not a["method"].startswith("fec"):
+                a["method"] = b["method"]
+        else:
+            out_buyers[ok] = b
     aliases = {k: {"name": buyers[gk]["name"], "method": buyers[gk]["method"]} for k, gk in aliases.items()}
     buyers = out_buyers
     json.dump({"aliases": aliases, "buyers": buyers}, open(OUT, "w"), indent=0)

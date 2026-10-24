@@ -1,0 +1,23 @@
+# Manual buyer identity overrides, applied before any automatic matching.
+#   `station label: Canonical Name`            map a station's label (case-insensitive) to a buyer
+#   `category|station label: Canonical Name`   same, limited to one category (federal/state/local/issue)
+#   `fec C00000000: Display Name`              display name for an FEC committee id; a label whose
+#                                              canonical name equals this display name gets the id
+# The FEC master uses legal/short names (HMP, CLF, SLF PAC); readers know the long ones.
+fec C00495028: House Majority PAC
+fec C00504530: Congressional Leadership Fund
+fec C00571703: Senate Leadership Fund
+fec C00484642: Senate Majority PAC
+SLF: Senate Leadership Fund
+SLF PAC: Senate Leadership Fund
+SLF PAC fka Senate Leadership Fund: Senate Leadership Fund
+Senate Leadership Fund-SLF: Senate Leadership Fund
+CLF: Congressional Leadership Fund
+CLF PAC: Congressional Leadership Fund
+HMP: House Majority PAC
+House Majority: House Majority PAC
+SMP: Senate Majority PAC
+fec C00865444: WinSenate
+fec C00960435: No Going Back PAC
+CLF26: Congressional Leadership Fund
+CLF 26: Congressional Leadership Fund
