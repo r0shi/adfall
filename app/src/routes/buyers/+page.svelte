@@ -63,7 +63,9 @@
       {#each list.slice(0, 200) as b (b.id)}
         <div class="card" style="cursor:pointer" onclick={() => open(b)} role="button" tabindex="0" onkeydown={e => e.key === 'Enter' && open(b)}>
           <div class="row"><span class="dot" style="background:{CATS[b.category] || CATS.Other}"></span><b>{b.name}</b><span class="amt">{usd(b.booked)}</span></div>
-          <div class="muted small">{catShort(b.category)}{b.party ? ` · ${b.party}` : ''}{b.office ? ` · ${b.office}` : ''} · {b.stations} station{b.stations === 1 ? '' : 's'} in {b.states.join(', ')} · {b.orders} orders · {usd(b.invoiced)} invoiced · {num(b.spots_aired)} spots aired</div>
+          <div class="muted small">{catShort(b.category)}{b.party ? ` · ${b.party}` : ''}{b.office ? ` · ${b.office}${b.district && b.district !== '00' ? ' ' + b.district.replace(/^0/, '') : ''}` : ''} · {b.stations} station{b.stations === 1 ? '' : 's'} in {b.states.join(', ')} · {b.orders} orders · {usd(b.invoiced)} invoiced · {num(b.spots_aired)} spots aired
+            {#if b.fec_candidate_id}· <a href="https://www.fec.gov/data/candidate/{b.fec_candidate_id}/" target="_blank" rel="noopener" onclick={e => e.stopPropagation()}>FEC candidate</a>{:else if b.fec_committee_id}· <a href="https://www.fec.gov/data/committee/{b.fec_committee_id}/" target="_blank" rel="noopener" onclick={e => e.stopPropagation()}>FEC committee</a>{/if}
+            {#if b.labels > 1}· merged from {b.labels} station labels{/if}</div>
           {#if openId === b.id}
             <div style="margin-top:8px;border-top:1px solid var(--line);padding-top:6px" onclick={e => e.stopPropagation()} role="presentation">
               {#if !detail}<span class="muted small">Loading…</span>{:else}

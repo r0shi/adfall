@@ -6,3 +6,4 @@ h3>=4
 shapely>=2
 pyshp
 pyarrow
+rapidfuzz

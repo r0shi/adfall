@@ -17,20 +17,23 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OUT = os.path.join(ROOT, "web", "data", "spend")
 
 
-OFFICE_FOLDER = re.compile(r"^(US?\.? ?(SENATE|HOUSE)|PRESIDENT(IAL)?|CONGRESS(IONAL)?|GOVERNOR|STATEWIDE|LEGISLATIVE|JUDICIAL)\b", re.I)
+from .names import name_tokens
+
 FLIGHT_FOLDER = re.compile(r"^(FLIGHT|WEEK|WK|INVOICES?|ORDERS?|CONTRACTS?|\d{1,2}[./-]\d{1,2})", re.I)
 
 
 def split_path(p):
     """'Political Files/2026/Federal/US House/Jane Doe-D-US House 1/FLIGHT 9826' -> ('Federal', 'Jane Doe-D-US House 1')
-    Stations differ in depth: some add an office level above the buyer, some add flight folders below it."""
+    Stations differ in depth: some add office levels above the buyer ("US House", "PA House of
+    Representatives"), some add flight folders below it. An intermediate folder with no name tokens
+    (only office/party/state words) is an office level; a leaf keeps its name whatever it says."""
     parts = p.split("/")
     cat = parts[2] if len(parts) > 2 else "Other"
     rest = parts[3:]
-    if rest and OFFICE_FOLDER.match(rest[0]) and "-" not in rest[0]:
-        rest = rest[1:]
     while len(rest) > 1 and FLIGHT_FOLDER.match(rest[-1]):
         rest = rest[:-1]
+    while len(rest) > 1 and (not name_tokens(rest[0]) or re.search(r"\bCOUNTY$|\bCITY OF\b|\bSCHOOL (BOARD|DISTRICT)$", rest[0], re.I)):
+        rest = rest[1:]                                   # office/jurisdiction levels above the buyer
     return cat, (rest[0] if rest else None)
 
 

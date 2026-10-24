@@ -32,8 +32,14 @@ def load_overrides():
     return out
 
 
+def load_identity():
+    path = os.path.join(ROOT, "data", "buyer_identity.json")
+    return json.load(open(path)) if os.path.exists(path) else {"aliases": {}, "buyers": {}}
+
+
 def main():
     overrides = load_overrides()
+    identity = load_identity()
     with pg.connect() as con, con.cursor() as cur:
         cur.execute("TRUNCATE spot, invoice, order_line, order_revision, order_, form, buyer_alias, buyer, agency, creative RESTART IDENTITY CASCADE")
         rows = cur.execute("""SELECT f.file_id, f.facility_id, f.folder_path, f.fcc_created_at, d.kind, d.template, d.raw
@@ -46,7 +52,8 @@ def main():
             cat_label, leaf = split_path(folder_path)
             cat = CATEGORY.get(cat_label, "other")
             name = norm(leaf) or norm(advertiser) or "Unknown"
-            canon = overrides.get(name.lower(), name)
+            ident = identity["aliases"].get(f"{cat}|{name.lower()}")
+            canon = overrides.get(name.lower()) or (ident["name"] if ident else name)
             key = (canon.lower(), cat)
             if key not in buyer_ids:
                 cur.execute("INSERT INTO buyer(canonical_name, category) VALUES (%s,%s) ON CONFLICT (canonical_name, category) DO UPDATE SET canonical_name=EXCLUDED.canonical_name RETURNING buyer_id", (canon, cat))
@@ -139,6 +146,16 @@ def main():
                        FROM (SELECT DISTINCT ON (buyer_id) buyer_id, party, office FROM form WHERE candidate IS NOT NULL ORDER BY buyer_id) x
                        WHERE x.buyer_id = b.buyer_id""")
         cur.execute("UPDATE buyer SET kind='issue' WHERE category='issue' AND kind='unknown'")
+        # identity attributes (FEC ids, party, office) and merge counts
+        n_id = 0
+        for bk, info in identity["buyers"].items():
+            cur.execute("""UPDATE buyer SET kind=COALESCE(%s, kind), party=COALESCE(%s, party), office=COALESCE(%s, office), district=%s, state=COALESCE(%s, state),
+                           fec_candidate_id=%s, fec_committee_id=%s, fec_committee_name=%s, identity_method=%s, raw_labels=%s
+                           WHERE lower(canonical_name)=%s AND category=%s""",
+                        (info.get("kind"), info.get("party"), info.get("office"), info.get("district"), info.get("state"), info.get("fec_candidate_id"),
+                         info.get("fec_committee_id"), info.get("fec_committee_name"), info.get("method"), len(info.get("labels", [])), info["name"].lower(), info["category"]))
+            n_id += cur.rowcount
+        print(f"identity applied to {n_id} buyers", file=sys.stderr)
         # creatives
         cur.execute("""INSERT INTO creative(ad_id,prefix,buyer_id,first_aired,last_aired,airings)
                        SELECT ad_id, left(ad_id,4), (array_agg(buyer_id ORDER BY aired_on DESC))[1], MIN(aired_on), MAX(aired_on), COUNT(*)

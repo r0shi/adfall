@@ -414,3 +414,61 @@ by advertiser (e.g. `RSFI` = Rob Sand for Iowa, `ONIA` = One Iowa).
   order numbers. Take the latest print date per order number; never sum
   revisions.
 - pypdf parsing runs about 8 PDFs per second; OCR is the real cost.
+
+## Buyer identity (2026-10-24)
+
+Problem: each station labels buyers its own way. Across the first 200
+stations, 2,411 distinct folder labels described far fewer real buyers:
+Abdul El-Sayed appeared under 28 spellings ("Abdul DSCC", "ABDUL EL-SAYED
+DEM", "Abdul for US Senate"...), Mike Rogers under 26, Roy Cooper under 17.
+
+Approach (`ingest/identity.py`), in order:
+
+1. **Manual overrides** from `data/buyer_overrides.yaml` (`label: Canonical`
+   or `category|label: Canonical`). Empty so far; this is where corrections go.
+2. **FEC candidate match** for federal labels. Tokens left after stripping
+   party committees (DCCC, NRSC...), office words, state names and
+   order-number noise are compared with the FEC candidate master for the
+   cycle, restricted to the station's state unless the label names another
+   state ("Keith Gross for Florida"). Evidence tiers: two name tokens
+   overlap, or a multi-word surname (strong); surname exact or fuzzy ≥ 88
+   (medium); label's first token equals the candidate's first name and the
+   second token resembles the surname (weak). Ties between different people
+   are left unmatched; ties between two filings of the same person (House
+   incumbent running for Senate) are broken by the office in the label.
+3. **FEC committee match** for issue groups and unmatched federal labels:
+   token-sort fuzzy match ≥ 93 against 20,950 committee names.
+4. **Name rule** for everything else: the stripped name tokens, title-cased,
+   merged within category. Handles "Josh Shapiro-D- Governor" / "JOSH
+   SHAPIRO FOR GOVERNOR-D" / "Josh Shapiro" without any registry.
+
+Result on the current corpus (200 stations): 2,508 labels → 1,311 buyers,
+503 of them merged from two or more labels. By method: 1,831 labels by
+name rule, 523 to FEC candidates, 154 to FEC committees. The top federal
+buyers all resolve to FEC candidate IDs with their familiar names (Jon
+Ossoff $22.1M, Roy Cooper $20.0M, Abdul El-Sayed $7.7M, Mike Rogers $5.9M,
+Ashley Hinson $4.6M across the stations crawled so far).
+
+Folder parsing matters as much as matching: some stations nest an office
+level ("Federal/House of Representatives/<candidate>"), which had been
+read as a buyer called "House of Representatives" holding 30 campaigns.
+The rule is now: an intermediate folder with no name tokens, or a county /
+city / school-district folder, is a level above the buyer; a leaf keeps
+its name.
+
+Sources: FEC bulk master files `cn26`, `cm26`, `ccl26` from
+fec.gov/files/bulk-downloads/2026/ (redirect to S3; follow it). No key, no
+rate limit, refreshed weekly by the FEC. The OpenFEC API needs an api.data.gov
+key and was not needed.
+
+Known limits
+- State and local candidates have no registry here; the name rule merges
+  spellings but cannot confirm identity. FollowTheMoney (NIMSP) has an API
+  with a key if that becomes worth it.
+- "Michigan Victory Fund - Rogers" is a joint fundraising committee buying
+  for Rogers; it is merged into the candidate, which is what a reader wants
+  but not what the FEC filing says. The alias row keeps the original label.
+- Agencies occasionally appear as buyers because a station filed under the
+  agency name ("MHB Media 841287 7-21-2026"). Override material.
+- FEC names are legal names: "Jonathan Ossoff", "Michael Rogers". Display
+  nicknames are a later nicety.

@@ -296,7 +296,7 @@ mode) vs. precomputing every pivot the UI offers.
 | DP-4 | Spatial unit | H3 (res 5 and 7) for density, contours for lookup |
 | DP-5 | App framework | SvelteKit (or React if preferred); MapLibre + deck.gl + Plot regardless |
 | DP-6 | In-browser pivots | DuckDB-WASM, lazy-loaded |
-| DP-7 | Buyer identity | alias table + YAML overrides; FEC/FollowTheMoney IDs as they're matched |
+| DP-7 | Buyer identity | built 2026-10-24: `ingest/identity.py`, FEC bulk masters, overrides YAML; see research.md |
 | DP-8 | Ingest target | Postgres directly; SQLite only as the pilot loader |
 
 ## Data layer v1: what exists (2026-10-24)

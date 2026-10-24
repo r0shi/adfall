@@ -10,3 +10,4 @@ data/marts/
 data/*.sqlite*
 data/crawl.log
 data/post_crawl.log
+data/fec/

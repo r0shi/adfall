@@ -70,12 +70,14 @@ def export_hex(con):
 def export_buyers(con):
     rows = con.execute("""SELECT b.buyer_id, b.canonical_name, b.category, b.kind, b.party, b.office,
                                  COALESCE(SUM(bs.booked),0), COALESCE(SUM(bs.invoiced),0), COALESCE(SUM(bs.orders),0), COALESCE(SUM(bs.spots_aired),0),
-                                 COUNT(DISTINCT bs.facility_id), array_agg(DISTINCT s.state), array_agg(bs.facility_id)
+                                 COUNT(DISTINCT bs.facility_id), array_agg(DISTINCT s.state), array_agg(bs.facility_id),
+                                 b.fec_candidate_id, b.fec_committee_id, b.fec_committee_name, b.identity_method, b.raw_labels, b.district
                           FROM buyer b JOIN buyer_station bs USING (buyer_id) JOIN station s USING (facility_id)
-                          GROUP BY 1,2,3,4,5,6 ORDER BY 7 DESC""").fetchall()
+                          GROUP BY 1,2,3,4,5,6,14,15,16,17,18,19 ORDER BY 7 DESC""").fetchall()
     out = [{"id": r[0], "name": r[1], "category": CAT_LABEL.get(r[2], r[2]), "kind": r[3], "party": r[4], "office": r[5],
             "booked": float(r[6]), "invoiced": float(r[7]), "orders": int(r[8]), "spots_aired": int(r[9]), "stations": r[10],
-            "states": sorted(x for x in r[11] if x), "facs": r[12]} for r in rows]
+            "states": sorted(x for x in r[11] if x), "facs": r[12],
+            "fec_candidate_id": r[13], "fec_committee_id": r[14], "fec_committee_name": r[15], "method": r[16], "labels": r[17], "district": r[18]} for r in rows]
     json.dump({"buyers": out}, open(os.path.join(WEB, "buyers.json"), "w"), separators=(",", ":"))
     print(f"  buyers.json: {len(out)} buyers", file=sys.stderr)
 
