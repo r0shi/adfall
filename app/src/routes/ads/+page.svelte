@@ -15,12 +15,15 @@
   const airings = $derived(list.reduce((t, c) => t + c.airings, 0));
   const byBuyer = $derived.by(() => {
     const m = new Map();
-    for (const c of list) { const k = c.buyer || `(${c.prefix}…)`; const e = m.get(k) || { buyer: k, category: c.category, airings: 0, creatives: 0 }; e.airings += c.airings; e.creatives += 1; m.set(k, e); }
+    for (const c of list) { const k = c.buyer || `(${c.prefix}…)`; const e = m.get(k) || { buyer: k, category: c.category, airings: 0, creatives: 0, slug: c.buyer ? slugOf(c.category, c.buyer) : null, top: c.ad_id }; e.airings += c.airings; e.creatives += 1; m.set(k, e); }
     return [...m.values()].sort((a, b) => b.airings - a.airings);
   });
-  const top = $derived(list.slice(0, 120));
+  const top = $derived(list.slice(0, 150));
   const maxA = $derived(top[0]?.airings || 1);
-  const size = (a) => 11 + 26 * Math.sqrt(a / maxA);
+  const cloud = $derived(byBuyer.slice(0, 120));          // the cloud is by buyer; the list is by creative
+  const maxB = $derived(cloud[0]?.airings || 1);
+  const size = (a, mx) => 11 + 28 * Math.sqrt(a / mx);
+  const slugFor = (b) => b.slug || null;
 </script>
 <svelte:head><title>Ads · TV Wormhole</title></svelte:head>
 <div class="shell wide">
@@ -41,11 +44,11 @@
       <div class="muted small">{num(list.length)} creatives · {num(airings)} airings on record</div>
       {#if mode === 'cloud'}
         <div class="cloud" style="margin:12px 0">
-          {#each top as c (c.ad_id)}
-            <a href="/ads/{c.ad_id}" style="font-size:{size(c.airings).toFixed(0)}px;color:{CATS[c.category] || CATS.Other};text-decoration:none" title="{c.ad_id} · {c.buyer || 'unknown buyer'} · {num(c.airings)} airings · {c.first} to {c.last}">{c.buyer ? c.buyer.split(/[-–]/)[0].trim() : c.ad_id}</a>
+          {#each cloud as b (b.buyer)}
+            <a href={b.slug ? `/buyers/${b.slug}` : `/ads/${b.top}`} style="font-size:{size(b.airings, maxB).toFixed(0)}px;color:{CATS[b.category] || CATS.Other};text-decoration:none" title="{b.buyer} · {num(b.airings)} airings · {b.creatives} creative{b.creatives === 1 ? '' : 's'}">{b.buyer}</a>
           {/each}
         </div>
-        <div class="legend">{#each Object.entries(CATS) as [c, col]}<span><span class="dot" style="background:{col}"></span>{catShort(c)}</span>{/each}<span>· label is the buyer, one entry per creative</span></div>
+        <div class="legend">{#each Object.entries(CATS) as [c, col]}<span><span class="dot" style="background:{col}"></span>{catShort(c)}</span>{/each}<span>· sized by airings; switch to List for individual creatives</span></div>
       {:else}
         {#each list.slice(0, 150) as c (c.ad_id)}
           <div class="card" style="padding:7px 12px">
