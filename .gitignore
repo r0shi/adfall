@@ -2,6 +2,10 @@
 __pycache__/
 dl/
 .venv/
+.env
 data/pdfs/
 data/ocr/
+data/geo/
+data/marts/
 data/*.sqlite*
+data/crawl.log

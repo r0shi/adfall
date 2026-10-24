@@ -1,7 +1,8 @@
 # Design: data layer and presentation layer
 
-Status: proposal, 2026-10-24. Decision points are marked **DP-n** and
-collected at the end. Nothing here is built yet except where noted.
+Status: decided 2026-10-24 (DP-1..8 accepted; DP-4 with the note that two
+resolutions are a start and must be extendable). Data layer v1 is built; see
+"Data layer v1: what exists" at the end. Decision points are marked **DP-n**.
 
 ## What the system has to do
 
@@ -297,3 +298,47 @@ mode) vs. precomputing every pivot the UI offers.
 | DP-6 | In-browser pivots | DuckDB-WASM, lazy-loaded |
 | DP-7 | Buyer identity | alias table + YAML overrides; FEC/FollowTheMoney IDs as they're matched |
 | DP-8 | Ingest target | Postgres directly; SQLite only as the pilot loader |
+
+## Data layer v1: what exists (2026-10-24)
+
+Built and run against the Des Moines pilot plus the swing-state crawl in
+progress. Commands are `make` targets; `make pipeline` runs load → entities
+→ marts → export.
+
+| Piece | Where | Notes |
+| --- | --- | --- |
+| PostGIS | `docker-compose.yml` (port 5434; 5433 was taken by a local Postgres) | postgis/postgis 16-3.4, x86 image under emulation; fine so far |
+| Schema | `db/migrations/001_init.sql`, `002_marts.sql`, `003_hex_marts.sql` | applied by `ingest.pg migrate`, tracked in `schema_migrations` |
+| Loader | `ingest/load_pg.py` | stations.json → `station` (contours as MultiPolygon); SQLite crawl store → `opif_file`, `document` (full extraction kept in `raw` jsonb) |
+| Entities | `ingest/entities.py` | total rebuild from `document.raw`: `buyer`, `buyer_alias`, `agency`, `order_`, `order_revision`, `order_line`, `invoice`, `spot`, `creative`, `form`. Overrides from `data/buyer_overrides.yaml` |
+| Geography | `ingest/geo.py` | Census 500k county boundaries + 2024 population estimates (CSV, no API key; the ACS API now requires one); H3 cells with population by county area share; `station_hex` coverage shares |
+| Marts | `spend_daily`, `station_daily`, `station_total`, `buyer_station`, `hex_total` | materialized; `ingest.pg marts` refreshes |
+| Export | `ingest/export.py` | `web/data/spend/*.json` (unchanged shape, the map still works), `web/data/hex/total_r{5,7}.json`, `data/marts/*.parquet` incl. weekly res-5 frames, `web/data/build.json` |
+
+Sizes and timings on the first run (200 active stations, 40k documents):
+counties 3,235; hex res 5 national 29,196 cells; res 7 inside active contours
+85,552 cells; `station_hex` 641k rows (3.5 min to build); marts refresh 23 s;
+export 5 s; Parquet total 10 MB.
+
+Design decisions that landed while building:
+
+- **Hex × day is not materialized.** At res 7 it would be cells × days ×
+  stations. Time lives at station grain (`station_daily`), space at cell
+  grain (`station_hex` weights); frames are composed at export, weekly at
+  res 5 today. Adding a resolution is one entry in `HEX_RES` in
+  `ingest/geo.py` plus a rerun; nothing downstream changes. Fine resolutions
+  are built only inside active stations' contours, so they grow with the
+  crawl rather than covering the country up front.
+- **Buyer identity is the station's own folder label**, per category, with
+  a flat overrides file for merges. 507 buyers across 200 stations today;
+  the same campaign appears under several spellings across station groups,
+  so the overrides file is where the next hour of manual work goes.
+- **Booked-over-time uses order lines when present** (58k lines so far),
+  else the flight window. Invoiced uses the billing period. Aired spots are
+  exact. `spend_daily` carries all three.
+- **Sinclair invoices stay unlinked to orders** (different contract
+  numbering) but count toward station invoiced totals and creatives.
+- **Not built yet**: PMTiles (no tippecanoe on this machine; the Parquet is
+  the input), Postgres as the direct crawl target (the crawler still writes
+  SQLite and `load_pg` upserts from it; cheap to flip once the crawl ends),
+  block-group population (county area share for now).

@@ -27,6 +27,19 @@ station list. To refresh it:
 3. `python3 scripts/fetch_newson.py` (writes `dl/newson_stations.json`).
 4. `python3 scripts/build_data.py --tvq-dir RAW/tvq --contour RAW/TV_service_contour_current.txt --newson RAW/newson_stations.json --out web/data/stations.json`
 
+## Data layer
+
+Postgres with PostGIS via docker compose; see [docs/design.md](docs/design.md).
+
+```bash
+make db-up && make migrate      # start PostGIS on 127.0.0.1:5434 and apply db/migrations
+make geo                        # counties, population, H3 cells, coverage (once; rerun when the crawl widens)
+make pipeline                   # load SQLite crawl store -> entities -> marts -> export web/data + data/marts/*.parquet
+```
+
+Crawl and parse (`python3 -m ingest.crawl`, `ingest.parse`, `ingest.ocr`, `ingest.update`) still
+write the SQLite store at `data/political.sqlite`; `make load` upserts it into Postgres.
+
 ## What it does not do
 
 * Network affiliation is not in the FCC TV Query export, so stations show call
