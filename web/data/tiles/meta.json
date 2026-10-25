@@ -1,0 +1,1 @@
+{"hex": {"5": {"cells": 5077, "max": {"booked": 1720168, "invoiced": 920280, "spots": 497, "pp": 70.33, "ps": 23385, "stations": 11}, "minzoom": 3, "maxzoom": 8}, "7": {"cells": 222973, "max": {"booked": 37716, "invoiced": 19924, "spots": 13, "pp": 70.47, "ps": 15301, "stations": 10}, "minzoom": 6, "maxzoom": 11}}}

@@ -3,6 +3,8 @@
   import { onMount } from 'svelte';
   import maplibregl from 'maplibre-gl';
   import 'maplibre-gl/dist/maplibre-gl.css';
+  import { Protocol } from 'pmtiles';
+  if (!globalThis.__pmtilesProtocol) { globalThis.__pmtilesProtocol = new Protocol(); maplibregl.addProtocol('pmtiles', globalThis.__pmtilesProtocol.tile); }
   let { center = [-97.5, 39.5], zoom = 3.6, onclick = null, onready = null, style = 'https://tiles.openfreemap.org/styles/positron' } = $props();
   let el, map, overlay;
   onMount(() => {

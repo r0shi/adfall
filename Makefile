@@ -20,8 +20,10 @@ marts:        ## refresh materialized marts
 	$(PY) -m ingest.pg marts
 places:       ## static place index for search (Census Gazetteer ZIPs + places)
 	$(PY) -m ingest.places
+tiles:        ## PMTiles for hex layers and contours (needs tippecanoe)
+	$(PY) -m ingest.tiles
 export:       ## write web/data artifacts and Parquet marts
 	$(PY) -m ingest.export
-pipeline: load entities identity entities marts export   ## identity needs a first entities pass for the raw labels
+pipeline: load entities identity entities marts export tiles   ## identity needs a first entities pass for the raw labels
 fec:          ## download FEC candidate/committee/linkage master files for the cycle
 	mkdir -p data/fec && cd data/fec && for f in cn26 cm26 ccl26; do curl -s -L -A tv-wormhole -o $$f.zip https://www.fec.gov/files/bulk-downloads/2026/$$f.zip && unzip -oq $$f.zip; done

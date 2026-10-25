@@ -14,7 +14,7 @@ from . import pg
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 WEB = os.path.join(ROOT, "web", "data")
-MARTS = os.path.join(ROOT, "data", "marts")
+MARTS = os.path.join(WEB, "marts")          # served by the app for the DuckDB-WASM explore mode
 CAT_LABEL = {"federal": "Federal", "state": "State", "local": "Local", "issue": "Non-Candidate Issue Ads", "other": "Other"}
 
 
@@ -226,6 +226,8 @@ def main():
         parquet(con, "station_hex", "SELECT * FROM station_hex")
         parquet(con, "hex_total", "SELECT * FROM hex_total")
         parquet(con, "creative", "SELECT * FROM creative")
+        parquet(con, "order_", "SELECT order_id, facility_id, order_no, buyer_id, agency_id, advertiser_text, product, flight_start, flight_end, status, gross, net, spots FROM order_")
+        parquet(con, "agency", "SELECT * FROM agency")
         parquet(con, "spot", "SELECT spot_id, invoice_id, facility_id, buyer_id, aired_on, aired_time, ad_id FROM spot")
         # weekly frames at the national resolution: time comes from station_daily, space from station_hex
         parquet(con, "hex_weekly_r5", """

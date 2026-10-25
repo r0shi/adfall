@@ -16,3 +16,5 @@ web/data/creatives/id/
 web/data/buyers/
 web/data/stations/
 web/data/spend/[0-9]*.json
+web/data/marts/
+web/data/tiles/*.pmtiles

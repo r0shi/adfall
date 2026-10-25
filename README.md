@@ -48,7 +48,7 @@ Postgres with PostGIS via docker compose; see [docs/design.md](docs/design.md).
 make db-up && make migrate      # start PostGIS on 127.0.0.1:5434 and apply db/migrations
 make geo                        # counties, population, H3 cells, coverage (once; rerun when the crawl widens)
 make fec                        # FEC candidate/committee master files (once per cycle refresh)
-make pipeline                   # load -> entities -> identity -> entities -> marts -> export
+make pipeline                   # load -> entities -> identity -> entities -> marts -> export -> tiles (tippecanoe)
 ```
 
 Crawl and parse (`python3 -m ingest.crawl`, `ingest.parse`, `ingest.ocr`, `ingest.update`) still

@@ -20,9 +20,11 @@
     "@deck.gl/geo-layers": "^9.1.0",
     "@deck.gl/layers": "^9.1.0",
     "@deck.gl/mapbox": "^9.1.0",
+    "@duckdb/duckdb-wasm": "^1.29.0",
     "@observablehq/plot": "^0.6.17",
     "h3-js": "^4.2.0",
-    "maplibre-gl": "^5.3.0"
+    "maplibre-gl": "^5.3.0",
+    "pmtiles": "^4.5.0"
   },
   "allowScripts": {
     "esbuild@0.25.12": true
