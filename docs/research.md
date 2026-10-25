@@ -606,3 +606,98 @@ The rules in `ingest/load_pg.py` were checked against all 860 distinct licensee 
 confirmed against the document templates each station files (every "Licensee, LLC" station
 files Sinclair invoices or Katz contracts). Public and religious broadcasters are grouped as
 such; the rest are "Independent" (five crawled stations). No station is NULL.
+
+### Parse coverage, before and after (same 93,985 documents, 202 stations)
+
+Before = parser v4 as loaded on the morning of 2026-10-24; after = parser v5 the same night.
+"ok" means the fields the kind needs were all found (order number and gross for orders and
+invoices, an advertiser for forms). Unrecognised documents were counted as `other/ok` before.
+
+| | Before | After |
+| --- | --- | --- |
+| ok | 41,888 (44.6%) | 79,395 (84.5%) |
+| partial | 2,731 | 5,675 |
+| failed | 17,114 (14,401 of them forms) | 1,934 |
+| unrecognised | 32,017 (as `other/ok`) + 244 crashes | 6,981 |
+| orders ok | 24,878 | 45,926 |
+| forms ok | 4,914 | 20,027 |
+| invoices ok | 12,096 | 12,384 |
+| parser crashes | 244 (missing `cryptography`) | 0 |
+| Postgres: orders / order lines | 14,640 / 277,538 | 28,661 / 573,887 |
+| Postgres: invoices / spots / creatives | 12,939 / 275,610 / 24,746 | 14,493 / 517,362 / 49,563 |
+| stations with no group | 86 (41,138 docs) | 0 |
+
+By station group after: Gray 91% ok (13,816 docs, was unparsed), Nexstar 89%, Tegna 92%,
+Allen Media 95%, Sinclair 66% (its Katz invoices carry no linkable order number, so they are
+"partial" by construction), Heritage 7% and Morris 14% (their scans were OCR'd by tesseract as
+noise; the Vision redo at the end of the national batch fixes those).
+
+Invariant checks after the fixes (`make validate`, `data/validate-2026-10-24.json`):
+
+| Template | Check | Fail rate | Reading |
+| --- | --- | --- | --- |
+| wideorbit-contract | lines sum to gross | 0.7% (was 4.7%) | remaining: lines with a wrapped program name |
+| wideorbit-contract | net = 85% or 100% of gross | 0.0% (was 0.2%, and 101 orders over $2M from a glued-rating misread during v5 development) | |
+| wideorbit-order | lines sum to gross | 0.6% | truncated lines without an end date |
+| wideorbit-invoice | Total Spots = aired lines | 11.1% (was 88.8% before lowercase Ad-ID suffixes) | makegoods and credits are listed without an Ad-ID |
+| wideorbit-invoice | order number has an order at the station | 7.3% unlinked | the station did not upload that order |
+| sinclair-invoice | order number has an order | 35.7% unlinked | Sinclair contract scans still being OCR'd |
+| nab-text | yields an advertiser | 6.7% | handwritten or badly scanned forms |
+| OCR orders | order number taken from the file name | 256 documents, flagged `order_no_from_filename` | rotated or low-quality scans |
+| katz-ecr | net ratio | 3.8% | ECR shows net before and after commission; parser takes the first |
+
+`order_no_filename` (a 7-digit number in the station's file name differs from the parsed
+order number) fails on 5% of WideOrbit contracts, almost all of them Hearst/Tegna files named
+by the Katz or agency estimate number; it is kept as an indicator, not a parser error.
+
+### Coverage before the national crawl (2026-10-24 23:40)
+
+| | 2026 | 2024 |
+| --- | --- | --- |
+| Full-power stations | 1,750 | 1,750 |
+| Stations with documents | 1,098 | 1,108 |
+| Stations crawled | 202 | 0 |
+| Documents nationally (FCC folder counts, 2026 through Oct 23) | 410,345 | 408,081 |
+| Documents downloaded | 93,985 (22.9%), 37.8 GB | 0 |
+| Parsed ok | 79,395 | |
+
+States at 100% of their 2026 documents: MI (23,625), GA (17,898), WI (12,866), NC (11,805),
+PA (10,362), AZ (6,926), NV (4,330); IA 32% (Des Moines pilot); GU 100% (batch driver test).
+Everything else 0%. 2024 has not been crawled at all; the target list and the crawl take a
+`--years` argument, so a 2024 pass is the same command with `--years 2024` once 2026 is in.
+
+### National 2026 crawl: launched 2026-10-24 23:47
+
+`ingest.batch` over `data/crawl_targets_2026_national.txt`, 52 remaining states, 1,096 stations,
+~316k documents to fetch, biggest states first (TX 36.6k, OH 24.9k, CA 22.0k, FL 18.2k...).
+Settings: 6 download workers, 4 Vision OCR workers, 6 parse workers, Postgres refresh after
+every state in the background, legacy tesseract text redone with Vision at the end
+(`--redo-legacy-at-end`). Expected: downloads at the earlier rate (88k in 2.5 h) take about
+9 hours; OCR of roughly 85k image PDFs about 9 hours alongside; so the crawl should be
+complete within a day, with the Postgres entity rebuild (now about 4 minutes per refresh,
+growing with the corpus) trailing each state.
+
+How to watch and resume:
+
+```bash
+make status                         # one screen; "RUNNING" marks the stages holding locks
+tail -f data/logs/batch-stdout.log  # one line per stage per state with exit code, duration and ETA
+grep SUMMARY data/logs/*.log | tail # every stage's closing line
+make coverage                       # per-state progress against the national counts
+cat data/locks/pipeline.lock        # pid of the driver; kill <pid> to stop (nothing to clean up)
+make batch                          # resume: finished states are skipped, pending work only
+```
+
+Known soft spots to keep an eye on: the FCC edge returning 503 on the history feed for the
+current day (seen 2026-10-24; the updater records the day as failed and does not advance), and
+SQLite's single writer, which makes a parse run block an updater or a second crawl until it
+commits (motivation for writing straight to Postgres, below).
+
+### Next
+
+- Write crawl/parse/OCR state straight to Postgres and drop SQLite + `load_pg`. The stages
+  already share `db.connect()`, the SQL is `INSERT ... ON CONFLICT`, only `json_extract` needs
+  a `jsonb` spelling; the run ledger and listing tables would live beside the data.
+- 2024 crawl (`--years 2024`) for the comparison cycle.
+- Remaining layouts in the 6,981 unrecognised documents and the 1,934 failures, re-clustered
+  after the national crawl (`make validate` lists them by template).
