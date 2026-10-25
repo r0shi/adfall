@@ -76,7 +76,7 @@ Routes:
 
 | Route | What it shows |
 |---|---|
-| `/` | Map-first home. Click or search to drop a pin; the popover lists stations reaching it with newscast and FCC links, money by buyer, aired ads and a timeline. A second pin (B) turns on comparison and difference layers. |
+| `/` | Map-first home. Click or search to drop a pin; the popover lists stations reaching it with newscast and FCC links, money by buyer, aired ads, the political spots in tonight's and last night's newscasts, and a timeline. A second pin (B) turns on comparison and difference layers. |
 | `/map` | The coverage map on its own, without the money layers. |
 | `/time` | Money moving across the hex grid day by day, with trails or accumulate, driven by the global timeline bar. |
 | `/buyers`, `/buyers/<slug>` | Who is buying: treemap by category, per-buyer stations, flights, dayparts, creatives. |
@@ -143,7 +143,7 @@ make pipeline                    # stations → entities → identity → entiti
 ```
 
 Export sections for `--only`: `methods, stations, hex, buyers, creatives, time,
-details, pages, parquet`. Hand-maintained inputs that the refresh applies:
+details, pages, newscasts, parquet`. Hand-maintained inputs that the refresh applies:
 `data/buyer_identity.json` and `data/buyer_overrides.yaml` for buyer merges,
 `data/video_overrides.yaml` for ad video.
 

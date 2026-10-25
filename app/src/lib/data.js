@@ -16,7 +16,7 @@ export const hexTotal = (res = 5) => get(`hex/total_r${res}.json`);
 export const build = () => get('build.json').catch(() => ({}));
 
 export const CATS = { 'Federal': 'var(--federal)', 'State': 'var(--state)', 'Local': 'var(--local)', 'Non-Candidate Issue Ads': 'var(--issue)', 'Other': 'var(--other)' };
-export const CAT_RGB = { 'Federal': [200, 16, 46], 'State': [232, 116, 59], 'Local': [242, 183, 5], 'Non-Candidate Issue Ads': [91, 108, 255], 'Other': [154, 160, 173] };
+export const CAT_RGB = { 'Federal': [98, 80, 214], 'State': [0, 131, 0], 'Local': [237, 161, 0], 'Non-Candidate Issue Ads': [91, 108, 255], 'Other': [154, 160, 173] };
 export const catShort = (c) => c === 'Non-Candidate Issue Ads' ? 'Issue' : c;
 export const usd = (v) => v >= 1e9 ? `$${(v / 1e9).toFixed(1)}B` : v >= 1e6 ? `$${(v / 1e6).toFixed(v >= 1e7 ? 0 : 1)}M` : v >= 1e3 ? `$${Math.round(v / 1e3)}K` : `$${Math.round(v)}`;
 export const num = (v) => new Intl.NumberFormat('en-US').format(Math.round(v));
@@ -25,4 +25,6 @@ const CAT_CODE = { 'Federal': 'federal', 'State': 'state', 'Local': 'local', 'No
 export const slugOf = (category, name) => `${CAT_CODE[category] || 'other'}-` + name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 60);
 export const buyerDetail = (slug) => get(`buyers/${slug}.json`);
 export const stationDetail = (fac) => get(`stations/${fac}.json`);
+export const newscastIndex = () => get('newscasts/index.json').then(d => new Set(d.facs)).catch(() => new Set());   // stations with news buys (ingest.newscasts)
+export const newscasts = (fac) => get(`newscasts/${fac}.json`);   // blocks, scheduled lines, confirmed airings
 export const PLOT_COLORS = { domain: Object.keys(CATS), range: ['#6250d6', '#008300', '#eda100', '#e87ba4', '#9aa0ad'] };

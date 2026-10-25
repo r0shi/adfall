@@ -985,3 +985,31 @@ oldest age, so a stall is visible in the log instead of silent. Tested with a fa
 job and a fake dying worker (`scratchpad/hangtest.py` during the session) and on four real
 documents. The hung Iowa run has to be killed by hand once; `make batch` resumes it with the
 1,300 finished pages cached.
+
+## Newscast blocks (2026-10-25)
+
+Alex asked for a per-place "tonight's news" view: the political spots in each station's news
+programs. What the filings support:
+
+- **Orders name the newscast and its clock window.** 354,000 of 1.69 million order lines (21%) name
+  a news program, and 95% of all lines carry a window ("Action News at 6p 6p-7p", "M-F Late News
+  11:00 PM-11:35 PM", "M-F News CH8 @ 430-5A"). A line is one week of a flight with that week's spot
+  count, so the expected spots on one night are the week's count divided by the nights the line's
+  day pattern allows (M-F, MTWTF, Sa/Su, or a 7-character mask like `---T---`). 98,749 lines across
+  7,079 orders covered today when this was measured.
+- **Invoices confirm what aired, late.** Every aired spot has a time but no program name; the invoice
+  reaches the FCC file a median 17 days after the air date (10 at the 25th percentile, 48 at the
+  90th). The newest confirmed airing was four days old. Spots are placed into news blocks by air time.
+- `ingest/newscasts.py` classifies program strings (window regex handling "530a-6a", "10-1035P",
+  "6-7A", "12:35 XM-1:00 XM"; network newscasts tagged) and writes `web/data/newscasts/<fac>.json`:
+  blocks, scheduled lines for a 60-day window either side of today, and confirmed airings for the
+  last 60 days, plus `index.json`. 173,137 news lines matched, 12,153 had no parsable window.
+- The Newscasts tab in the pin popover defaults to tonight, offers last night and any date, groups by
+  Morning / Midday / Evening / Late, and shows the schedule until a station's `confirmed_through`
+  reaches the chosen night, then the confirmed spots with Ad-IDs and video thumbnails. Under a
+  scheduled buyer it shows that buyer's three most recent creatives on that station as "likely".
+
+Limits: preemptions and make-goods are invisible until the invoice; a line whose program string
+has no window is dropped (7%); the files are large for big markets (KCCI 740 KB) because of the
+60-day confirmed window.
+

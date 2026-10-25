@@ -376,7 +376,7 @@ def export_time(con):
 
 def main():
     import argparse
-    ap = argparse.ArgumentParser(); ap.add_argument("--only", help="comma-separated subset: methods,stations,hex,buyers,creatives,time,details,pages,parquet")
+    ap = argparse.ArgumentParser(); ap.add_argument("--only", help="comma-separated subset: methods,stations,hex,buyers,creatives,time,details,pages,newscasts,parquet")
     a = ap.parse_args()
     only = set(a.only.split(",")) if a.only else None
     want = lambda k: only is None or k in only
@@ -395,6 +395,9 @@ def main():
         if want("time"): export_time(con)
         if want("details"): export_details(con)
         if want("pages"): export_creative_pages(con)
+        if want("newscasts"):
+            from .newscasts import export_newscasts
+            export_newscasts(con)
         if not want("parquet"):
             json.dump(build, open(os.path.join(WEB, "build.json"), "w")); print(f"build {build['id']}", file=sys.stderr); return
         parquet(con, "station", "SELECT facility_id, call, service, city, state, licensee, station_group, newson_id, public_file_slug, ST_Y(tx) lat, ST_X(tx) lon FROM station")

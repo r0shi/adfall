@@ -29,3 +29,4 @@ data/political.sqlite-shm
 data/ocr/*.tesseract
 data/video_cache/
 data/google_political_ads/
+web/data/newscasts/

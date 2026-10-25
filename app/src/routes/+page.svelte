@@ -8,6 +8,7 @@
   import MoneyTab from '$lib/tabs/MoneyTab.svelte';
   import AdsTab from '$lib/tabs/AdsTab.svelte';
   import TimeTab from '$lib/tabs/TimeTab.svelte';
+  import NewsTab from '$lib/tabs/NewsTab.svelte';
   import { loc, locB, setLocation, setLocationB, clearA, clearB } from '$lib/location.svelte.js';
   import { DIFFS, stationDiffs, composeDiff, makeDiffLayer, diffScale } from '$lib/difflayer.js';
   import { tl, setRange } from '$lib/time.svelte.js';
@@ -52,7 +53,7 @@
   const covered = $derived(loc.found.filter(s => idx.stations[s.fac]?.total));
   const total = $derived(covered.reduce((t, s) => t + idx.stations[s.fac].total, 0));
   const byCat = $derived.by(() => { const m = {}; for (const s of covered) for (const [c, v] of Object.entries(idx.stations[s.fac].by_category)) m[c] = (m[c] || 0) + v; return m; });
-  const TABS = [{ id: 'stations', label: 'Stations' }, { id: 'money', label: 'Money' }, { id: 'ads', label: 'Ads' }, { id: 'time', label: 'Over time' }];
+  const TABS = [{ id: 'stations', label: 'Stations' }, { id: 'money', label: 'Money' }, { id: 'ads', label: 'Ads' }, { id: 'news', label: 'Newscasts' }, { id: 'time', label: 'Over time' }];
   const sumOf = (found) => found.reduce((t, s) => t + (idx.stations[s.fac]?.total || 0), 0);
   const totalB = $derived(sumOf(locB.found));
   const ratio = (a, b) => b ? (a / b).toFixed(a / b >= 10 ? 0 : 1) + '×' : (a ? '∞' : '–');
@@ -80,6 +81,7 @@
       {#if tab === 'stations'}<StationsTab found={loc.found} p={loc.p} {idx} {api} />
       {:else if tab === 'money'}<MoneyTab found={loc.found} all={loc.all} {idx} />
       {:else if tab === 'ads'}<AdsTab found={loc.found} {idx} />
+      {:else if tab === 'news'}<NewsTab found={loc.found} {idx} />
       {:else}<TimeTab found={loc.found} {idx} />{/if}
     </Popover>
   {/if}
@@ -88,6 +90,7 @@
       {#if tabB === 'stations'}<StationsTab found={locB.found} p={locB.p} {idx} {api} />
       {:else if tabB === 'money'}<MoneyTab found={locB.found} all={loc.all} {idx} />
       {:else if tabB === 'ads'}<AdsTab found={locB.found} {idx} />
+      {:else if tabB === 'news'}<NewsTab found={locB.found} {idx} />
       {:else}<TimeTab found={locB.found} {idx} />{/if}
     </Popover>
   {/if}
