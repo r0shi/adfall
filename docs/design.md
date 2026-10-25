@@ -346,7 +346,7 @@ Design decisions that landed while building:
   numbering) but count toward station invoiced totals and creatives.
 - **Not built yet**: PMTiles (no tippecanoe on this machine; the Parquet is
   the input), block-group population (county area share for now). Postgres as
-  the direct crawl target landed 2026-10-25 (migration 007; see
+  the direct crawl target landed 2026-10-25 (migration 008; see
   docs/research.md "Postgres as the only store").
 
 ## Presentation layer v1: what exists (2026-10-24)

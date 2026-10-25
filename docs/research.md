@@ -537,8 +537,10 @@ section for numbers and the operations notes for how to watch it).
 - Daily upkeep after the crawl: `make update` applies the FCC change feed since the last sync
   (adds, deletes, moves) and downloads new files; then `make parse`, `make ocr`, `make parse`,
   `make refresh`, and the owner's `make export`.
-- Postgres migrations: `make migrate`. Every stage checks `schema_migrations` against `db/migrations/`
-  on connect and refuses to run against a schema that is behind.
+- Postgres migrations: `make migrate`, with no stage running: an `ALTER TABLE` waits for every open
+  transaction on the table (entities holds one for minutes by design) and, while it waits, queues
+  readers such as a mart refresh behind it. Every stage checks `schema_migrations` against
+  `db/migrations/` on connect and refuses to run against a schema that is behind.
 
 ### OCR engine choice
 
@@ -697,7 +699,7 @@ current day (seen 2026-10-24; the updater records the day as failed and does not
 Until the national crawl, `crawl`, `parse` and `ocr` wrote `data/political.sqlite` and `load_pg`
 copied it into Postgres after every state. SQLite's single writer made a running parse block the
 updater or a second crawl ("database is locked"), the copy step was pure overhead, and the run
-ledger lived apart from the data it described. Migration `007_pipeline_store.sql` moves the
+ledger lived apart from the data it described. Migration `008_pipeline_store.sql` moves the
 remaining state into Postgres and the stages write there directly:
 
 | was (SQLite) | now (Postgres) |
