@@ -946,3 +946,18 @@ PARSER_VERSION, which would have queued a 4.5-hour reparse of every
 document in the middle of the national crawl. The next entity refresh
 collapses the duplicate creatives; the counts after it are in the table
 below.
+
+### OCR stall (2026-10-25, 11:29)
+
+During the Iowa batch one Vision worker hung inside `VNRecognizeTextRequest` at 0% CPU for
+over 15 minutes (document 1300 of 2567). `ProcessPoolExecutor.map` has no per-task timeout,
+so the three idle workers and the whole batch waited on it. `ingest.ocr` now runs jobs through
+its own loop: each worker leaves a `data/ocr/<id>.txt.start` marker while reading a document;
+the parent treats a marker older than `--timeout` (default 300 s) as a hang, records the
+document as a failed attempt ("timeout ... OCR engine hung"), kills the pool and starts a new
+one for the rest. A worker that dies the same way loses only the documents that had markers;
+queued ones are re-run. A watchdog line every 60 s shows in-flight and queued counts and the
+oldest age, so a stall is visible in the log instead of silent. Tested with a fake hanging
+job and a fake dying worker (`scratchpad/hangtest.py` during the session) and on four real
+documents. The hung Iowa run has to be killed by hand once; `make batch` resumes it with the
+1,300 finished pages cached.

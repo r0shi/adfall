@@ -15,7 +15,8 @@ Worker processes only render and read PDFs; the ledger is written by the parent 
   python3 -m ingest.ocr --pages 4                   # cap pages per document (default 12)
 """
 import argparse, datetime, logging, os, re, subprocess, sys, tempfile, time
-from concurrent.futures import ProcessPoolExecutor
+from concurrent.futures import ProcessPoolExecutor, FIRST_COMPLETED, wait
+from concurrent.futures.process import BrokenProcessPool
 import multiprocessing as mp
 from . import db
 from .runlog import Stage
@@ -24,6 +25,8 @@ log = logging.getLogger("ingest.ocr")
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OCR_DIR = os.path.join(ROOT, "data", "ocr")
 OCR_MAX_ATTEMPTS = 3
+DOC_TIMEOUT = 300            # seconds one document may take; a Vision call that hangs (seen 2026-10-25) is cut off, recorded as failed, and the pool rebuilt
+MAX_REBUILDS = 50
 SCALES = {"vision": 1.5, "tesseract": 2.2}       # pypdfium2 render scale (1.0 = 72 dpi)
 
 
@@ -58,6 +61,9 @@ def ocr_pdf(job):
     fid, path, engine, max_pages = job
     out = os.path.join(OCR_DIR, fid + ".txt")
     t0 = time.time()
+    marker = out + ".start"                          # exists while this document is being read; the parent reads its mtime
+    with open(marker, "w") as fh:
+        fh.write(f"{os.getpid()} {t0}\n")
     try:
         import pypdfium2 as pdfium
         pdf = pdfium.PdfDocument(os.path.join(ROOT, path))
@@ -75,7 +81,96 @@ def ocr_pdf(job):
         return {"fid": fid, "status": "ok", "pages_done": len(texts), "pages_total": total, "chars": len(text), "seconds": time.time() - t0, "error": None}
     except Exception as e:
         return {"fid": fid, "status": "failed", "pages_done": 0, "pages_total": None, "chars": 0, "seconds": time.time() - t0, "error": f"{type(e).__name__}: {str(e)[:200]}"}
+    finally:
+        try:
+            os.remove(marker)
+        except OSError:
+            pass
 
+
+def in_flight(fid):
+    """Seconds since the worker started this document, or None if it is not being read right now."""
+    try:
+        return time.time() - os.path.getmtime(os.path.join(OCR_DIR, fid + ".txt.start"))
+    except OSError:
+        return None
+
+
+def run_jobs(jobs, workers, timeout, on_result, fn=None):
+    """Run ocr_pdf over jobs with `workers` processes. Unlike ProcessPoolExecutor.map, one hung worker cannot
+    stall the run: a document in flight longer than `timeout` is recorded as failed, the pool's processes are
+    killed and a new pool takes the remaining jobs. A worker that dies (segfault in pdfium) is handled the same
+    way: only the documents that were in flight (they leave a .start marker) are recorded as failed, the queued
+    ones are re-run. A watchdog line every 60 s shows what is running so a stall is visible in the log."""
+    ctx = mp.get_context("spawn")                    # pyobjc/Vision is not fork-safe
+    fn = fn or ocr_pdf
+    recorded = set()
+    remaining = list(jobs)
+    rebuilds = 0
+    while remaining:
+        if rebuilds > MAX_REBUILDS:
+            raise RuntimeError(f"OCR pool rebuilt {rebuilds} times; giving up with {len(remaining)} documents left")
+        ex = ProcessPoolExecutor(workers, mp_context=ctx)
+        futures = {ex.submit(fn, job): job for job in remaining}
+        pending, broke, last_log = set(futures), False, time.time()
+        try:
+            while pending:
+                done, pending = wait(pending, timeout=5, return_when=FIRST_COMPLETED)
+                now = time.time()
+                for f in done:
+                    job = futures[f]
+                    try:
+                        r = f.result()
+                    except BrokenProcessPool:
+                        broke = True
+                        age = in_flight(job[0])
+                        if age is None:
+                            continue                     # was still queued: nothing happened to it, it is re-run after the rebuild
+                        r = {"fid": job[0], "status": "failed", "pages_done": 0, "pages_total": None, "chars": 0, "seconds": age,
+                             "error": "worker died while reading this document"}
+                    except Exception as e:
+                        r = {"fid": job[0], "status": "failed", "pages_done": 0, "pages_total": None, "chars": 0, "seconds": 0, "error": f"{type(e).__name__}: {str(e)[:160]}"}
+                    recorded.add(job[0]); on_result(r)
+                if broke:
+                    for f in pending:                    # the dead pool will fail the rest too; sort them the same way
+                        job = futures[f]
+                        age = in_flight(job[0])
+                        if age is not None:
+                            recorded.add(job[0])
+                            on_result({"fid": job[0], "status": "failed", "pages_done": 0, "pages_total": None, "chars": 0, "seconds": age, "error": "worker died while reading this document"})
+                    log.warning("  a worker process died; rebuilding the pool for the remaining %d documents", len([j for j in remaining if j[0] not in recorded]))
+                    break
+                flight = {f: in_flight(futures[f][0]) for f in pending if f.running()}
+                stuck = [f for f, age in flight.items() if age is not None and age > timeout]
+                if stuck:
+                    for f in stuck:
+                        job = futures[f]
+                        recorded.add(job[0])
+                        on_result({"fid": job[0], "status": "failed", "pages_done": 0, "pages_total": None, "chars": 0, "seconds": flight[f],
+                                   "error": f"timeout after {timeout}s (OCR engine hung)"})
+                        log.warning("  %s: no result after %ds; killing the pool and moving on", job[0], timeout)
+                    broke = True
+                    break
+                if now - last_log > 60:
+                    ages = [a for a in flight.values() if a is not None]
+                    log.info("  watchdog: %d in flight, %d queued, oldest %ds", len(ages), len(pending) - len(ages), max(ages, default=0))
+                    last_log = now
+        finally:
+            if broke:
+                for proc in list(getattr(ex, "_processes", {}).values()):
+                    try:
+                        proc.kill()
+                    except Exception:
+                        pass
+                for job in remaining:                    # stale markers from the killed workers
+                    try:
+                        os.remove(os.path.join(OCR_DIR, job[0] + ".txt.start"))
+                    except OSError:
+                        pass
+                rebuilds += 1
+            ex.shutdown(wait=not broke, cancel_futures=True)
+        remaining = [job for job in remaining if job[0] not in recorded]
+    return rebuilds
 
 def candidates(con, st, ids=None, max_attempts=OCR_MAX_ATTEMPTS):
     """Downloaded documents the parser found no text layer in, minus those already OCR'd or given up on.
@@ -124,11 +219,13 @@ def main(argv=None):
     ap.add_argument("--pages", type=int, default=12, help="max pages per document")
     ap.add_argument("--ids", help="comma-separated file ids (re-OCR even if cached)")
     ap.add_argument("--retry-given-up", action="store_true")
+    ap.add_argument("--timeout", type=int, default=DOC_TIMEOUT, help="seconds per document before it is recorded as failed and the pool rebuilt")
+    ap.add_argument("--no-lock", action="store_true", help="maintenance: run beside another ocr stage (the two must not share documents)")
     ap.add_argument("--redo-legacy", action="store_true", help="re-OCR documents whose text came from the pre-ledger tesseract run (no ocr row)")
     ap.add_argument("--max-fail-rate", type=float, default=0.05)
     a = ap.parse_args(argv)
     os.makedirs(OCR_DIR, exist_ok=True)
-    with Stage("ocr", args=vars(a), max_fail_rate=a.max_fail_rate) as st:
+    with Stage("ocr", args=vars(a), max_fail_rate=a.max_fail_rate, lock=not a.no_lock) as st:
         con = db.connect()
         if a.retry_given_up:
             n = con.execute("UPDATE ocr SET attempts=0 WHERE status='failed'").rowcount; con.commit()
@@ -159,22 +256,25 @@ def main(argv=None):
         if given_up:
             st.warn("%d documents failed OCR %d times and are skipped (--retry-given-up to retry)", given_up, OCR_MAX_ATTEMPTS)
         jobs = [(fid, path, a.engine, a.pages) for fid, path in jobs]
-        n = ok = failed = pages = 0; secs = 0.0
-        ctx = mp.get_context("spawn")                    # pyobjc/Vision is not fork-safe
-        with ProcessPoolExecutor(a.workers, mp_context=ctx) as ex:
-            for r in ex.map(ocr_pdf, jobs, chunksize=2):
-                n += 1; st.attempt()
-                pages += r["pages_done"]; secs += r["seconds"]
-                record(con, r, a.engine)
-                if r["status"] == "ok":
-                    ok += 1
-                    if r["chars"] < 50:
-                        st.warn("  %s: OCR produced only %d chars over %d pages", r["fid"], r["chars"], r["pages_done"])
-                else:
-                    failed += 1; st.fail(r["fid"], f"ocr: {r['error']}")
-                if n % 20 == 0:
-                    con.commit()
-                st.progress(n, len(jobs), every=100, label="ocr")
+        counters = {"n": 0, "ok": 0, "failed": 0, "pages": 0, "secs": 0.0}
+
+        def on_result(r):
+            counters["n"] += 1; st.attempt()
+            counters["pages"] += r["pages_done"]; counters["secs"] += r["seconds"]
+            record(con, r, a.engine)
+            if r["status"] == "ok":
+                counters["ok"] += 1
+                if r["chars"] < 50:
+                    st.warn("  %s: OCR produced only %d chars over %d pages", r["fid"], r["chars"], r["pages_done"])
+            else:
+                counters["failed"] += 1; st.fail(r["fid"], f"ocr: {r['error']}")
+            if counters["n"] % 20 == 0:
+                con.commit()
+            st.progress(counters["n"], len(jobs), every=100, label="ocr")
+
+        rebuilds = run_jobs(jobs, a.workers, a.timeout, on_result)
+        n, ok, failed, pages, secs = counters["n"], counters["ok"], counters["failed"], counters["pages"], counters["secs"]
+        st.count("pool_rebuilds", rebuilds)
         con.commit()
         st.count("ok", ok); st.count("failed", failed); st.count("pages", pages)
         if pages:
