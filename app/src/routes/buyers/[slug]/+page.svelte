@@ -1,6 +1,8 @@
 <script>
   import { page } from '$app/state';
   import Chart from '$lib/Chart.svelte';
+  import Treemap from '$lib/Treemap.svelte';
+  import Heatmap from '$lib/Heatmap.svelte';
   import { buyerDetail, usd, num, CATS, catShort, PLOT_COLORS } from '$lib/data.js';
   let d = $state(null), err = $state(null);
   $effect(() => { const slug = page.params.slug; d = null; buyerDetail(slug).then(x => d = x).catch(e => err = e.message); });
@@ -23,6 +25,10 @@
       <div class="rollup"><b>{usd(d.booked)}</b> booked · <b>{usd(d.invoiced)}</b> invoiced · {d.stations.length} station{d.stations.length === 1 ? '' : 's'} · {num(d.stations.reduce((t, s) => t + s.spots_aired, 0))} spots aired · {d.creatives.length} creative{d.creatives.length === 1 ? '' : 's'}</div>
     </header>
     <section>
+      <h2>Where the money went</h2>
+      <Treemap items={d.stations.map(s => ({ key: `${s.call} ${s.state}`, value: s.booked, color, href: `/stations/${s.fac}` }))} height={220} format={usd} />
+      <div class="muted small" style="margin-top:4px">Area = booked $ per station.</div>
+      {#if d.daypart}<h2>When the ads ran</h2><Heatmap grid={d.daypart} />{/if}
       <h2>By station</h2>
       <Chart height={Math.max(140, 20 * Math.min(30, d.stations.length) + 40)} make={(Plot, width, height) => Plot.plot({
         width, height, marginLeft: 90, x: { label: 'Booked ($)', tickFormat: 's', grid: true }, y: { label: null },

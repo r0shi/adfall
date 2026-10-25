@@ -202,7 +202,8 @@ def classify(text, fields, source):
 
 
 # ----------------------------------------------------------------------------------------------- orders
-LINE_RX = re.compile(r"(?<![\d/$,.]) ?(\d{1,3}) (\d\d/\d\d/\d\d) (\d\d/\d\d/\d\d) (.+?) ?:(\d+) (\w+) (\d+) (" + MONEY + ")", re.M)
+# "1 05/27/26 05/28/26 M-F News CH8 @ 430-5A 430-5A :30 NM 2 $20.00N" or, with spots/week and rate, "22 08/13/26 08/24/26 FBI 858p-10p M------ :30 0 $3,500.00 NM 3 $10,500.00N"
+LINE_RX = re.compile(r"(?<![\d/$,.]) ?(\d{1,3}) (\d\d/\d\d/\d\d) (\d\d/\d\d/\d\d) (.+?) ?:(\d+)(?: (\d+) (" + MONEY + r"))? (\w+) (\d+) (" + MONEY + ")", re.M)
 
 
 def parse_order(text):
@@ -232,8 +233,8 @@ def parse_order(text):
             d["spots"], d["gross"] = int(tots[-1][0]), money(tots[-1][1])
     lines = []
     for lm in LINE_RX.finditer(text):
-        lines.append({"line": int(lm.group(1)), "start": iso(lm.group(2)), "end": iso(lm.group(3)),
-                      "program": lm.group(4).strip(), "len": int(lm.group(5)), "spots": int(lm.group(7)), "amount": money(lm.group(8))})
+        lines.append({"line": int(lm.group(1)), "start": iso(lm.group(2)), "end": iso(lm.group(3)), "program": lm.group(4).strip(), "len": int(lm.group(5)),
+                      "rate": money(lm.group(7)) if lm.group(7) else None, "spots": int(lm.group(9)), "amount": money(lm.group(10))})
     d["fields"] = {"lines": lines}
     return d
 

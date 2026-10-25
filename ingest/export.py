@@ -118,6 +118,21 @@ def export_details(con):
     creatives = collections.defaultdict(list)       # by (fac, buyer_id)
     for ad, fac, bid, n, first, last in con.execute("SELECT ad_id, facility_id, buyer_id, COUNT(*), MIN(aired_on), MAX(aired_on) FROM spot WHERE ad_id IS NOT NULL GROUP BY 1,2,3"):
         creatives[(fac, bid)].append({"ad_id": ad, "airings": n, "first": str(first), "last": str(last)})
+    daypart = collections.defaultdict(lambda: [[0] * 24 for _ in range(7)])   # (fac, bid) -> [weekday Mon=0][hour]
+    for fac, bid, dow, t, n in con.execute("""SELECT facility_id, buyer_id, EXTRACT(ISODOW FROM aired_on)::int - 1, aired_time, COUNT(*)
+                                             FROM spot WHERE aired_time IS NOT NULL GROUP BY 1,2,3,4"""):
+        m = re.match(r"\s*(\d{1,2}):\d\d\s*([AP])M", t or "", re.I)
+        if m:
+            daypart[(fac, bid)][dow][int(m.group(1)) % 12 + (12 if m.group(2).upper() == "P" else 0)] += n
+    def grid(keys):
+        g = [[0] * 24 for _ in range(7)]
+        for k in keys:
+            d = daypart.get(k)
+            if d:
+                for i in range(7):
+                    for h in range(24):
+                        g[i][h] += d[i][h]
+        return g if any(any(r) for r in g) else None
     buyers = con.execute("""SELECT b.buyer_id, b.canonical_name, b.category, b.kind, b.party, b.office, b.district, b.state,
                                    b.fec_candidate_id, b.fec_committee_id, b.fec_committee_name, b.identity_method,
                                    (SELECT array_agg(DISTINCT alias) FROM buyer_alias a WHERE a.buyer_id=b.buyer_id AND a.source='folder') labels
@@ -140,7 +155,7 @@ def export_details(con):
         out = {"slug": slug(b[2], b[1]), "name": b[1], "category": CAT_LABEL.get(b[2], b[2]), "kind": b[3], "party": b[4], "office": b[5], "district": b[6], "state": b[7],
                "fec_candidate_id": b[8], "fec_committee_id": b[9], "fec_committee_name": b[10], "method": b[11], "labels": sorted(b[12] or []),
                "booked": round(sum(s_["booked"] for s_ in stations)), "invoiced": round(sum(s_["invoiced"] for s_ in stations)),
-               "stations": stations, "weekly": series([(r[1], bid) for r in rows]),
+               "stations": stations, "weekly": series([(r[1], bid) for r in rows]), "daypart": grid([(r[1], bid) for r in rows]),
                "creatives": sorted(({"ad_id": k, "airings": v["airings"], "stations": sorted(v["stations"]), "first": v["first"], "last": v["last"]} for k, v in cr.items()), key=lambda x: -x["airings"])[:60],
                "agencies": sorted({a for s_ in stations for a in s_["agencies"]})}
         json.dump(out, open(os.path.join(WEB, "buyers", out["slug"] + ".json"), "w"), separators=(",", ":")); n += 1
@@ -156,7 +171,7 @@ def export_details(con):
             for c in creatives.get((fac, r[0]), []):
                 e = cr[c["ad_id"]]; e["airings"] += c["airings"]; e["buyer"], cat = bname.get(r[0], (None, None)); e["slug"] = slug(cat, e["buyer"]) if e["buyer"] else None
                 e["category"] = CAT_LABEL.get(cat, cat); e["first"] = min(e["first"], c["first"]); e["last"] = max(e["last"], c["last"])
-        out = {**info, "weekly": series([(fac, r[0]) for r in rows]),
+        out = {**info, "weekly": series([(fac, r[0]) for r in rows]), "daypart": grid([(fac, r[0]) for r in rows]),
                "creatives": sorted(({"ad_id": k, **v} for k, v in cr.items()), key=lambda x: -x["airings"])[:80]}
         json.dump(out, open(os.path.join(WEB, "stations", f"{fac}.json"), "w"), separators=(",", ":")); m += 1
     log.info(f"  stations/: {m} detail files")
@@ -320,15 +335,15 @@ def main():
             export_methods(con)
         if want("weights"):
             export_weights(con)
-        if only is not None and not (only - {"methods", "weights"}):
-            return
-        export_stations(con, year, build)
-        export_hex(con)
-        export_buyers(con)
-        export_creatives(con)
-        export_time(con)
-        export_details(con)
-        export_creative_pages(con)
+        if want("stations"): export_stations(con, year, build)
+        if want("hex"): export_hex(con)
+        if want("buyers"): export_buyers(con)
+        if want("creatives"): export_creatives(con)
+        if want("time"): export_time(con)
+        if want("details"): export_details(con)
+        if want("pages"): export_creative_pages(con)
+        if not want("parquet"):
+            json.dump(build, open(os.path.join(WEB, "build.json"), "w")); print(f"build {build['id']}", file=sys.stderr); return
         parquet(con, "station", "SELECT facility_id, call, service, city, state, licensee, station_group, newson_id, public_file_slug, ST_Y(tx) lat, ST_X(tx) lon FROM station")
         parquet(con, "buyer", "SELECT * FROM buyer")
         parquet(con, "buyer_station", "SELECT * FROM buyer_station")

@@ -23,12 +23,26 @@ export async function creativesHere(found) {
     .filter(c => c.airings > 0).sort((a, b) => b.airings - a.airings);
 }
 
+/** Stations type party names freely on the NAB forms; fold them to a few labels. */
+export function partyLabel(p, category) {
+  const s = (p || '').trim().toLowerCase();
+  if (!s) return category === 'Non-Candidate Issue Ads' ? 'Issue groups' : 'Unknown';
+  if (/^(d|dem|demo|democrat|democratic)/.test(s)) return 'Democratic';
+  if (/^(r|rep|repub|republican|gop)/.test(s)) return 'Republican';
+  if (/non.?partisan|^np$|nonpartisan/.test(s)) return 'Nonpartisan';
+  if (/^(i|ind|independent)/.test(s)) return 'Independent';
+  if (/libertarian/.test(s)) return 'Libertarian';
+  if (/green/.test(s)) return 'Green';
+  return p.trim();
+}
+export const PARTY_COLORS = { Democratic: '#2f6fd6', Republican: '#c8102e', 'Issue groups': 'var(--issue)', Nonpartisan: '#8a8f99', Independent: '#7a4fb5', Unknown: 'var(--other)' };
+
 /** Pivot a buyer list by a key: 'buyer' | 'party' | 'category' | 'agency' | 'kind' */
 export function pivot(buyers, by) {
-  if (by === 'buyer') return buyers.map(b => ({ key: b.name, slug: b.slug, category: b.category, booked: b.booked, invoiced: b.invoiced, n: 1 }));
+  if (by === 'buyer') return buyers.map(b => ({ key: b.name, id: b.id, slug: b.slug, category: b.category, booked: b.booked, invoiced: b.invoiced, n: 1 }));
   const m = new Map();
   for (const b of buyers) {
-    const keys = by === 'agency' ? (b.agencies.length ? b.agencies : ['(no agency)']) : [by === 'party' ? (b.party || (b.category === 'Non-Candidate Issue Ads' ? 'Issue groups' : 'Unknown')) : by === 'kind' ? (b.kind || 'unknown') : b.category];
+    const keys = by === 'agency' ? (b.agencies.length ? b.agencies : ['(no agency)']) : [by === 'party' ? partyLabel(b.party, b.category) : by === 'kind' ? (b.kind || 'unknown') : b.category];
     for (const k of keys) { const e = m.get(k) || { key: k, category: b.category, booked: 0, invoiced: 0, n: 0 }; e.booked += b.booked; e.invoiced += b.invoiced; e.n += 1; m.set(k, e); }
   }
   return [...m.values()].sort((a, b) => b.booked - a.booked);

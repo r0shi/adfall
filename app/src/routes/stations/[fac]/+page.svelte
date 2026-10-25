@@ -1,6 +1,8 @@
 <script>
   import { page } from '$app/state';
   import Chart from '$lib/Chart.svelte';
+  import Treemap from '$lib/Treemap.svelte';
+  import Heatmap from '$lib/Heatmap.svelte';
   import { loc, ready, setLocation } from '$lib/location.svelte.js';
   import { stationDetail, stationSpend, usd, num, CATS, catShort } from '$lib/data.js';
   let d = $state(null), sp = $state(null), err = $state(null);
@@ -35,6 +37,12 @@
                   Plot.tip(d.weekly, Plot.pointerX({ x: w => new Date(w.week), y: 'booked', title: w => `week of ${w.week}\n${usd(w.booked)} booked · ${usd(w.invoiced)} invoiced · ${num(w.spots)} spots` }))]
         })} />
       {/if}
+      {#if sp}
+        <h2>Who is buying here</h2>
+        <Treemap items={sp.buyers.map(b => ({ id: `${b.category}|${b.name}`, key: b.name, value: b.gross, color: CATS[b.category] || CATS.Other, href: b.slug ? `/buyers/${b.slug}` : null }))} height={260} format={usd} />
+        <div class="legend">{#each Object.entries(CATS).filter(([c]) => c !== 'Other') as [c, col]}<span><span class="dot" style="background:{col}"></span>{catShort(c)}</span>{/each}<span>· area = booked $</span></div>
+      {/if}
+      {#if d.daypart}<h2>When political ads ran</h2><Heatmap grid={d.daypart} />{/if}
       {#if sp}
         <h2>Buyers</h2>
         {#each sp.buyers.slice(0, 40) as b}

@@ -3,8 +3,18 @@
   import { num, CATS, catShort, slugOf } from '../data.js';
   let { found, idx = null } = $props();
   import Coverage from '../Coverage.svelte';
-  let list = $state.raw([]), mode = $state('cloud'), loading = $state(true);
+  import Heatmap from '../Heatmap.svelte';
+  import { stationDetail } from '../data.js';
+  let list = $state.raw([]), mode = $state('cloud'), loading = $state(true), grid = $state.raw(null);
   $effect(() => { loading = true; const f = found; creativesHere(f).then(c => { list = c; loading = false; }).catch(() => { list = []; loading = false; }); });
+  $effect(() => {
+    const facs = idx ? found.filter(s => idx.stations[s.fac]) : found;
+    Promise.all(facs.map(s => stationDetail(s.fac).catch(() => null))).then(ds => {
+      const g = Array.from({ length: 7 }, () => new Array(24).fill(0)); let any = false;
+      for (const d of ds) if (d?.daypart) { any = true; for (let i = 0; i < 7; i++) for (let h = 0; h < 24; h++) g[i][h] += d.daypart[i][h]; }
+      grid = any ? g : null;
+    });
+  });
   const byBuyer = $derived.by(() => {
     const m = new Map();
     for (const c of list) { const k = c.buyer || `(${c.prefix}…)`; const e = m.get(k) || { buyer: k, category: c.category, airings: 0, creatives: 0, slug: c.buyer ? slugOf(c.category, c.buyer) : null, top: c.ad_id }; e.airings += c.airings; e.creatives += 1; m.set(k, e); }
@@ -16,10 +26,14 @@
 <div class="chips" style="margin:0 0 8px">
   <span class="chip" class:on={mode === 'cloud'} onclick={() => mode = 'cloud'} role="button" tabindex="0">Buyers</span>
   <span class="chip" class:on={mode === 'list'} onclick={() => mode = 'list'} role="button" tabindex="0">Creatives</span>
+  <span class="chip" class:on={mode === 'daypart'} onclick={() => mode = 'daypart'} role="button" tabindex="0" title="When the ads ran: hour × weekday">Daypart</span>
   <span class="muted small" style="align-self:center">{num(list.length)} creatives · {num(list.reduce((t, c) => t + c.airings, 0))} airings</span>
 </div>
 {#if loading}<div class="muted small">Loading…</div>
 {:else if !list.length}<Coverage {found} {idx} what="aired ads on record" />
+{:else if mode === 'daypart'}
+  <div class="muted small" style="margin-bottom:4px">When political spots aired on these stations (invoiced airings with a known time).</div>
+  <Heatmap {grid} />
 {:else if mode === 'cloud'}
   <div class="cloud">{#each byBuyer.slice(0, 80) as b (b.buyer)}<a href={b.slug ? `/buyers/${b.slug}` : `/ads/${b.top}`} style="font-size:{size(b.airings, maxB).toFixed(0)}px;color:{CATS[b.category] || CATS.Other};text-decoration:none" title="{b.buyer} · {num(b.airings)} airings · {b.creatives} creatives">{b.buyer}</a>{/each}</div>
 {:else}

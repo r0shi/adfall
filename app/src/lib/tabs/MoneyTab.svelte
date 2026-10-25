@@ -1,26 +1,33 @@
 <script>
-  import { buyersHere, pivot } from '../here.js';
+  import { buyersHere, pivot, PARTY_COLORS } from '../here.js';
   import { usd, num, CATS, catShort } from '../data.js';
   import Coverage from '../Coverage.svelte';
+  import Treemap from '../Treemap.svelte';
   let { found, all, idx = null } = $props();
-  let buyers = $state.raw([]), by = $state('buyer'), cat = $state('All'), loading = $state(true);
+  let buyers = $state.raw([]), by = $state('buyer'), cat = $state('All'), loading = $state(true), view = $state('treemap');
   $effect(() => { loading = true; const f = found; buyersHere(f, all, idx).then(b => { buyers = b; loading = false; }).catch(() => { buyers = []; loading = false; }); });
   const filtered = $derived(cat === 'All' ? buyers : buyers.filter(b => b.category === cat));
   const rows = $derived(pivot(filtered, by));
   const total = $derived(filtered.reduce((t, b) => t + b.booked, 0));
   const max = $derived(rows[0]?.booked || 1);
-  const PARTY = { Democratic: '#2f6fd6', Republican: '#c8102e', 'Issue groups': 'var(--issue)' };
-  const color = (r) => by === 'party' ? (PARTY[r.key] || 'var(--other)') : (CATS[r.category] || CATS.Other);
+  const color = (r) => by === 'party' ? (PARTY_COLORS[r.key] || 'var(--other)') : (CATS[r.category] || CATS.Other);
 </script>
 <div class="chips" style="margin:0 0 6px"><span class="muted small">By:</span>
   {#each [['buyer', 'Buyer'], ['party', 'Party'], ['category', 'Category'], ['agency', 'Agency']] as [k, l]}<span class="chip" class:on={by === k} onclick={() => by = k} role="button" tabindex="0">{l}</span>{/each}
 </div>
-<div class="chips" style="margin:0 0 8px">{#each ['All', ...Object.keys(CATS).filter(c => c !== 'Other')] as c}<span class="chip" class:on={cat === c} onclick={() => cat = c} role="button" tabindex="0">{catShort(c)}</span>{/each}</div>
+<div class="chips" style="margin:0 0 8px">{#each ['All', ...Object.keys(CATS).filter(c => c !== 'Other')] as c}<span class="chip" class:on={cat === c} onclick={() => cat = c} role="button" tabindex="0">{catShort(c)}</span>{/each}
+  <span style="margin-left:auto"></span>
+  <span class="chip" class:on={view === 'treemap'} onclick={() => view = 'treemap'} role="button" tabindex="0" title="Area = booked $">Treemap</span>
+  <span class="chip" class:on={view === 'bars'} onclick={() => view = 'bars'} role="button" tabindex="0">Bars</span></div>
 {#if loading}<div class="muted small">Loading…</div>
 {:else if !buyers.length}<Coverage {found} {idx} />
 {:else}
   <div class="muted small" style="margin-bottom:6px"><b>{usd(total)}</b> booked by {filtered.length} buyers on {found.length} stations · {rows.length} {by === 'buyer' ? 'buyers' : by === 'party' ? 'parties' : by === 'agency' ? 'agencies' : 'categories'}</div>
-  {#each rows.slice(0, 40) as r (r.key)}
+  {#if view === 'treemap'}
+    <Treemap items={rows.map(r => ({ id: `${r.category}|${r.key}`, key: r.key, value: r.booked, color: color(r), href: r.slug ? `/buyers/${r.slug}` : null }))} height={280} format={usd} />
+    <div class="legend">{#each Object.entries(CATS).filter(([c]) => c !== 'Other') as [c, col]}<span><span class="dot" style="background:{col}"></span>{catShort(c)}</span>{/each}{#if by === 'party'}<span><span class="dot" style="background:#2f6fd6"></span>D</span><span><span class="dot" style="background:#c8102e"></span>R</span>{/if}<span>· area = booked $</span></div>
+  {:else}
+  {#each rows.slice(0, 40) as r (r.id ?? r.key)}
     <div style="margin:5px 0">
       <div class="row small"><span class="dot" style="background:{color(r)}"></span>{#if r.slug}<a href="/buyers/{r.slug}" style="text-decoration:none">{r.key}</a>{:else}<span>{r.key}</span>{/if}
         {#if by !== 'buyer'}<span class="muted">{r.n} buyer{r.n === 1 ? '' : 's'}</span>{/if}<span class="amt">{usd(r.booked)}</span></div>
@@ -29,4 +36,5 @@
   {/each}
   {#if rows.length > 40}<div class="muted small">…and {rows.length - 40} more</div>{/if}
   <div class="legend"><span><span class="dot" style="background:var(--accent)"></span>invoiced (aired)</span><span><span class="dot" style="background:var(--accent);opacity:.35"></span>booked</span></div>
+  {/if}
 {/if}
