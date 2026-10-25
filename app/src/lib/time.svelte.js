@@ -10,8 +10,8 @@ export const tl = $state({
 });
 export const addDays = (iso, n) => { const d = new Date(iso + 'T00:00:00Z'); d.setUTCDate(d.getUTCDate() + n); return d.toISOString().slice(0, 10); };
 export function setRange(first, last) {
-  tl.first = first; tl.last = last;
   const today = new Date().toISOString().slice(0, 10);
-  if (!tl.day || tl.day < first || tl.day > last) tl.day = today >= first && today <= last ? today : last;   // open on today, not the empty tail
+  tl.first = first; tl.last = last > today ? today : last;      // the future holds only thin scheduled bookings; the cycle ends today
+  if (!tl.day || tl.day < tl.first || tl.day > tl.last) tl.day = tl.last;
 }
 export function step(n = 1) { if (!tl.day) return; const next = addDays(tl.day, n * (tl.window === 'day' ? 1 : 7)); tl.day = next > tl.last ? tl.first : next < tl.first ? tl.last : next; }

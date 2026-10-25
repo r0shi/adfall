@@ -18,7 +18,7 @@
     setRange(days[0], days[days.length - 1]);
   });
   const facsHere = $derived(scope === 'here' && loc.p ? new Set(loc.found.map(s => s.fac)) : null);
-  const series = $derived(framer ? framer.series(tl.window === 'cumulative' ? 'cumulative' : 'day', facsHere) : []);
+  const series = $derived(framer ? framer.series(tl.window === 'cumulative' ? 'cumulative' : 'day', facsHere).filter(s => !tl.last || s[0] <= tl.last) : []);
   // stable color scale per window/metric: 98th percentile of cell values over all frames (sampled every 7th day)
   const scaleMax = $derived.by(() => {
     if (!framer) return 1; const vals = []; const win = tl.window;
@@ -32,7 +32,7 @@
   $effect(() => {
     if (!api || !framer || !tl.day || !layerMod) return;
     const forward = lastDay && tl.day > lastDay; lastDay = tl.day;
-    const decay = tl.trails && forward ? (tl.window === 'day' ? 0.93 : 0.85) : 0;   // per step; a trail lasts ~15-20 steps
+    const decay = tl.trails && forward ? (tl.window === 'day' ? 0.937 : 0.865) : 0;   // per step; a trail lasts ~20 steps
     if (!decay) framer.reset();
     framer.frame(tl.day, tl.window, { decay, facs: facsHere });
     const mx = scaleMax, shown = framer.shown, raw = framer.raw, cells = framer.cells;

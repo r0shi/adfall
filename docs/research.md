@@ -481,3 +481,128 @@ Known limits
   agency name ("MHB Media 841287 7-21-2026"). Override material.
 - FEC names are legal names: "Jonathan Ossoff", "Michael Rogers". Display
   nicknames are a later nicety.
+
+## Pipeline hardening (2026-10-24, night)
+
+Audit of every ingest stage for silent failures, then a rebuild of the plumbing so nothing can
+fail quietly, everything resumes after a kill, and `make status` shows the whole picture. The
+parsers were validated and extended, and the national 2026 crawl was launched (see the next
+section for numbers and the operations notes for how to watch it).
+
+### What was failing silently before
+
+| Stage | Problem found | Fix |
+| --- | --- | --- |
+| crawl | A folder walk that died mid-way left the station looking "listed"; re-runs skipped it forever. | `listing` table per station-year: complete / partial / failed / empty. Partial walks are redone. The API's own `file_count` is recorded and compared. |
+| crawl | A download that failed was simply not marked downloaded; no reason, no count, retried on every run. 54 files were in this state with no record of why. | `download_attempts` / `download_error` per file, retried up to 5 times then reported as given up (`crawl --retry-given-up` resets). Counts of ok/failed/adopted in the summary. |
+| crawl | A killed `curl` could leave a half-written PDF that `exists and size > 0` accepted. | Downloads go to `.part`, are checked for a `%PDF` header and a trailer, hashed (sha256), then renamed. Files on disk but unmarked (killed between curl and the DB write) are verified and adopted. |
+| crawl | The FCC's listed `file_size` does not match the bytes served for 99.6% of files, so a size check against the listing is useless. | `local_size` records the real size; `crawl --verify` re-checks files on disk. |
+| crawl | A blocked edge (403, 503 storms) produced thousands of quick failures. | Backoff on 429/503, stop on 403; 25 consecutive download failures pause two minutes, 150 abort the stage as failed. |
+| update | A day whose feed could not be read stopped the run but the sync marker could still move; errors went to stderr only. | The marker advances only through days that were applied; failures are recorded per day. |
+| ocr | Errors were printed and forgotten; the same broken PDF was retried on every run; a document with 20 pages was cut at 12 and lost its totals page. | `ocr` ledger table (engine, status, attempts, pages, seconds, error), three attempts then given up and listed by status; when a document exceeds the page cap the first pages plus the last two are read. |
+| parse | 244 documents failed with "cryptography>=3.1 is required for AES" (missing dependency), recorded only as a per-document error string. kind=other documents were stored with `parse_status=ok`, so 32k unrecognised documents counted as successes. pypdf's "Ignoring wrong pointing object" flooded the logs. | `cryptography` is a requirement; parser crashes are counted and fail the stage above a threshold; unrecognised documents get `parse_status=unrecognized`; pypdf's logger is silenced. |
+| load_pg | Files for stations missing from `stations.json` were dropped without a count. | Counted and warned. |
+| entities | Could "succeed" with zero orders if upstream broke. | Fails if documents exist but no orders were built. |
+| scripts/*.sh | `>> log` without exit codes; polled a log file for a sentinel; could print "done" with stages skipped. | Replaced by `ingest.batch` (per-stage exit codes, run ledger, resume). |
+| all | No locks, no run history, counts only on stderr. | `ingest.runlog.Stage`: `data/logs/<stage>-<ts>.log` + stderr, `pipeline_run` row (SQLite, mirrored to Postgres), per-stage lock in `data/locks/`, non-zero exit above a failure threshold, dead "running" rows marked killed on the next run. |
+
+### Operations
+
+- `make status` prints files listed / downloaded / pending / given up, parse counts by
+  kind, template and status, OCR done / pending / failed, Postgres entity counts, the last run
+  of every stage with its counts and log path, which stages hold a lock right now, and a
+  problems list (given-up downloads, OCR failures, partial listings, failed stages, stale
+  running rows). `make status STATE=TX` adds a per-station table sorted by pending work.
+- `make coverage` compares the local store with `data/political_doc_counts.csv` (the national
+  per-station counts for 2024 and 2026) by state and year; `MISSING=1` lists uncrawled
+  stations, biggest first.
+- `make validate` runs the parse invariants over `document.raw` in Postgres and prints failure
+  rates per template with the worst examples and their file ids (`data/pdfs/<fac>/<year>/<id>.pdf`).
+- Logs: `data/logs/<stage>-<timestamp>.log`. Every stage ends with one line
+  `== SUMMARY stage=... status=OK|FAILED elapsed=... failures=N <counts> log=...`.
+  `grep SUMMARY data/logs/*.log` is the run history in one screen.
+- Locks: `data/locks/<stage>.lock` holds `pid N since <time>`; a second instance of the same
+  stage exits immediately with the holder's pid. The batch driver holds `pipeline.lock`.
+- National crawl: `make batch` runs `ingest.batch` detached. For each state in
+  `data/crawl_targets_2026_national.txt` (53 states, 1,098 stations with 2026 documents,
+  biggest states first): crawl (list + download, 6 workers) -> parse -> ocr (Vision, 4 workers)
+  -> parse --only-failed, then the Postgres refresh (load_pg, entities, identity, entities,
+  marts) in a background thread while the next state downloads. Follow it with
+  `tail -f data/logs/batch-*.log` (one line per stage per state, with ETA) or `make status`.
+- Resume: rerun `make batch`. States with an ok `batch_state` run are skipped; inside a state
+  the crawl skips complete listings and pending downloads only, OCR skips cached text, parse
+  skips documents already at the current parser version. Kill with `kill <pid>` from the lock
+  file; nothing needs cleaning up. `--all` redoes finished states (cheap), `--states TX,OH`
+  picks a subset.
+- Daily upkeep after the crawl: `make update` applies the FCC change feed since the last sync
+  (adds, deletes, moves) and downloads new files; then `make parse`, `make ocr`, `make parse`,
+  `make refresh`, and the owner's `make export`.
+- Postgres migrations are applied by `load_pg` automatically (`ingest.pg migrate`).
+
+### OCR engine choice
+
+Benchmark on 48 image-only PDFs (214 pages: WideOrbit contract scans, Katz contracts, scanned
+NAB forms, unrecognised scans), single process, M-series Mac, 10 cores:
+
+| Engine | Render scale | s/page | Order numbers found | Totals found | Notes |
+| --- | --- | --- | --- | --- | --- |
+| tesseract 5.5 psm 6 | 2.2 (~160 dpi) | 0.98 | 32 / 32 | 32 / 32 | baseline; garbage on rotated pages |
+| Apple Vision (ocrmac) accurate | 2.2 | 0.41 | 32 / 32 | 32 / 32 | |
+| Apple Vision accurate | 1.5 | **0.21** | 32 / 32 | 32 / 32 | chosen |
+| Apple Vision fast | 1.5 | 0.16 | 0 / 32 | 0 / 32 | unusable |
+| Apple Vision accurate | 1.0 | 0.15 | 26 / 32 | 24 / 32 | too lossy |
+
+With 4 worker processes Vision reaches 0.09 wall-seconds per page (11 pages/s); 8 workers
+give 0.08, so it saturates at four (the Neural Engine is the shared resource). Vision read
+four landscape-rotated contracts that tesseract had turned into noise, found advertisers on
+six more documents, and produces cleaner header lines. Two quirks: it writes thousands
+separators as periods ("$22.525.00") and appends stray glyphs (ł, ą, Ạ) to digits; the OCR
+stage strips non-Latin-1 characters and the money parser treats the last separator as the
+decimal point. Image-only documents average 4.0 pages, so the national load of roughly 110k
+image PDFs is about 440k pages, or 11 hours of OCR at 4 workers, running alongside the
+downloads. Tesseract would have needed about 120 hours of CPU. The cached tesseract text
+from the first crawl (24.8k documents) is still used; `ocr --redo-legacy` re-reads those with
+Vision and `parse --only-failed` picks up any document whose OCR is newer than its parse.
+
+### Parser v5: layouts found by clustering the unrecognised documents
+
+Clustering the 32k `kind=other` and 14k failed forms by station group and the first words of
+their text gave a short list of layouts, in order of size:
+
+1. **WideOrbit "Order" print** (text): header `Order / Rev:`, `Flight Dates:`, `Estimate:`,
+   values in a block after `Original Date / Rev:`. Gray, Nexstar, Scripps, Allen Media and a
+   dozen independents file this instead of the "Contract" print the parser knew. Carries
+   order number, flight, advertiser, agency, estimate, per-line programs and amounts, gross
+   and net. A Univision variant puts each label and value on its own line.
+2. **Scanned NAB agreement forms** (OCR): "CANDIDATE ADVERTISEMENT AGREEMENT FORM", "ISSUE
+   (Non-candidate) ADVERTISEMENT AGREEMENT FORM", the 2024 PB-19, Graham's "SUPPLEMENT TO
+   ORDER", NBC's "POLITICAL INQUIRY RECORD", Fox's disclosure form. Signed scans have no
+   AcroForm fields, so the form parser read nothing. The text parser takes the value after
+   each stable label (candidate name, authorized committee, agency, party, office, election
+   date, treasurer, sponsor) with cleanup for checkbox debris and glued addresses.
+3. **WideOrbit "Order" print scanned** (OCR, inline labels): Gray's WALB/WSAW scans.
+4. **Katz ECR confirmation contract** (text, Sinclair stations): `External #`, `Grand Total:`.
+   The OCR'd "Sinclair contract" scans (WSMH, WWMT, WCTI) are the same report.
+5. **Locality "CONTRACT WORKSHEET REPORT"** (OCR): rep-firm contracts at WWMT, WGTA.
+6. **PDF portfolios** (Hearst): a one-page cover whose real order is an attachment; the
+   extractor now unpacks attachments.
+7. **NAB supplements and addenda** (ISCI codes, no money): recognised as `nab-supplement`
+   so they stop looking like gaps.
+
+Two bugs in the existing WideOrbit contract parser also surfaced: line items with no space
+before the `:30` length token were skipped (4.7% of orders failed the lines-sum check, e.g.
+"COMICS UNLEASHED NETWORK:30"), and a line number glued to the previous program name was
+missed. The invoice "Order #" linking check shows 42% of WideOrbit invoices reference an order
+number with no order document at the same station; that is how stations file, not a parse error.
+
+### station_group
+
+86 of the 200 crawled stations (41k documents) had no group because the licensee regexes
+knew only parent company names. Sinclair's licensees are "<CALL> Licensee, LLC" or
+"<City> (<CALL>-TV) Licensee, Inc."; Allen Media's are "<City> TV License Company, LLC";
+Tegna's are legacy Belo and Gannett companies ("Combined Communications of Oklahoma" is
+WZZM, "Multimedia Holdings" is KPNX); CBS's are "<City> Television Station <CALL> Inc.".
+The rules in `ingest/load_pg.py` were checked against all 860 distinct licensee strings and
+confirmed against the document templates each station files (every "Licensee, LLC" station
+files Sinclair invoices or Katz contracts). Public and religious broadcasters are grouped as
+such; the rest are "Independent" (five crawled stations). No station is NULL.

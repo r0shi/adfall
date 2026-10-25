@@ -106,6 +106,7 @@ def main(argv=None):
         log.info("batch: %d states (%d stations) to do, %d skipped as done: %s", len(todo), total_docs, len(skip), " ".join(s for s, _ in todo))
         pgr = PgRefresher(st)
         consecutive_fail = 0
+        failed_states = []
         t_start = time.time()
         for i, (state, facs) in enumerate(todo, 1):
             t0 = time.time()
@@ -114,50 +115,48 @@ def main(argv=None):
                      ("parse", stage_cmd("parse", "--stations", ",".join(facs), "--workers", str(a.parse_workers))),
                      ("ocr", stage_cmd("ocr", "--workers", str(a.ocr_workers))),
                      ("parse2", stage_cmd("parse", "--only-failed", "--stations", ",".join(facs), "--workers", str(a.parse_workers)))]
-            failed = None
-            with Stage("batch_state", args={"state": state, "stations": len(facs)}, db_path=a.db, lock=False, batch=state) as sst:
-                for name, cmd in steps:
-                    rc, secs, summ = run_stage(cmd, batch=state)
-                    log.info("  %-6s exit=%d %s  %s", name, rc, hms(secs), summ[-200:])
-                    sst.count(name + "_seconds", round(secs))
-                    if rc != 0:
-                        failed = name
-                        sst.fail(f"{state}/{name}", f"exit {rc}: {summ[-200:]}")
-                        if name == "crawl":
-                            break                        # nothing new to parse; keep going with the next state
-                if failed:
-                    raise RuntimeError(f"{state}: stage {failed} failed")
-            # (Stage raises SystemExit(1) on failure; we are outside it here only when ok)
-            consecutive_fail = 0
-            st.count("states_ok")
-            if not a.no_pg:
-                pgr.request(state)
+            ok = run_state(a, state, facs, steps)
+            if ok:
+                consecutive_fail = 0
+                st.count("states_ok")
+                if not a.no_pg:
+                    pgr.request(state)
+            else:
+                consecutive_fail += 1
+                failed_states.append(state)
+                st.fail(state, "one or more stages failed; see the batch_state run and the stage logs")
+                st.count("states_failed")
+                if consecutive_fail >= 3:
+                    log.error("three states in a row failed; stopping (the FCC edge is probably refusing us). Rerun `make batch` to resume.")
+                    break
             el = time.time() - t_start
-            log.info("=== %s done in %s; %d/%d states, elapsed %s, eta %s", state, hms(time.time() - t0), i, len(todo), hms(el), hms(el / i * (len(todo) - i)))
+            log.info("=== %s %s in %s; %d/%d states, elapsed %s, eta %s", state, "done" if ok else "FAILED", hms(time.time() - t0), i, len(todo), hms(el), hms(el / i * (len(todo) - i)))
+        log.info("waiting for the Postgres refresh to finish")
         pgr.wait()
         st.count("pg_refresh_failures", pgr.failures)
+        if failed_states:
+            log.warning("failed states: %s (rerun `make batch`; they are not marked done)", " ".join(failed_states))
 
 
-def _main_wrapper():
-    """A failed state must not end the whole run: catch the SystemExit from the inner Stage and continue."""
-    import types
-    main_src = main
-    # re-implement the loop with per-state error handling by wrapping Stage exits
-    orig = Stage.__exit__
-
-    def soft_exit(self, et, ev, tb):
-        try:
-            return orig(self, et, ev, tb)
-        except SystemExit:
-            if self.name == "batch_state":
-                return True                              # swallow: the driver records and moves on
-            raise
-    Stage.__exit__ = soft_exit
+def run_state(a, state, facs, steps):
+    """Run one state's stages under a batch_state run row; any failed stage fails the state. Returns True on success."""
     try:
-        main_src()
-    finally:
-        Stage.__exit__ = orig
+        with Stage("batch_state", args={"state": state, "stations": len(facs)}, db_path=a.db, lock=False, batch=state, max_fail_rate=0, min_failures=0) as sst:
+            for name, cmd in steps:
+                rc, secs, summ = run_stage(cmd, batch=state)
+                log.info("  %-6s exit=%d %s  %s", name, rc, hms(secs), summ[-200:])
+                sst.count(name + "_seconds", round(secs))
+                if rc != 0:
+                    sst.fail(f"{state}/{name}", f"exit {rc}: {summ[-200:]}")
+                    if name == "crawl":
+                        break                            # nothing new to parse; the state stays not-done
+        return True
+    except SystemExit:
+        return False                                     # Stage recorded the failure
+    except Exception as e:
+        log.error("%s: driver error %s: %s", state, type(e).__name__, e)
+        return False
 
 
 if __name__ == "__main__":
-    _main_wrapper()
+    main()

@@ -44,6 +44,8 @@ def fetch_day(day):
         if len(page) < 500:
             return rows
         off += 500
+        if off % 2500 == 0:
+            log.info("  %s: %d feed rows so far (page %d)", day, len(rows), off // 500)
         time.sleep(0.2)
 
 
