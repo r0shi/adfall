@@ -1,0 +1,6 @@
+# Manual video chain overrides, applied last by `python3 -m ingest.video overrides` (they win).
+#   AD-ID or spot family key: video url      e.g.  RSFI2615000H: https://www.youtube.com/watch?v=eOxZCFwp5s4
+#   buyer slug: channel url                  e.g.  state-rob-sand: https://www.youtube.com/@robsandia
+# A spot family key is the Ad-ID without the weekday/slot tail some invoices append (RSFI2615000HTu1 -> RSFI2615000H);
+# an override on the family applies to every variant. Buyer slugs are the ones in the app's URLs (/buyers/<slug>).
+# Non-YouTube urls (adstransparency.google.com, ispot.tv) are kept as link-outs without an embed.
