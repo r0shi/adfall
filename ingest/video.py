@@ -67,9 +67,13 @@ SLUG_SQL = "b.category || '-' || left(trim(both '-' from regexp_replace(lower(b.
 
 
 def relink(con):
-    """buyer_id is reassigned by every entity rebuild; the slug is the stable key. Refresh the convenience column."""
+    """buyer_id is reassigned by every entity rebuild; the slug is the stable key. Refresh the convenience column,
+    and drop match rows whose Ad-ID no longer exists (a parser fix can collapse or rename creatives)."""
     con.execute(f"UPDATE buyer_channel bc SET buyer_id = b.buyer_id FROM buyer b WHERE {SLUG_SQL} = bc.buyer_slug AND bc.buyer_id IS DISTINCT FROM b.buyer_id")
+    n = con.execute("DELETE FROM creative_video v WHERE NOT EXISTS (SELECT 1 FROM creative c WHERE c.ad_id = v.ad_id)").rowcount
     con.commit()
+    if n:
+        log.info("pruned %d creative_video rows whose Ad-ID is gone", n)
 
 
 # ------------------------------------------------------------------ small HTTP / cache helpers

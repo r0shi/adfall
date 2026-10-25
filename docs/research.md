@@ -822,6 +822,13 @@ versions, not the 30 s TV cuts, so his matches cap at 0.65.
 
 ### Results (top 300 buyers by airings, 2026-10-25 02:30, 866 buyers / 64,978 creatives / 2,797 spot families / 707,127 airings in Postgres)
 
+Measured before the parser fix for the glued weekday tails (see "Invoice
+Ad-ID tails" below): the creative counts here are inflated, the airing
+shares count each glued copy. The re-run on the corrected creatives
+(12,539 rows, 953,118 airings after more states loaded) gives 46% of airings
+with a rank-1 upload and 9% high confidence; the tables below stand as the
+first measurement.
+
 Channels: 178 of the top 300 buyers resolved to a channel (5 wrong picks
 blocked by hand in the overrides file: "Victory Fund" for two state victory
 funds, a jiu-jitsu channel for a Brian Wrightson, the City of Reno for a
