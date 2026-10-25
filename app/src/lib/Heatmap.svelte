@@ -12,7 +12,7 @@
   <Chart {height} make={(Plot, width, height) => Plot.plot({
     width, height, marginLeft: 36, marginBottom: 28, padding: 0.08,
     x: { domain: HOURS, label: null, tickFormat: (d, i) => i % 3 === 0 ? d : '' }, y: { domain: DAYS, label: null },
-    color: { scheme: 'reds', type: 'sqrt', label: title },
+    color: { scheme: 'blues', type: 'sqrt', label: title },
     marks: [Plot.cell(rows, { x: 'hour', y: 'day', fill: 'n', inset: 0.5, tip: true, title: r => `${r.day} ${r.hour}: ${r.n.toLocaleString()} ${title}` })]
   })} />
   <div class="muted" style="font-size:11.5px">Peak: {peak.day} {peak.hour} ({peak.n.toLocaleString()} {title}) · {total.toLocaleString()} total with a known air time</div>

@@ -19,7 +19,7 @@ GEO = os.path.join(ROOT, "data", "geo")
 HEX_RES = {5: "national", 7: "active"}         # res -> scope
 COUNTY_URL = "https://www2.census.gov/geo/tiger/GENZ2023/shp/cb_2023_us_county_500k.zip"
 POP_URL = "https://www2.census.gov/programs-surveys/popest/datasets/2020-2024/counties/totals/co-est2024-alldata.csv"  # no API key needed
-UA = "tv-wormhole/0.1 (research prototype)"
+UA = "adfall/0.1 (research prototype)"
 
 
 def fetch(url, dest):

@@ -25,4 +25,4 @@ const CAT_CODE = { 'Federal': 'federal', 'State': 'state', 'Local': 'local', 'No
 export const slugOf = (category, name) => `${CAT_CODE[category] || 'other'}-` + name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 60);
 export const buyerDetail = (slug) => get(`buyers/${slug}.json`);
 export const stationDetail = (fac) => get(`stations/${fac}.json`);
-export const PLOT_COLORS = { domain: Object.keys(CATS), range: ['#c8102e', '#e8743b', '#f2b705', '#5b6cff', '#9aa0ad'] };
+export const PLOT_COLORS = { domain: Object.keys(CATS), range: ['#6250d6', '#008300', '#eda100', '#e87ba4', '#9aa0ad'] };

@@ -1,4 +1,4 @@
-# TV Wormhole: proto-spec
+# Adfall (originally TV Wormhole): proto-spec
 
 Status: prototype (v0) built 2026-10-23. This document describes what v0 is,
 what v1 should be, and what is deliberately out of scope. See

@@ -124,7 +124,7 @@ def main(argv=None):
                           "stations": per_station(con, a.state, info) if (a.stations or a.state) else None}, indent=1, default=str))
         return
     f, d, k, oc = o["files"], o["docs"], o["kinds"], o["ocr"]
-    print(f"TV Wormhole pipeline status   {datetime.datetime.now():%Y-%m-%d %H:%M}   db={db.dbname()}")
+    print(f"Adfall pipeline status   {datetime.datetime.now():%Y-%m-%d %H:%M}   db={db.dbname()}")
     print(f"  stations with files {f['stations']}   files listed {f['listed']:,}  downloaded {f['downloaded']:,} ({f['gb_on_disk']} GB)  pending {f['pending']:,}  given up {f['given_up']:,}  deleted {f['deleted']:,}")
     print(f"  listings: " + "  ".join(f"{s}={n}" for s, n in o["listing"].items()) + f"   by year: " + "  ".join(f"{y}: {v['downloaded']:,}/{v['listed']:,}" for y, v in o["by_year"].items()))
     print(f"  parsed {d['parsed']:,}  ok {d['ok']:,} ({100*d['ok']/max(1,d['parsed']):.1f}%)  partial {d['partial']:,}  failed {d['failed']:,}  unrecognized {d['unrecognized']:,}  unparsed downloads {d['unparsed_downloads']:,}  parser crashes {d['parser_crashes']:,}")

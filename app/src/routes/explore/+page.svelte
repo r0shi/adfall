@@ -47,10 +47,10 @@
     const cols = result.cols.map(c => c.name);
     const esc = v => { const s = v == null ? '' : String(v); return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
     const blob = new Blob([[cols.join(','), ...result.rows.map(r => cols.map(c => esc(r[c])).join(','))].join('\n')], { type: 'text/csv' });
-    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'tv-wormhole-query.csv'; a.click();
+    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'adfall-query.csv'; a.click();
   };
 </script>
-<svelte:head><title>Explore · TV Wormhole</title></svelte:head>
+<svelte:head><title>Explore · Adfall</title></svelte:head>
 <div class="shell wide"><aside class="panel" style="border:0">
   <header>
     <h1>Explore</h1>
@@ -84,7 +84,7 @@
       <div class="muted small" style="margin-bottom:6px">{DIMS[pv.rows].label} × {DIMS[pv.cols].label}, {MEASURES[pv.measure].label.toLowerCase()} · top {grid.rowKeys.length} rows{grid.colKeys.length > 12 ? '' : `, ${grid.colKeys.length} columns`}</div>
       <Chart height={Math.max(220, 16 * grid.rowKeys.length + 60)} make={(Plot, width, height) => Plot.plot({
         width, height, marginLeft: 180, marginBottom: 60, padding: 0.05, x: { domain: grid.colKeys, label: null, tickRotate: -35 }, y: { domain: grid.rowKeys, label: null },
-        color: { scheme: 'reds', type: 'sqrt', label: MEASURES[pv.measure].label },
+        color: { scheme: 'blues', type: 'sqrt', label: MEASURES[pv.measure].label },
         marks: [Plot.cell(grid.rowKeys.flatMap(r => grid.colKeys.map(c => ({ r, c, v: grid.cell(r, c) }))), { x: 'c', y: 'r', fill: 'v', inset: 0.5, tip: true, title: d => `${d.r} × ${d.c}: ${fmtM(d.v)}` })]
       })} />
       <div style="overflow:auto;max-height:50vh;margin-top:10px;border:1px solid var(--line);border-radius:8px">

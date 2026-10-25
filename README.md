@@ -1,9 +1,9 @@
-# TV Wormhole
+# Adfall
 
 Drop a pin anywhere in the United States and see the broadcast TV stations whose
-signal reaches it, watch their newscasts, and follow the political advertising
-money each station files with the FCC: who bought airtime, for how much, when the
-spots aired, and, where a match exists, the ad itself.
+signal reaches it (its *airshed*), watch their newscasts, and follow the political
+advertising money that lands on it (its *adfall*): who bought airtime, for how
+much, when the spots aired, and, where a match exists, the ad itself.
 
 The project has two independent ends joined by one directory:
 

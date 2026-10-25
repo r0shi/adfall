@@ -1,7 +1,7 @@
 <script>
   import Chart from '$lib/Chart.svelte';
   import { loc } from '$lib/location.svelte.js';
-  import { creatives, num, CATS, catShort, slugOf } from '$lib/data.js';
+  import { creatives, num, CATS, catShort, slugOf, PLOT_COLORS } from '$lib/data.js';
   let all = $state([]), scope = $state('here'), cat = $state('All'), q = $state(''), mode = $state('cloud');
   creatives().then(c => all = c);
   const facsHere = $derived(new Set(loc.found.map(s => s.fac)));
@@ -25,7 +25,7 @@
   const size = (a, mx) => 11 + 28 * Math.sqrt(a / mx);
   const slugFor = (b) => b.slug || null;
 </script>
-<svelte:head><title>Ads · TV Wormhole</title></svelte:head>
+<svelte:head><title>Ads · Adfall</title></svelte:head>
 <div class="shell wide">
   <aside class="panel" style="border:0">
     <header>
@@ -62,7 +62,7 @@
       {#if byBuyer.length}
         <Chart height={Math.max(160, 18 * Math.min(20, byBuyer.length) + 40)} make={(Plot, width, height) => Plot.plot({
           width, height, marginLeft: 220, x: { label: 'Spots aired', grid: true }, y: { label: null },
-          color: { domain: Object.keys(CATS), range: ['#c8102e', '#e8743b', '#f2b705', '#5b6cff', '#9aa0ad'] },
+          color: PLOT_COLORS,
           marks: [Plot.barX(byBuyer.slice(0, 20), { x: 'airings', y: 'buyer', fill: 'category', sort: { y: '-x' }, tip: true, title: d => `${d.buyer}\n${num(d.airings)} airings · ${d.creatives} creatives` })]
         })} />
       {/if}

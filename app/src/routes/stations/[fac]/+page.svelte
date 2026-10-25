@@ -10,7 +10,7 @@
     Promise.all([stationDetail(fac), stationSpend(fac).catch(() => null), ready()]).then(([a, b]) => { d = a; sp = b; }).catch(e => err = e.message); });
   const st = $derived(d ? loc.all.find(s => s.fac === d.fac) : null);
 </script>
-<svelte:head><title>{d ? d.call : 'Station'} · TV Wormhole</title></svelte:head>
+<svelte:head><title>{d ? d.call : 'Station'} · Adfall</title></svelte:head>
 <div class="shell wide"><aside class="panel" style="border:0">
   {#if err}<section class="muted">Not found: {err}</section>
   {:else if !d}<section class="muted">Loading…</section>

@@ -1,8 +1,9 @@
 // Difference layers: per-station signed values spread over cells by population share (same weights as the frames).
+import { WARM, COOL, DEM, REP } from './palette.js';
 export const DIFFS = {
-  dr: { label: 'D − R', desc: 'Democratic minus Republican candidate dollars reaching each cell', pos: 'Democratic', neg: 'Republican', posColor: [47, 111, 214], negColor: [200, 16, 46] },
-  bi: { label: 'Booked − invoiced', desc: 'Dollars booked but not yet billed (the pipeline still to air), minus nothing where invoices have caught up', pos: 'still to air', neg: 'billed above booking', posColor: [230, 120, 20], negColor: [20, 150, 150] },
-  wk: { label: 'This week − last', desc: 'Change in booked dollars versus the previous week (momentum)', pos: 'rising', neg: 'falling', posColor: [200, 16, 46], negColor: [60, 60, 70] }
+  dr: { label: 'D − R', desc: 'Democratic minus Republican candidate dollars reaching each cell', pos: 'Democratic', neg: 'Republican', posColor: DEM, negColor: REP },
+  bi: { label: 'Booked − invoiced', desc: 'Dollars booked but not yet billed (the pipeline still to air), minus nothing where invoices have caught up', pos: 'still to air', neg: 'billed above booking', posColor: WARM, negColor: COOL },
+  wk: { label: 'This week − last', desc: 'Change in booked dollars versus the previous week (momentum)', pos: 'rising', neg: 'falling', posColor: WARM, negColor: COOL }
 };
 export function stationDiffs(mode, idx, framer = null, day = null) {
   const out = new Map();

@@ -10,7 +10,7 @@
   const hash = $derived(loc.p ? `#${loc.p[0].toFixed(4)},${loc.p[1].toFixed(4)}` : '');
 </script>
 <nav class="top">
-  <span class="brand">TV Wormhole</span>
+  <span class="brand">Adfall</span>
   {#each tabs as [href, label]}<a href={href + hash} class:active={href === '/' ? page.url.pathname === '/' : page.url.pathname.startsWith(href)}>{label}</a>{/each}
   <span class="loc" style="margin-left:auto">{loc.p ? `${loc.label} · ${loc.found.length} stations` : ''}</span>
   <SearchAll />

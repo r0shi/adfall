@@ -20,7 +20,7 @@
   let layer = $state('coverage'), tab = $state('stations'), tabB = $state('stations'), collapsed = $state(false), collapsedB = $state(false), hover = $state.raw(null), pickingB = $state(false), weights = $state.raw(null);
   let framer = $state.raw(null), layerMod = $state.raw(null), lastDay = null;
   spendIndex().then(d => idx = d); get('tiles/meta.json').then(m => meta = m);
-  const LAYERS = [['coverage', 'Coverage'], ['booked', 'Money'], ['pp', '$ / person'], ['spots', 'Spots'], ['ps', '$ / spot'], ['animate', 'Over time ▶'], ['dr', 'D − R'], ['bi', 'Booked − invoiced'], ['wk', 'Week vs last']];
+  const LAYERS = [['coverage', 'Airshed'], ['booked', 'Money'], ['pp', '$ / person'], ['spots', 'Spots'], ['ps', '$ / spot'], ['animate', 'Over time ▶'], ['dr', 'D − R'], ['bi', 'Booked − invoiced'], ['wk', 'Week vs last']];
   const isDiff = $derived(layer in DIFFS);
   const isTile = $derived(!(layer === 'coverage' || layer === 'animate' || isDiff));
   const res = $derived(zoom >= 6.3 ? 7 : 5);
@@ -60,7 +60,7 @@
   const cmpB = $derived(locB.p ? `${locB.found.length} stations · ${usd(totalB)} booked · ${ratio(totalB, total)} of A` : '');
   const fmtHover = (p) => isDiff ? `${p.value > 0 ? DIFFS[layer].pos : DIFFS[layer].neg} by ${usd(Math.abs(p.value))}` : layer === 'animate' ? `${usd(p.raw)} this ${tl.window}` : `${METRICS[layer]?.[0]}: ${layer === 'pp' ? '$' + (+p.pp).toFixed(2) : layer === 'spots' ? p.spots : layer === 'ps' ? '$' + p.ps : usd(p.booked)} · ${Number(p.pop).toLocaleString()} people · ${p.stations} stations with buys`;
 </script>
-<svelte:head><title>TV Wormhole</title></svelte:head>
+<svelte:head><title>Adfall</title></svelte:head>
 <div class="shell wide"><div class="mapwrap" style="height:100%">
   <MapView onready={ready} onclick={onMapClick} />
   <div class="float">
@@ -71,7 +71,7 @@
     {:else if isDiff}<div class="muted small" style="margin-top:6px">{DIFFS[layer].desc}.{layer === 'wk' && tl.day ? ` Week ending ${tl.day}.` : ''} {hover ? fmtHover(hover) : ''}</div>
       <div class="legend" style="display:flex;align-items:center;gap:8px;margin-top:6px"><span style="color:rgb({DIFFS[layer].negColor.join(',')})">■ {DIFFS[layer].neg}</span><span style="flex:1;height:8px;border-radius:4px;background:linear-gradient(90deg, rgb({DIFFS[layer].negColor.join(',')}), rgba(255,255,255,.1), rgb({DIFFS[layer].posColor.join(',')}))"></span><span style="color:rgb({DIFFS[layer].posColor.join(',')})">{DIFFS[layer].pos} ■</span></div>
     {:else if layer === 'animate'}<div class="muted small" style="margin-top:6px">Booked $ reaching each cell, by the window on the bar below.{hover ? ' ' + fmtHover(hover) : ''}</div>{/if}
-    {#if pickingB}<div class="small" style="margin-top:6px;color:#2f6fd6"><b>Click the map to drop pin B.</b> <span class="chip" onclick={() => pickingB = false} role="button" tabindex="0">cancel</span></div>{/if}
+    {#if pickingB}<div class="small" style="margin-top:6px;color:var(--pin-b)"><b>Click the map to drop pin B.</b> <span class="chip" onclick={() => pickingB = false} role="button" tabindex="0">cancel</span></div>{/if}
   </div>
   {#if loc.p}
     <Popover {api} anchor={loc.p} badge={locB.p ? 'A' : ''} title={loc.label} sub="{loc.found.length} stations reach here{covered.length ? ` · ${covered.length} with filings · ${usd(total)} booked ${idx.year}` : ' · none crawled yet'}{cmpA}" tabs={TABS} bind:active={tab} bind:collapsed onclose={() => { clearA(); clearB(); }}
@@ -84,7 +84,7 @@
     </Popover>
   {/if}
   {#if locB.p}
-    <Popover {api} anchor={locB.p} badge="B" accent="#2f6fd6" title={locB.label} sub={cmpB} tabs={TABS} bind:active={tabB} bind:collapsed={collapsedB} onclose={clearB}>
+    <Popover {api} anchor={locB.p} badge="B" accent="#c96a0a" title={locB.label} sub={cmpB} tabs={TABS} bind:active={tabB} bind:collapsed={collapsedB} onclose={clearB}>
       {#if tabB === 'stations'}<StationsTab found={locB.found} p={locB.p} {idx} {api} />
       {:else if tabB === 'money'}<MoneyTab found={locB.found} all={loc.all} {idx} />
       {:else if tabB === 'ads'}<AdsTab found={locB.found} {idx} />

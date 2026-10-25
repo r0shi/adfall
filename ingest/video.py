@@ -30,7 +30,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 CACHE_DIR = os.path.join(ROOT, "data", "video_cache")
 OVERRIDES = os.path.join(ROOT, "data", "video_overrides.yaml")
 GOOGLE_ADVERTISERS = os.path.join(ROOT, "data", "google_political_ads", "advertiser_stats.csv")
-UA = "tv-wormhole/0.1 (+research; metadata only)"
+UA = "adfall/0.1 (+research; metadata only)"
 
 AD_MIN, AD_MAX = 10, 95                       # seconds: what counts as an ad-length upload
 STD_LENGTHS = (10, 15, 30, 45, 60, 90)

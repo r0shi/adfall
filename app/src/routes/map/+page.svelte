@@ -1,4 +1,5 @@
 <script>
+  import { rampCss } from '$lib/palette.js';
   // Density map on PMTiles: hex5 (national, z3-8) and hex7 (inside crawled coverage, z6-11) from ingest/tiles.py.
   import MapView from '$lib/Map.svelte';
   import { loc, setLocation } from '$lib/location.svelte.js';
@@ -36,7 +37,7 @@
   function onclick(p) { setLocation(p); }
   const cells = $derived(meta?.hex?.[res]?.cells || 0);
 </script>
-<svelte:head><title>Map · TV Wormhole</title></svelte:head>
+<svelte:head><title>Map · Adfall</title></svelte:head>
 <div class="shell">
   <aside class="panel">
     <header>
@@ -47,7 +48,7 @@
         {#each [['auto', 'Auto'], ['5', 'Coarse'], ['7', 'Fine']] as [k, label]}<span class="chip" class:on={resMode === k} onclick={() => resMode = k} role="button" tabindex="0">{label}</span>{/each}
         <span class="muted">res {res} · {num(cells)} cells with buys</span></div>
       <div class="legend" style="display:block">
-        <div style="height:10px;border-radius:5px;background:linear-gradient(90deg, rgb(255,240,230), rgb(228,128,138), rgb(200,16,46))"></div>
+        <div style="height:10px;border-radius:5px;background:{rampCss}"></div>
         <div class="row" style="font-size:11.5px"><span>0</span><span style="margin-left:auto">{fmt(maxFor(res))}+</span></div>
       </div>
     </header>

@@ -1,7 +1,7 @@
 <script>
   import Chart from '$lib/Chart.svelte';
   import { loc } from '$lib/location.svelte.js';
-  import { buyers, stationSpend, usd, num, CATS, catShort, slugOf } from '$lib/data.js';
+  import { buyers, stationSpend, usd, num, CATS, catShort, slugOf, PLOT_COLORS } from '$lib/data.js';
   let all = $state([]), here = $state([]), cat = $state('All'), scope = $state('here'), q = $state(''), openId = $state(null), detail = $state(null);
   buyers().then(b => all = b);
   const facsHere = $derived(new Set(loc.found.map(s => s.fac)));
@@ -32,7 +32,7 @@
   }
   const top = $derived(list.slice(0, 25));
 </script>
-<svelte:head><title>Buyers · TV Wormhole</title></svelte:head>
+<svelte:head><title>Buyers · Adfall</title></svelte:head>
 <div class="shell wide">
   <aside class="panel" style="border:0">
     <header>
@@ -50,7 +50,7 @@
       {#if top.length}
         <Chart height={Math.max(200, 18 * top.length + 40)} make={(Plot, width, height) => Plot.plot({
           width, height, marginLeft: 220, x: { label: 'Booked ($)', tickFormat: 's', grid: true }, y: { label: null },
-          color: { domain: Object.keys(CATS), range: ['#c8102e', '#e8743b', '#f2b705', '#5b6cff', '#9aa0ad'] },
+          color: PLOT_COLORS,
           marks: [
             Plot.barX(top, { x: 'booked', y: 'name', fill: 'category', sort: { y: '-x' }, tip: true,
               title: d => `${d.name}\n${usd(d.booked)} booked · ${usd(d.invoiced)} invoiced\n${d.stations} station${d.stations === 1 ? '' : 's'} · ${d.states.join(', ')}` }),

@@ -8,7 +8,7 @@
   $effect(() => { const slug = page.params.slug; d = null; buyerDetail(slug).then(x => d = x).catch(e => err = e.message); });
   const color = $derived(d ? (CATS[d.category] || CATS.Other) : 'var(--muted)');
 </script>
-<svelte:head><title>{d ? d.name : 'Buyer'} · TV Wormhole</title></svelte:head>
+<svelte:head><title>{d ? d.name : 'Buyer'} · Adfall</title></svelte:head>
 <div class="shell wide"><aside class="panel" style="border:0">
   {#if err}<section class="muted">Not found: {err}</section>
   {:else if !d}<section class="muted">Loading…</section>

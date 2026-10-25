@@ -14,7 +14,7 @@
   const withAmount = $derived(m ? (m.documents.by_kind_status['order/ok'] || 0) + (m.documents.by_kind_status['order/partial'] || 0) + (m.documents.by_kind_status['invoice/ok'] || 0) + (m.documents.by_kind_status['invoice/partial'] || 0) : 0);
   const idLabel = { 'fec-candidate': 'matched to an FEC candidate', 'fec-committee': 'matched to an FEC committee', 'name-rule': 'merged by name rule', 'manual': 'manual override', 'raw': 'kept as filed' };
 </script>
-<svelte:head><title>About · TV Wormhole</title></svelte:head>
+<svelte:head><title>About · Adfall</title></svelte:head>
 <div class="shell wide"><aside class="panel" style="border:0;max-width:860px">
   <header>
     <h1>About the data and methods</h1>
@@ -25,6 +25,7 @@
   <section>
     <h2>What this is</h2>
     <p>Pick a place in the United States and see the broadcast TV stations whose predicted signal reaches it, watch their local newscasts, and follow the political advertising money each station is taking: who is buying, how much, when, and which ads actually aired. The money comes from the stations' own filings, which federal law requires them to publish.</p>
+    <p>Two words recur. A place's <b>airshed</b> is the set of stations whose predicted signal reaches it, like a watershed for broadcast. <b>Adfall</b> is what lands on it: the political money and spots those stations carry, spread over the people in their footprint.</p>
     <p>It is a research prototype. Amounts are what stations filed, parsed by software, and should be read as directional. Links to every underlying document are one click away so you can check.</p>
 
     <h2>Coverage right now</h2>

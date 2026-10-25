@@ -9,7 +9,7 @@
   const color = $derived(d ? (CATS[d.category] || CATS.Other) : 'var(--muted)');
   const hours = $derived(d ? d.by_hour.map((n, h) => ({ hour: h, n, label: `${h % 12 || 12}${h < 12 ? 'a' : 'p'}` })) : []);
 </script>
-<svelte:head><title>{d ? d.ad_id : 'Creative'} · TV Wormhole</title></svelte:head>
+<svelte:head><title>{d ? d.ad_id : 'Creative'} · Adfall</title></svelte:head>
 <div class="shell wide"><aside class="panel" style="border:0">
   {#if err}<section class="muted">Not found: {err}</section>
   {:else if !d}<section class="muted">Loading…</section>

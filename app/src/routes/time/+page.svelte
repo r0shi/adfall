@@ -7,6 +7,7 @@
   import { stationDaily, hexWeights, usd, num } from '$lib/data.js';
   import { Framer } from '$lib/frames.js';
   import { toGeoJSON } from '$lib/geo.js';
+  import { rampCss, rampRGBA } from '$lib/palette.js';
   let api = $state(null), framer = $state.raw(null), daily = $state.raw(null), weights = $state.raw(null), scope = $state('all'), hover = $state.raw(null);  // big data stays non-reactive
   Promise.all([stationDaily(), hexWeights(5)]).then(([d, w]) => { daily = d; weights = w; });
   const METRICS = { booked: ['Booked $', 2], invoiced: ['Invoiced $', 3], spots: ['Spots aired', 4] };
@@ -39,7 +40,7 @@
     if (!cellIndex || cellIndex.length !== cells.length) cellIndex = Array.from(cells, (_, i) => i);   // stable data identity: one row per cell, always
     api.setDeckLayers([new layerMod.H3HexagonLayer({
       id: 'frame', data: cellIndex, getHexagon: i => cells[i], filled: true, extruded: false, stroked: false, pickable: true, opacity: 0.85,
-      getFillColor: i => { const t = Math.sqrt(Math.min(1, shown[i] / mx)); return [200, 16 + 120 * (1 - t), 46 + 150 * (1 - t), Math.round(255 * Math.min(1, t * 1.4))]; },
+      getFillColor: i => { const t = Math.sqrt(Math.min(1, shown[i] / mx)); const c = rampRGBA(t); c[3] = Math.round(c[3] * Math.min(1, t * 1.6)); return c; },
       onHover: ({ object }) => { hover = object == null ? null : [cells[object], shown[object], raw[object]]; },
       onClick: ({ object }) => { if (object != null) import('h3-js').then(h3 => { const [lat, lng] = h3.cellToLatLng(cells[object]); setLocation([lat, lng]); }); },
       transitions: { getFillColor: { duration: Math.min(650, 600 / tl.speed), easing: t => t } },   // per-cell interpolation between frames
@@ -49,7 +50,7 @@
   $effect(() => { if (api && loc.p) { api.setContours(toGeoJSON(loc.found)); api.setMarker(loc.p); } });
   const fmt = (v) => tl.metric === 'spots' ? num(v) : usd(v);
 </script>
-<svelte:head><title>Over time · TV Wormhole</title></svelte:head>
+<svelte:head><title>Over time · Adfall</title></svelte:head>
 <div class="shell wide"><div class="mapwrap" style="height:100%">
   <MapView onready={a => api = a} onclick={p => setLocation(p)} zoom={4} />
   <div class="float">
@@ -60,7 +61,7 @@
       <span class="chip" class:on={scope === 'all'} onclick={() => scope = 'all'} role="button" tabindex="0">All crawled</span>
       <span class="chip" class:on={scope === 'here'} onclick={() => scope = 'here'} role="button" tabindex="0" title={loc.p ? '' : 'Pick a place first'}>{loc.p ? `Reaching ${loc.label}` : 'Reaching a place'}</span></div>
     {#if hover}<div class="small" style="margin-top:8px"><b>{fmt(hover[2])}</b> this {tl.window === 'cumulative' ? 'cumulative' : tl.window}{tl.trails && hover[1] > hover[2] * 1.01 ? ` · shown ${fmt(hover[1])} with trail` : ''}</div>{/if}
-    <div class="legend" style="display:block;margin-top:8px"><div style="height:8px;border-radius:4px;background:linear-gradient(90deg, rgba(200,136,196,.25), rgb(200,16,46))"></div>
+    <div class="legend" style="display:block;margin-top:8px"><div style="height:8px;border-radius:4px;background:{rampCss}"></div>
       <div class="row" style="font-size:11px"><span>0</span><span style="margin-left:auto">{fmt(scaleMax)}+</span></div></div>
   </div>
   {#if framer}<Timeline {series} label={facsHere ? `${facsHere.size} stations` : `${framer.byStation.size} stations`} />{/if}

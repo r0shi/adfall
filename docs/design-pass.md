@@ -1,4 +1,4 @@
-# Design pass: making TV Wormhole fun to play with
+# Design pass: making Adfall (then TV Wormhole) fun to play with
 
 Date: 2026-10-24. Status: proposal for review before more building. Written
 as a data scientist and a product designer in the same room, looking at the
@@ -211,3 +211,24 @@ the long tail by document count.
 
 Each step ships on its own, and the About page updates itself as the data
 changes.
+
+## Visual system (2026-10-25): Adfall
+
+The product is now Adfall; a place's *airshed* is the set of stations reaching it, its *adfall*
+the money and spots those stations drop on it. The weather lean is deliberately limited to color
+and visual impression, nothing decorative, so the data-journalism audience is not put off.
+
+- Magnitude (money, $ per person, spots, the timeline frames) uses one precipitation ramp, pale sky to
+  deep indigo, defined once in `app/src/lib/palette.js` and reused by MapLibre (`rampExpr`), deck.gl
+  (`rampRGBA`) and the legends (`rampCss`). Lightness-monotone, one hue family, so it reads as "more"
+  without a rainbow.
+- Differences are warm against cool (amber / teal) for momentum and booked-minus-invoiced; party keeps
+  conventional blue and red and is the only place those two hues appear, so red never reads as partisan
+  elsewhere. The accent moved from red to a storm indigo for the same reason.
+- Buyer categories use the dataviz skill's validated steps: violet, green, yellow, magenta, gray, with
+  separate dark-mode steps. All pass the categorical validator in both modes (light and dark, all pairs);
+  yellow and magenta sit under 3:1 on white, which is allowed because every category mark sits beside
+  its label.
+- Pin A is ink, pin B is amber, so contours stop competing with the blue data layers.
+- Small charts (daypart heatmaps, explore cells) switched from the red scheme to blues to match the map.
+
