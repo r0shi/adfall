@@ -27,22 +27,24 @@
     framer.shown.set(keep);
     vals.sort((a, b) => a - b); return vals[Math.floor(vals.length * 0.98)] || 1;
   });
-  let lastDay = null;
+  let lastDay = null, cellIndex = null, layerMod = $state.raw(null);
+  import('@deck.gl/geo-layers').then(m => layerMod = m);
   $effect(() => {
-    if (!api || !framer || !tl.day) return;
+    if (!api || !framer || !tl.day || !layerMod) return;
     const forward = lastDay && tl.day > lastDay; lastDay = tl.day;
-    const decay = tl.trails && forward ? (tl.window === 'day' ? 0.9 : 0.78) : 0;
+    const decay = tl.trails && forward ? (tl.window === 'day' ? 0.93 : 0.85) : 0;   // per step; a trail lasts ~15-20 steps
     if (!decay) framer.reset();
-    const rows = framer.frame(tl.day, tl.window, { decay, facs: facsHere });
-    const mx = scaleMax;
-    import('@deck.gl/geo-layers').then(({ H3HexagonLayer }) => api.setDeckLayers([new H3HexagonLayer({
-      id: 'frame', data: rows, getHexagon: r => r[0], filled: true, extruded: false, stroked: false, pickable: true, opacity: 0.8,
-      getFillColor: r => { const t = Math.sqrt(Math.min(1, r[1] / mx)); return t <= 0.02 ? [0, 0, 0, 0] : [200, 16 + 120 * (1 - t), 46 + 150 * (1 - t), 40 + 215 * t]; },
-      onHover: ({ object }) => { hover = object || null; },
-      onClick: ({ object }) => { if (object) import('h3-js').then(h3 => { const [lat, lng] = h3.cellToLatLng(object[0]); setLocation([lat, lng]); }); },
-      transitions: { getFillColor: 250 },
-      updateTriggers: { getFillColor: [tl.day, tl.window, tl.metric, mx] }
-    })]));
+    framer.frame(tl.day, tl.window, { decay, facs: facsHere });
+    const mx = scaleMax, shown = framer.shown, raw = framer.raw, cells = framer.cells;
+    if (!cellIndex || cellIndex.length !== cells.length) cellIndex = Array.from(cells, (_, i) => i);   // stable data identity: one row per cell, always
+    api.setDeckLayers([new layerMod.H3HexagonLayer({
+      id: 'frame', data: cellIndex, getHexagon: i => cells[i], filled: true, extruded: false, stroked: false, pickable: true, opacity: 0.85,
+      getFillColor: i => { const t = Math.sqrt(Math.min(1, shown[i] / mx)); return [200, 16 + 120 * (1 - t), 46 + 150 * (1 - t), Math.round(255 * Math.min(1, t * 1.4))]; },
+      onHover: ({ object }) => { hover = object == null ? null : [cells[object], shown[object], raw[object]]; },
+      onClick: ({ object }) => { if (object != null) import('h3-js').then(h3 => { const [lat, lng] = h3.cellToLatLng(cells[object]); setLocation([lat, lng]); }); },
+      transitions: { getFillColor: { duration: Math.min(650, 600 / tl.speed), easing: t => t } },   // per-cell interpolation between frames
+      updateTriggers: { getFillColor: [tl.day, tl.window, tl.metric, mx, tl.trails] }
+    })]);
   });
   $effect(() => { if (api && loc.p) { api.setContours(toGeoJSON(loc.found)); api.setMarker(loc.p); } });
   const fmt = (v) => tl.metric === 'spots' ? num(v) : usd(v);

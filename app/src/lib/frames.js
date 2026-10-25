@@ -25,12 +25,13 @@ export class Framer {
     return out;
   }
   frame(day, win, { decay = 0, facs = null } = {}) {
-    const raw = new Float64Array(this.cells.length);
+    const raw = this.raw ||= new Float64Array(this.cells.length);
+    raw.fill(0);
     for (const [fac, v] of this.stationTotals(day, win, facs)) { if (!v) continue; const ws = this.w[fac]; if (!ws) continue; for (const [i, w] of ws) raw[i] += v * w; }
     for (let i = 0; i < raw.length; i++) this.shown[i] = decay ? Math.max(raw[i], this.shown[i] * decay) : raw[i];
     const out = [];
     for (let i = 0; i < raw.length; i++) if (this.shown[i] > 0) out.push([this.cells[i], this.shown[i], raw[i]]);
-    return out;
+    return out;                      // sparse view (used for scale sampling); the layer reads this.shown / this.raw by index
   }
   reset() { this.shown.fill(0); }
   series(win, facs = null) {   // total per day for the scrubline (national or a set of stations)
