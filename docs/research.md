@@ -917,3 +917,31 @@ Both are honest; a reader sees the badge.
 - The invoice tail bug multiplies creatives; airings are the right unit for
   every rate above.
 - Deleted or private uploads keep their rows until the next listing.
+
+## Invoice Ad-ID tails (2026-10-25)
+
+The ad-video session noticed that "49,563 creatives" was mostly one bug:
+several invoice layouts (WideOrbit and the Sinclair variant, where the
+spot line is `date time ... SPOT <code>`) print the weekday column and a
+slot digit hard against the Ad-ID, so the parser captured `RSFI2615000HTu1`
+and `JTFI2000HW1` as codes. One real creative then appeared as up to
+fourteen (seven weekdays times a slot digit), and every airing-count rate
+on the video chain was computed against the inflated families.
+
+Fix (parser v5, no version bump): `clean_ad_id` in `ingest/parse.py` strips
+a `(Mo|Tu|W|Th|F|Sa|Su|M)<1-2 digits>` tail **only when the weekday agrees
+with the spot's air date**. `RSFI267000H` on a Tuesday is untouched (no tail);
+`RSFI2615000HTu1` on a Tuesday becomes `RSFI2615000H`; the same token on a
+Wednesday is left alone, since then it is not a weekday glue. Codes ending in
+a bare letter plus digits that genuinely belong to the Ad-ID survive unless
+they happen to spell the air weekday, which is the residual risk and is
+rare (Ad-ID codes end in a letter, not a letter-digit pair).
+
+Applied with `python -m ingest.parse --kind invoice --no-lock` (both new
+options: `--kind` reparses only documents currently of that kind; `--no-lock`
+lets a maintenance reparse run beside the batch driver, whose own parse
+stage would otherwise fail on the held lock) rather than bumping
+PARSER_VERSION, which would have queued a 4.5-hour reparse of every
+document in the middle of the national crawl. The next entity refresh
+collapses the duplicate creatives; the counts after it are in the table
+below.

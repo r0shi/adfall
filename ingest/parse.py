@@ -478,6 +478,23 @@ def parse_order_eport(text, file_name=""):
 
 
 # ----------------------------------------------------------------------------------------------- invoices
+WEEKDAY_SUFFIX = re.compile(r"^(?P<code>[A-Za-z0-9]{4,14}?)(?P<day>Mo|Tu|Th|Sa|Su|M|W|F)(?P<slot>\d{1,2})$")
+WEEKDAYS = {0: ("M", "Mo"), 1: ("Tu",), 2: ("W",), 3: ("Th",), 4: ("F",), 5: ("Sa",), 6: ("Su",)}
+
+
+def clean_ad_id(token, aired_iso):
+    """Some invoice layouts glue the weekday column and a slot digit onto the Ad-ID ('RSFI2615000HTu1',
+    'JTFI2000HW1'). Strip that tail only when the weekday agrees with the air date, so real codes survive."""
+    m = WEEKDAY_SUFFIX.match(token or "")
+    if not m or not aired_iso:
+        return token
+    try:
+        wd = _dt.date.fromisoformat(aired_iso).weekday()
+    except ValueError:
+        return token
+    return m.group("code") if m.group("day") in WEEKDAYS[wd] else token
+
+
 def parse_invoice_sinclair(text, file_name="", source="text"):
     """Sinclair 'OFFICIAL BILLING INVOICE'. In the text-layer version the header values (advertiser, invoice and
     contract numbers, period) are not in the text layer, so they come from the file name ('Rob Sand, invoice #11747281');
@@ -510,9 +527,10 @@ def parse_invoice_sinclair(text, file_name="", source="text"):
     spots = re.findall(r"(\d\d/\d\d/\d\d)\s+(\d{1,2}:\d\d\s?[AP]M).*?SPOT(?: M/G For [\d.]+)?([A-Z0-9]{6,16})\s*$", text, re.M)
     if not spots and source == "ocr":
         spots = re.findall(r"\W(\d\d/\d\d/\d\d)\s+(\d{1,2}:\d\d\s?[AP]M)\s+\(\w\w\)\s+.*?\s(\w*[A-Z]{2,}\w*\d\w*)\b", text)
+    aired = [{"date": iso(a), "time": t, "ad_id": clean_ad_id(c, iso(a))} for a, t, c in spots]
     d["spots"] = len(spots) or None
-    d["ad_ids"] = sorted({s[2] for s in spots})
-    d["fields"] = {"aired": [{"date": iso(a), "time": t, "ad_id": c} for a, t, c in spots]}
+    d["ad_ids"] = sorted({x["ad_id"] for x in aired})
+    d["fields"] = {"aired": aired}
     return d
 
 
@@ -546,8 +564,9 @@ def parse_invoice(text):
     if m:
         d["spots"] = int(m.group(1))
     spots = re.findall(r"(\d\d/\d\d/\d\d) (\d{1,2}:\d\d [AP]M) ([A-Za-z0-9]{6,16})\b", text)
-    d["ad_ids"] = sorted({s[2] for s in spots})
-    d["fields"] = {"aired": [{"date": iso(a), "time": t, "ad_id": c} for a, t, c in spots]}
+    aired = [{"date": iso(a), "time": t, "ad_id": clean_ad_id(c, iso(a))} for a, t, c in spots]
+    d["ad_ids"] = sorted({x["ad_id"] for x in aired})
+    d["fields"] = {"aired": aired}
     return d
 
 
@@ -740,6 +759,8 @@ def main(argv=None):
     ap.add_argument("--workers", type=int, default=max(2, (os.cpu_count() or 4) - 2))
     ap.add_argument("--no-cache", action="store_true", help="re-extract text from the PDFs instead of data/text")
     ap.add_argument("--max-fail-rate", type=float, default=0.01, help="parser crashes (not failed parses) allowed")
+    ap.add_argument("--kind", help="reparse only documents currently of this kind (e.g. invoice); implies --reparse for those")
+    ap.add_argument("--no-lock", action="store_true", help="maintenance run alongside the batch driver: do not take the parse lock")
     a = ap.parse_args(argv)
     if a.file:
         d = parse_file(a.file, os.path.splitext(os.path.basename(a.file))[0], None, use_cache=False)
@@ -750,7 +771,7 @@ def main(argv=None):
         d["form"] = f.get("form"); d["level"] = f.get("level"); d["source"] = f.get("source"); d["pages"] = f.get("pages"); d["estimate"] = f.get("estimate")
         print(json.dumps(d, indent=1, default=str))
         return
-    with Stage("parse", args=vars(a), max_fail_rate=a.max_fail_rate) as st:
+    with Stage("parse", args=vars(a), max_fail_rate=a.max_fail_rate, lock=not a.no_lock) as st:
         con = db.connect()
         q = "SELECT f.file_id, f.local_path, f.file_name FROM opif_file f WHERE f.downloaded AND f.deleted_at IS NULL"
         params = []
@@ -762,6 +783,8 @@ def main(argv=None):
                      WHERE ((d.parse_status!='ok' OR d.kind='other' OR d.parser_version<%s) AND (NOT d.needs_ocr OR o.status='ok'))
                         OR (o.status='ok' AND o.ocr_at > COALESCE(d.parsed_at, '-infinity'::timestamptz)))"""
             params.append(PARSER_VERSION)
+        elif a.kind:
+            q += " AND f.file_id IN (SELECT file_id FROM document WHERE kind=%s)"; params.append(a.kind)
         elif not a.reparse:
             # skip documents already at this parser version, unless they wait for OCR that has since succeeded
             q += """ AND NOT EXISTS (SELECT 1 FROM document d LEFT JOIN ocr o USING (file_id) WHERE d.file_id=f.file_id AND d.parser_version=%s
