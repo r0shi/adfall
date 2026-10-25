@@ -33,7 +33,10 @@
       if (!overlay) { const { MapboxOverlay } = await import('@deck.gl/mapbox'); overlay = new MapboxOverlay({ interleaved: false, layers, getTooltip }); map.addControl(overlay); }
       else overlay.setProps({ layers, getTooltip });
     },
-    onZoom(fn) { map.on('zoomend', () => fn(map.getZoom())); }
+    onZoom(fn) { map.on('zoomend', () => fn(map.getZoom())); },
+    onMove(fn) { map.on('move', () => fn()); map.on('resize', () => fn()); },
+    project(p) { const pt = map.project([p[1], p[0]]); return [pt.x, pt.y]; },
+    size() { return [map.getContainer().clientWidth, map.getContainer().clientHeight]; }
   };
 </script>
 <div class="map" bind:this={el}></div>

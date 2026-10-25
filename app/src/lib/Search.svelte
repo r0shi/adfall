@@ -18,4 +18,4 @@
   <button type="submit">Go</button>
   <button type="button" class="ghost" onclick={locate} title="Use my location">⌖</button>
 </form>
-<p class="small muted" class:err style:color={err ? 'var(--accent)' : ''}>{hint}</p>
+<p class="small muted" style="margin:4px 0 0" style:color={err ? 'var(--accent)' : ''}>{hint}</p>

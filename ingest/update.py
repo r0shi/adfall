@@ -91,7 +91,7 @@ def main(argv=None):
     ap.add_argument("--workers", type=int, default=4)
     ap.add_argument("--db", default=db.DEFAULT_DB)
     a = ap.parse_args(argv)
-    with Stage("update", args=vars(a), db_path=a.db) as st:
+    with Stage("update", args=vars(a), db_path=a.db, min_failures=0) as st:
         con = db.connect(a.db)
         today = datetime.date.today()
         last = con.execute("SELECT value FROM meta WHERE key='last_history_sync'").fetchone()

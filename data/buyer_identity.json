@@ -72,13 +72,17 @@
 "name": "Mcdowell Addison",
 "method": "fec-candidate"
 },
+"federal|adriana for nevada and flippo for nevada": {
+"name": "David Flippo",
+"method": "fec-candidate"
+},
+"federal|alabama- shomari figures": {
+"name": "Shomari Figures",
+"method": "fec-candidate"
+},
 "federal|alan aversa": {
 "name": "Aversa No Labels",
 "method": "fec-candidate"
-},
-"federal|alan wilson": {
-"name": "Alan Wilson",
-"method": "name-rule"
 },
 "federal|allam for congress": {
 "name": "Nida Allam",
@@ -178,6 +182,10 @@
 },
 "federal|barringer for congress": {
 "name": "Paul Barringer",
+"method": "fec-candidate"
+},
+"federal|barry moore": {
+"name": "Barry Moore",
 "method": "fec-candidate"
 },
 "federal|ben watson": {
@@ -337,6 +345,10 @@
 "method": "fec-candidate"
 },
 "federal|carrie buck for congress": {
+"name": "Carrie Buck",
+"method": "fec-candidate"
+},
+"federal|carrie buck for us congress": {
 "name": "Carrie Buck",
 "method": "fec-candidate"
 },
@@ -528,6 +540,10 @@
 "name": "Dina Titus",
 "method": "fec-candidate"
 },
+"federal|dccc - dina titus for us congress": {
+"name": "Dina Titus",
+"method": "fec-candidate"
+},
 "federal|dccc don davis": {
 "name": "Don Davis",
 "method": "fec-candidate"
@@ -628,6 +644,10 @@
 "name": "Susie Lee",
 "method": "fec-candidate"
 },
+"federal|dccc - susie lee for us congress": {
+"name": "Susie Lee",
+"method": "fec-candidate"
+},
 "federal|dccc - william lawrence": {
 "name": "William Lawrence",
 "method": "fec-candidate"
@@ -681,6 +701,10 @@
 "method": "fec-candidate"
 },
 "federal|dina titus for congress": {
+"name": "Dina Titus",
+"method": "fec-candidate"
+},
+"federal|dina titus for us congress": {
 "name": "Dina Titus",
 "method": "fec-candidate"
 },
@@ -777,6 +801,10 @@
 "method": "fec-candidate"
 },
 "federal|dscc- abdul el-sayed": {
+"name": "Abdul El Sayed",
+"method": "fec-candidate"
+},
+"federal|dscc abdul el-sayed for us senate": {
 "name": "Abdul El Sayed",
 "method": "fec-candidate"
 },
@@ -886,6 +914,10 @@
 },
 "federal|fred simon": {
 "name": "Fred Simon",
+"method": "fec-candidate"
+},
+"federal|french hill - congress": {
+"name": "French Hill",
 "method": "fec-candidate"
 },
 "federal|friends of jim kingston ga-01": {
@@ -1420,6 +1452,10 @@
 "name": "Mallory Mcmorrow",
 "method": "fec-candidate"
 },
+"federal|m collins for us senate": {
+"name": "Mike Collins",
+"method": "fec-candidate"
+},
 "federal|mdscc - abdul el-sayed": {
 "name": "Abdul El Sayed",
 "method": "fec-candidate"
@@ -1508,6 +1544,10 @@
 "name": "Mid Women Win",
 "method": "fec-committee"
 },
+"federal|midp-abdul el-sayed for us senate": {
+"name": "Abdul El Sayed",
+"method": "fec-candidate"
+},
 "federal|mike collins": {
 "name": "Mike Collins",
 "method": "fec-candidate"
@@ -1533,6 +1573,10 @@
 "method": "fec-candidate"
 },
 "federal|mike rogers for senate": {
+"name": "Mike Rogers",
+"method": "fec-candidate"
+},
+"federal|mike rogers for senate-mi victory fund": {
 "name": "Mike Rogers",
 "method": "fec-candidate"
 },
@@ -1740,6 +1784,10 @@
 "name": "Carrie Buck",
 "method": "fec-candidate"
 },
+"federal|nrcc - carrie buck for us congress": {
+"name": "Carrie Buck",
+"method": "fec-candidate"
+},
 "federal|nrcc ciscomani": {
 "name": "Juan Ciscomani",
 "method": "fec-candidate"
@@ -1769,6 +1817,10 @@
 "method": "fec-candidate"
 },
 "federal|nrcc marty odonnell for congress nevada": {
+"name": "Marty Odonnell",
+"method": "fec-candidate"
+},
+"federal|nrcc - marty odonnell for us congress": {
 "name": "Marty Odonnell",
 "method": "fec-candidate"
 },
@@ -1834,6 +1886,10 @@
 },
 "federal|nrsc - rogers for senate": {
 "name": "Mike Rogers",
+"method": "fec-candidate"
+},
+"federal|office of congressman shri thanedar": {
+"name": "Congressman Shri Thanedar",
 "method": "fec-candidate"
 },
 "federal|office of kristen mcdonald rivet- franking mi08": {
@@ -2028,10 +2084,6 @@
 "name": "Roy Cooper",
 "method": "fec-candidate"
 },
-"federal|roy cooper for nc senate": {
-"name": "Roy Cooper",
-"method": "fec-candidate"
-},
 "federal|roy cooper for nc senate - cfnccc inc": {
 "name": "Roy Cooper",
 "method": "fec-candidate"
@@ -2165,11 +2217,11 @@
 "method": "name-rule"
 },
 "federal|shri for congress": {
-"name": "Sri Thanedar",
+"name": "Congressman Shri Thanedar",
 "method": "fec-candidate"
 },
 "federal|shri thenedar": {
-"name": "Sri Thanedar",
+"name": "Congressman Shri Thanedar",
 "method": "fec-candidate"
 },
 "federal|slf fka senate leadership fund": {
@@ -2209,7 +2261,7 @@
 "method": "fec-candidate"
 },
 "federal|sri thanedar": {
-"name": "Sri Thanedar",
+"name": "Congressman Shri Thanedar",
 "method": "fec-candidate"
 },
 "federal|stanford for congress": {
@@ -2237,6 +2289,10 @@
 "method": "fec-candidate"
 },
 "federal|steven horsford": {
+"name": "Steven Horsford",
+"method": "fec-candidate"
+},
+"federal|steven horsford for congress": {
 "name": "Steven Horsford",
 "method": "fec-candidate"
 },
@@ -2320,6 +2376,10 @@
 "name": "Tom Smith",
 "method": "fec-committee"
 },
+"federal|tony wied": {
+"name": "Tony Wied",
+"method": "fec-candidate"
+},
 "federal|treble-az -- johnathan treble - dem us congress": {
 "name": "Treble Johnathan Treble",
 "method": "fec-candidate"
@@ -2342,6 +2402,10 @@
 },
 "federal|us house": {
 "name": "US House",
+"method": "name-rule"
+},
+"federal|us senate": {
+"name": "US Senate",
 "method": "name-rule"
 },
 "federal|valerie foushee for congress district 4": {
@@ -2492,6 +2556,14 @@
 "name": "Acfag",
 "method": "name-rule"
 },
+"issue|addr": {
+"name": "Addr",
+"method": "name-rule"
+},
+"issue|address": {
+"name": "Address",
+"method": "name-rule"
+},
 "issue|advance minnesota iec": {
 "name": "Advance Minnesota Iec",
 "method": "name-rule"
@@ -2528,6 +2600,22 @@
 "name": "Afp Action",
 "method": "name-rule"
 },
+"issue|airlines for america": {
+"name": "Airlines for America",
+"method": "name-rule"
+},
+"issue|alabama families for ivf": {
+"name": "Alabama Families for Ivf",
+"method": "name-rule"
+},
+"issue|alabama freedom fund": {
+"name": "Alabama Freedom Fund",
+"method": "fec-committee"
+},
+"issue|alabama patients first": {
+"name": "Alabama Patients First",
+"method": "name-rule"
+},
 "issue|alliance for a better future": {
 "name": "Alliance for a Better Future INC",
 "method": "fec-committee"
@@ -2542,6 +2630,14 @@
 },
 "issue|alliance for economic freedom": {
 "name": "Alliance for Economic Freedom",
+"method": "name-rule"
+},
+"issue|alliance for economic freedom pac": {
+"name": "Alliance for Economic Freedom",
+"method": "name-rule"
+},
+"issue|aman - a more affordable nevada": {
+"name": "Aman a More Affordable Nevada",
 "method": "name-rule"
 },
 "issue|america first": {
@@ -2567,6 +2663,10 @@
 "issue|american action network pac": {
 "name": "American Action Network INC",
 "method": "fec-committee"
+},
+"issue|american advancement": {
+"name": "American Advancement",
+"method": "name-rule"
 },
 "issue|american civil liberties union foundation inc": {
 "name": "American Civil Liberties Union Foundation",
@@ -2597,6 +2697,10 @@
 "method": "fec-committee"
 },
 "issue|america next": {
+"name": "America Next INC",
+"method": "fec-committee"
+},
+"issue|america next pac": {
 "name": "America Next INC",
 "method": "fec-committee"
 },
@@ -2676,6 +2780,10 @@
 "name": "American Priorities",
 "method": "name-rule"
 },
+"issue|americans 4 security": {
+"name": "Americans 4 Security PAC",
+"method": "fec-committee"
+},
 "issue|americans for open govamerican prosperity alliance": {
 "name": "Americans for Open Govamerican Prosperity Alliance",
 "method": "name-rule"
@@ -2703,6 +2811,10 @@
 "issue|americans for prosperity action": {
 "name": "Americans for Prosperity Action",
 "method": "name-rule"
+},
+"issue|americans for prosperity pac": {
+"name": "Americans for Prosperity",
+"method": "fec-committee"
 },
 "issue|americans for safe and effective medicine": {
 "name": "Americans for Safe and Effective Medicine",
@@ -2734,6 +2846,10 @@
 },
 "issue|american sovereignty pac": {
 "name": "American Sovereignty PAC",
+"method": "fec-committee"
+},
+"issue|american values": {
+"name": "American Values PAC INC",
 "method": "fec-committee"
 },
 "issue|america one policies": {
@@ -2888,8 +3004,16 @@
 "name": "A Strong Innovation Economy Requires Strong Ip Protection",
 "method": "fec-committee"
 },
+"issue|az dass ncdc-fontes": {
+"name": "AZ Dass Ncdc Fontes",
+"method": "name-rule"
+},
 "issue|az dlcc a project of ncdc-edgar soto": {
 "name": "AZ Dlcc a Project of Ncdc Edgar Soto",
+"method": "name-rule"
+},
+"issue|az dlcc a project of ncdc-lyon and volk": {
+"name": "AZ Dlcc a Project of Ncdc Lyon and Volk",
 "method": "name-rule"
 },
 "issue|believe in wi": {
@@ -2960,6 +3084,10 @@
 "name": "Better Pennsylvania",
 "method": "name-rule"
 },
+"issue|blue cross blue shield": {
+"name": "Blue Cross Blue Shield",
+"method": "name-rule"
+},
 "issue|bnv - better nevada pac": {
 "name": "Bnv Better Nevada PAC",
 "method": "name-rule"
@@ -2984,6 +3112,10 @@
 "name": "Building a Better Arizona",
 "method": "name-rule"
 },
+"issue|building a better arizona 115080": {
+"name": "Building a Better Arizona",
+"method": "name-rule"
+},
 "issue|building the future": {
 "name": "Building the Future",
 "method": "fec-committee"
@@ -2996,8 +3128,20 @@
 "name": "Californians for Voter Id Cw",
 "method": "name-rule"
 },
+"issue|californians for voter id - cw network": {
+"name": "Californians for Voter Id Cw Network",
+"method": "name-rule"
+},
+"issue|californians for voter id-cw network": {
+"name": "Californians for Voter Id Cw Network",
+"method": "name-rule"
+},
 "issue|californians for voter id pac 12": {
 "name": "Californians for Voter Id",
+"method": "name-rule"
+},
+"issue|californians for voters id": {
+"name": "Californians for Voters Id",
 "method": "name-rule"
 },
 "issue|california taxpayers association": {
@@ -3196,9 +3340,17 @@
 "name": "Coalition for Accountability Road Safety",
 "method": "name-rule"
 },
+"issue|coalition to restore california middle class": {
+"name": "Coalition to Restore California Middle Class",
+"method": "name-rule"
+},
 "issue|coaltion for a better future pac": {
 "name": "Coalition for a Better Future",
 "method": "fec-committee"
+},
+"issue|committees] with no acronyms; name must match the sponsorship id in ad)": {
+"name": "Committees With No Acronyms Name Must Match the Sponsorship Id in Ad",
+"method": "name-rule"
 },
 "issue|commonwealth foundation": {
 "name": "Commonwealth Foundation",
@@ -3226,6 +3378,10 @@
 },
 "issue|congressional leadership fund pac clf pac": {
 "name": "Congressional Leadership Fund PAC Clf PAC",
+"method": "name-rule"
+},
+"issue|congress leadership fund": {
+"name": "Congress Leadership Fund",
 "method": "name-rule"
 },
 "issue|connect pima": {
@@ -3260,9 +3416,17 @@
 "name": "Courageous Conservatives PAC",
 "method": "fec-committee"
 },
+"issue|crush maga": {
+"name": "Crush Maga PAC",
+"method": "fec-committee"
+},
 "issue|crush maga pac": {
 "name": "Crush Maga PAC",
 "method": "fec-committee"
+},
+"issue|cw - californians for voter id pac": {
+"name": "Cw Californians for Voter Id PAC",
+"method": "name-rule"
 },
 "issue|cw - making michigan future": {
 "name": "Cw Making Michigan Future",
@@ -3278,6 +3442,10 @@
 },
 "issue|cw network buys": {
 "name": "Cw Network Buys",
+"method": "name-rule"
+},
+"issue|cw network - californians for voter id yes on 39": {
+"name": "Cw Network Californians for Voter Id Yes on",
 "method": "name-rule"
 },
 "issue|cw network - making michigans future": {
@@ -3296,6 +3464,14 @@
 "name": "Cw Network Prtotect the North Dakota Constitution",
 "method": "name-rule"
 },
+"issue|cw network - strong nd fund": {
+"name": "Cw Network Strong Nd Fund",
+"method": "name-rule"
+},
+"issue|cw network - texas pac": {
+"name": "Cw Network Texas PAC",
+"method": "name-rule"
+},
 "issue|cw network - together for school meals": {
 "name": "Cw Network Together for School Meals",
 "method": "name-rule"
@@ -3308,9 +3484,17 @@
 "name": "Cw Protect the North Dakota Constitution",
 "method": "name-rule"
 },
+"issue|cw - texas pac": {
+"name": "Cw Texas PAC",
+"method": "name-rule"
+},
 "issue|cw too extreme for idaho": {
 "name": "Cw Too Extreme for Idaho",
 "method": "name-rule"
+},
+"issue|daga": {
+"name": "Daga PAC",
+"method": "fec-committee"
 },
 "issue|daga people lawyer project": {
 "name": "Daga People Lawyer Project",
@@ -3322,6 +3506,10 @@
 },
 "issue|daga peoples lawyer project nv": {
 "name": "Daga Peoples Lawyer Project NV",
+"method": "name-rule"
+},
+"issue|daga peoples lawyer project pac": {
+"name": "Daga Peoples Lawyer Project",
 "method": "name-rule"
 },
 "issue|dccc paige cognetti": {
@@ -3352,6 +3540,10 @@
 "name": "Defend the Vote Action Fund",
 "method": "name-rule"
 },
+"issue|defend the vote pac": {
+"name": "Defend the Vote",
+"method": "fec-committee"
+},
 "issue|dem majority for israel pac": {
 "name": "Dem Majority for Israel PAC",
 "method": "name-rule"
@@ -3366,6 +3558,14 @@
 },
 "issue|detroits american priorities": {
 "name": "Detroits American Priorities",
+"method": "name-rule"
+},
+"issue|disclosures": {
+"name": "Disclosures",
+"method": "name-rule"
+},
+"issue|dmfi democratic majority party for israel pac": {
+"name": "Dmfi Democratic Majority Party for Israel PAC",
 "method": "name-rule"
 },
 "issue|dmfi pac": {
@@ -3484,6 +3684,10 @@
 "name": "Everytown Gun PAC",
 "method": "name-rule"
 },
+"issue|fair - fairshake": {
+"name": "Fair Fairshake",
+"method": "name-rule"
+},
 "issue|fair fight action": {
 "name": "Fair Fight Action",
 "method": "name-rule"
@@ -3503,6 +3707,10 @@
 "issue|faithful conservatives pac": {
 "name": "Faithful Conservatives",
 "method": "name-rule"
+},
+"issue|fellowship pac": {
+"name": "Fellowship PAC",
+"method": "fec-committee"
 },
 "issue|fight for michigan": {
 "name": "Fight for Michigan PAC",
@@ -3534,6 +3742,10 @@
 },
 "issue|first principles digital pac": {
 "name": "First Principles Digital",
+"method": "fec-committee"
+},
+"issue|first state pac": {
+"name": "First State PAC",
 "method": "fec-committee"
 },
 "issue|first state service pac": {
@@ -3576,12 +3788,20 @@
 "name": "Friends of Durham",
 "method": "name-rule"
 },
+"issue|friends of public transportation": {
+"name": "Friends of Public Transportation",
+"method": "name-rule"
+},
 "issue|front line action pac": {
 "name": "The Front Line Action",
 "method": "fec-committee"
 },
 "issue|full life": {
 "name": "Full Life",
+"method": "name-rule"
+},
+"issue|future forward usa action": {
+"name": "Future Forward USA Action",
 "method": "name-rule"
 },
 "issue|georgians first leadership committee": {
@@ -3620,6 +3840,10 @@
 "name": "Georgia Values Leadership Fund",
 "method": "name-rule"
 },
+"issue|georgia values leadership fund pac": {
+"name": "Georgia Values Leadership Fund",
+"method": "name-rule"
+},
 "issue|georgia values leadership pac": {
 "name": "Georgia Values Leadership PAC",
 "method": "name-rule"
@@ -3652,6 +3876,10 @@
 "name": "Glfc Warren",
 "method": "name-rule"
 },
+"issue|government that works": {
+"name": "Government That Works PAC",
+"method": "fec-committee"
+},
 "issue|government that works pac": {
 "name": "Government That Works PAC",
 "method": "fec-committee"
@@ -3662,6 +3890,14 @@
 },
 "issue|great lakes conservative fund glcf": {
 "name": "Great Lakes Conservative Fund Glcf",
+"method": "name-rule"
+},
+"issue|great lakes conservative fund pac": {
+"name": "Great Lakes Conservative Fund",
+"method": "name-rule"
+},
+"issue|great lakes conservative fund-red eagle media group": {
+"name": "Great Lakes Conservative Fund Red Eagle Media Group",
 "method": "name-rule"
 },
 "issue|grow california": {
@@ -3792,8 +4028,16 @@
 "name": "Iss American Action Network",
 "method": "name-rule"
 },
+"issue|iss/ american action network inc": {
+"name": "Iss American Action Network",
+"method": "name-rule"
+},
 "issue|iss american mission super pac": {
 "name": "Iss American Mission Super PAC",
+"method": "name-rule"
+},
+"issue|iss/ americans for open government": {
+"name": "Iss Americans for Open Government",
 "method": "name-rule"
 },
 "issue|iss americans for prosperity": {
@@ -3805,6 +4049,10 @@
 "method": "name-rule"
 },
 "issue|iss bold america": {
+"name": "Iss Bold America",
+"method": "name-rule"
+},
+"issue|iss bold america pac": {
 "name": "Iss Bold America",
 "method": "name-rule"
 },
@@ -3824,6 +4072,10 @@
 "name": "Iss Choose Freedom",
 "method": "name-rule"
 },
+"issue|iss/ choose freedom inc": {
+"name": "Iss Choose Freedom",
+"method": "name-rule"
+},
 "issue|iss/ citizens alliance of pennsylvania": {
 "name": "Citizens Alliance of Pennsylvania PAC",
 "method": "fec-committee"
@@ -3840,8 +4092,20 @@
 "name": "Iss Clf",
 "method": "name-rule"
 },
+"issue|iss/ clf": {
+"name": "Iss Clf",
+"method": "name-rule"
+},
+"issue|iss/ club for growth action": {
+"name": "Iss Club for Growth Action",
+"method": "name-rule"
+},
 "issue|iss coalfield justice actn": {
 "name": "Iss Coalfield Justice Actn",
+"method": "name-rule"
+},
+"issue|iss/ coalition for accountability & road safety": {
+"name": "Iss Coalition for Accountability and Road Safety",
 "method": "name-rule"
 },
 "issue|iss connect pima": {
@@ -3852,8 +4116,16 @@
 "name": "Iss Defend the Vote Af",
 "method": "name-rule"
 },
+"issue|iss/ edf action votes": {
+"name": "Iss Edf Action Votes",
+"method": "name-rule"
+},
 "issue|iss everytown gun safety": {
 "name": "Iss Everytown Gun Safety",
+"method": "name-rule"
+},
+"issue|iss/ freedom caucus fund": {
+"name": "Iss Freedom Caucus Fund",
 "method": "name-rule"
 },
 "issue|iss/ house majority forward": {
@@ -3884,12 +4156,24 @@
 "name": "Iss National Pork Producers Council",
 "method": "name-rule"
 },
+"issue|iss/ no going back": {
+"name": "Iss No Going Back",
+"method": "name-rule"
+},
 "issue|iss no going back": {
 "name": "Iss No Going Back",
 "method": "name-rule"
 },
 "issue|iss pa fund for change": {
 "name": "Iss PA Fund for Change",
+"method": "name-rule"
+},
+"issue|iss/ pa fund for change": {
+"name": "Iss PA Fund for Change",
+"method": "name-rule"
+},
+"issue|iss/ pennsylvania chamber of business & industry": {
+"name": "Iss Pennsylvania Chamber of Business and Industry",
 "method": "name-rule"
 },
 "issue|iss pro choice majority action": {
@@ -3922,6 +4206,10 @@
 },
 "issue|iss tep for tucson": {
 "name": "Iss Tep for Tucson",
+"method": "name-rule"
+},
+"issue|iss texas pac": {
+"name": "Iss Texas PAC",
 "method": "name-rule"
 },
 "issue|iss the georgia way 2026": {
@@ -3998,6 +4286,10 @@
 },
 "issue|iss/ win for pennsylvania": {
 "name": "Iss Win for Pennsylvania",
+"method": "name-rule"
+},
+"issue|iss winsenate 2026": {
+"name": "Iss Winsenate",
 "method": "name-rule"
 },
 "issue|jewish democratic council of america": {
@@ -4284,6 +4576,10 @@
 "name": "Michigan New Leadership Coalition",
 "method": "name-rule"
 },
+"issue|michigan principles first": {
+"name": "Michigan Principles First",
+"method": "name-rule"
+},
 "issue|michigan sunrise pac": {
 "name": "Michigan Sunrise PAC",
 "method": "fec-committee"
@@ -4340,6 +4636,10 @@
 "name": "Mission Michigan",
 "method": "name-rule"
 },
+"issue|mission michigan pac": {
+"name": "Mission Michigan",
+"method": "name-rule"
+},
 "issue|mi victory fund": {
 "name": "IA Victory Fund",
 "method": "fec-committee"
@@ -4374,6 +4674,10 @@
 },
 "issue|nc house republican caucus - 186 - 10-26-26-11-3-26": {
 "name": "NC House Republican Caucus",
+"method": "name-rule"
+},
+"issue|nc true conservative": {
+"name": "NC True Conservative",
 "method": "name-rule"
 },
 "issue|nc true conservatives": {
@@ -4425,6 +4729,10 @@
 "method": "fec-committee"
 },
 "issue|no going back pac inc": {
+"name": "No Going Back PAC",
+"method": "fec-committee"
+},
+"issue|no going back pac inc 116225": {
 "name": "No Going Back PAC",
 "method": "fec-committee"
 },
@@ -4488,6 +4796,10 @@
 "name": "Nrsc Mike Rogers",
 "method": "name-rule"
 },
+"issue|office of congresswoman kristen mcdonald rivet": {
+"name": "Office of Congresswoman Kristen Mcdonald Rivet",
+"method": "name-rule"
+},
 "issue|old nation action": {
 "name": "Old Nation Action",
 "method": "name-rule"
@@ -4518,6 +4830,10 @@
 },
 "issue|opportunity action fund dba affordable pa": {
 "name": "Opportunity Action Fund Dba Affordable PA",
+"method": "name-rule"
+},
+"issue|opportunity action fund dba affordable pennsylvania": {
+"name": "Opportunity Action Fund Dba Affordable Pennsylvania",
 "method": "name-rule"
 },
 "issue|opportunity wi": {
@@ -4592,10 +4908,6 @@
 "name": "Patriots for South Carolina PAC",
 "method": "name-rule"
 },
-"issue|pennsylvania chamber of business and industry": {
-"name": "Pennsylvania Chamber of Business and Industry",
-"method": "name-rule"
-},
 "issue|pennsylvania fund for change": {
 "name": "Pennsylvania Fund for Change",
 "method": "fec-committee"
@@ -4603,6 +4915,10 @@
 "issue|pennsylvania fund for change pac": {
 "name": "Pennsylvania Fund for Change",
 "method": "fec-committee"
+},
+"issue|peoples lawyer project": {
+"name": "Peoples Lawyer Project",
+"method": "name-rule"
 },
 "issue|piedmont accountability coalition": {
 "name": "Piedmont Accountability Coalition",
@@ -4696,6 +5012,10 @@
 "name": "Public First Action INC",
 "method": "fec-committee"
 },
+"issue|public first action pac": {
+"name": "Public First Action INC",
+"method": "fec-committee"
+},
 "issue|puff menominee": {
 "name": "Puff Menominee",
 "method": "name-rule"
@@ -4713,6 +5033,10 @@
 "method": "name-rule"
 },
 "issue|ready for the fight": {
+"name": "Ready for the Fight",
+"method": "fec-committee"
+},
+"issue|ready for the fight pac": {
 "name": "Ready for the Fight",
 "method": "fec-committee"
 },
@@ -4762,6 +5086,10 @@
 },
 "issue|rightcount action": {
 "name": "Rightcount Action",
+"method": "name-rule"
+},
+"issue|right direction": {
+"name": "Right Direction",
 "method": "name-rule"
 },
 "issue|right direction wi pac": {
@@ -4852,6 +5180,14 @@
 "name": "Safer Wisconsin Fund",
 "method": "name-rule"
 },
+"issue|safer wis fund": {
+"name": "Safer Wis Fund",
+"method": "name-rule"
+},
+"issue|safety accountability": {
+"name": "Safety Accountability",
+"method": "name-rule"
+},
 "issue|safety affordability pac": {
 "name": "Safety Affordability PAC",
 "method": "name-rule"
@@ -4888,6 +5224,10 @@
 "name": "Saline Barn",
 "method": "name-rule"
 },
+"issue|sa - safety and affordability pac": {
+"name": "Safety and Affordability PAC INC",
+"method": "fec-committee"
+},
 "issue|save nevada now": {
 "name": "Save Nevada Now",
 "method": "name-rule"
@@ -4898,6 +5238,10 @@
 },
 "issue|save our states action": {
 "name": "Save Our States Action",
+"method": "name-rule"
+},
+"issue|saving college sports": {
+"name": "Saving College Sports",
 "method": "name-rule"
 },
 "issue|sc integrity watch": {
@@ -4917,6 +5261,10 @@
 "method": "fec-committee"
 },
 "issue|security is strength": {
+"name": "Security Is Strength PAC",
+"method": "fec-committee"
+},
+"issue|security is strength pac": {
 "name": "Security Is Strength PAC",
 "method": "fec-committee"
 },
@@ -4954,6 +5302,10 @@
 },
 "issue|sff - service first fund": {
 "name": "Sff Service First Fund",
+"method": "name-rule"
+},
+"issue|shor - strategic horizons pac": {
+"name": "Shor Strategic Horizons PAC",
 "method": "name-rule"
 },
 "issue|slf pac": {
@@ -5040,6 +5392,10 @@
 "name": "State Solutions",
 "method": "name-rule"
 },
+"issue|station representative": {
+"name": "Station Representative",
+"method": "name-rule"
+},
 "issue|stcs- vote yes bond committee": {
 "name": "Stcs Vote Yes Bond Committee",
 "method": "name-rule"
@@ -5062,6 +5418,10 @@
 },
 "issue|strong nd fund": {
 "name": "Strong Nd Fund",
+"method": "name-rule"
+},
+"issue|strong nd fund-cw network": {
+"name": "Strong Nd Fund Cw Network",
 "method": "name-rule"
 },
 "issue|sunbelt prosperity alliance": {
@@ -5094,6 +5454,14 @@
 },
 "issue|texas pac cw": {
 "name": "Texas PAC Cw",
+"method": "name-rule"
+},
+"issue|texas pac - cw network": {
+"name": "Texas PAC Cw Network",
+"method": "name-rule"
+},
+"issue|texas pac-cw network": {
+"name": "Texas PAC Cw Network",
 "method": "name-rule"
 },
 "issue|thank you for your attention to this matter": {
@@ -5169,6 +5537,10 @@
 "method": "name-rule"
 },
 "issue|tomorrow together": {
+"name": "Tomorrow Together",
+"method": "fec-committee"
+},
+"issue|tomorrow together 116354": {
 "name": "Tomorrow Together",
 "method": "fec-committee"
 },
@@ -5272,10 +5644,6 @@
 "name": "Unite to Win",
 "method": "fec-committee"
 },
-"issue|unknown": {
-"name": "Unknown",
-"method": "name-rule"
-},
 "issue|virginians for fair elections": {
 "name": "Virginians for Fair Elections",
 "method": "name-rule"
@@ -5322,6 +5690,10 @@
 },
 "issue|votevets pac": {
 "name": "Votevets",
+"method": "fec-committee"
+},
+"issue|west michigan for common sense": {
+"name": "West Michigan for Common Sense",
 "method": "fec-committee"
 },
 "issue|west michigan for common sense pac": {
@@ -5448,8 +5820,20 @@
 "name": "Wmc Imc",
 "method": "name-rule"
 },
+"issue|wmcimc": {
+"name": "Wmcimc",
+"method": "name-rule"
+},
+"issue|wmc issue mobilization": {
+"name": "Wmc Mobilization",
+"method": "name-rule"
+},
 "issue|wmc issue mobilization council inc": {
 "name": "Wmc Mobilization Council",
+"method": "name-rule"
+},
+"issue|wmsn confirmation contract": {
+"name": "Wmsn Confirmation Contract",
 "method": "name-rule"
 },
 "issue|working families": {
@@ -5569,15 +5953,19 @@
 "method": "name-rule"
 },
 "local|clark county commission": {
-"name": "Clark",
+"name": "Manny Kess Clark",
 "method": "name-rule"
 },
 "local|clark county commissioner": {
-"name": "Clark",
+"name": "Manny Kess Clark",
 "method": "name-rule"
 },
 "local|clark county recorder office": {
-"name": "Clark",
+"name": "Manny Kess Clark",
+"method": "name-rule"
+},
+"local|committee to elect charmaine crabb": {
+"name": "Charmaine Crabb",
 "method": "name-rule"
 },
 "local|committee to elect danielle tarmu": {
@@ -5592,12 +5980,20 @@
 "name": "Ed Lawson",
 "method": "name-rule"
 },
+"local|committee to elect jacob for judge 848749 10-07-2026": {
+"name": "Jacob",
+"method": "name-rule"
+},
 "local|committee to elect kate marshall": {
 "name": "Kate Marshall",
 "method": "name-rule"
 },
 "local|committee to elect lyndsey walters": {
 "name": "Lyndsey Walters",
+"method": "name-rule"
+},
+"local|committee to elect marie rodriguez": {
+"name": "Marie Rodriguez",
 "method": "name-rule"
 },
 "local|committee to elect scott black north las vegas mayor": {
@@ -5636,6 +6032,10 @@
 "name": "Danielle Tarmu",
 "method": "name-rule"
 },
+"local|danielle tarmu for judge": {
+"name": "Danielle Tarmu",
+"method": "name-rule"
+},
 "local|david blom -rpoi-r-state-house-ia": {
 "name": "David Blom Rpoi",
 "method": "name-rule"
@@ -5660,8 +6060,8 @@
 "name": "Douglas Seifert",
 "method": "name-rule"
 },
-"local|elect katie hobbs": {
-"name": "Katie Hobbs",
+"local|dr terry leyba ruiz st superintendent az": {
+"name": "Terry Leyba Ruiz St",
 "method": "name-rule"
 },
 "local|forsyth county district attorney": {
@@ -5748,6 +6148,10 @@
 "name": "Jacob Reynolds",
 "method": "name-rule"
 },
+"local|jacob reynolds for judge": {
+"name": "Jacob Reynolds",
+"method": "name-rule"
+},
 "local|jason tunney": {
 "name": "Jason Tunney",
 "method": "name-rule"
@@ -5758,6 +6162,10 @@
 },
 "local|jeremy matlow for mayor": {
 "name": "Jeremy Matlow",
+"method": "name-rule"
+},
+"local|jerry wiese for judge": {
+"name": "Jerry Wiese",
 "method": "name-rule"
 },
 "local|jerry wiess": {
@@ -5808,12 +6216,12 @@
 "name": "Jon Burns",
 "method": "name-rule"
 },
-"local|juan ciscomani for congress": {
-"name": "Juan Ciscomani",
-"method": "name-rule"
-},
 "local|judge lisa jones superior court": {
 "name": "Lisa Jones Superior",
+"method": "name-rule"
+},
+"local|karen gordon": {
+"name": "Karen Gordon",
 "method": "name-rule"
 },
 "local|keep judge paige reese whitaker": {
@@ -5852,8 +6260,12 @@
 "name": "Louis Miller Jr Jones",
 "method": "name-rule"
 },
-"local|making michigans future": {
-"name": "Making Michigans Future",
+"local|manny kess clark county commissio": {
+"name": "Manny Kess Clark Commissio",
+"method": "name-rule"
+},
+"local|manny kess for clark county commission - district e": {
+"name": "Manny Kess Clark",
 "method": "name-rule"
 },
 "local|marty flynn state senate": {
@@ -5876,16 +6288,16 @@
 "name": "Michelle Leavitt",
 "method": "name-rule"
 },
+"local|michelle leavitt for judge": {
+"name": "Michelle Leavitt",
+"method": "name-rule"
+},
 "local|mike perdue -guilford county commissioner 2026": {
 "name": "Mike Perdue Guilford",
 "method": "name-rule"
 },
 "local|miracle for georgia friends of jen jordan": {
 "name": "Miracle Jen Jordan",
-"method": "name-rule"
-},
-"local|navajo county democratic community": {
-"name": "Navajo Community",
 "method": "name-rule"
 },
 "local|nchrc-committee to elect cory thornton": {
@@ -5944,12 +6356,12 @@
 "name": "Robb Pitts Chairman Fulton",
 "method": "name-rule"
 },
-"local|rob zapple county commissioner": {
+"local|rob zapple for county commissioner": {
 "name": "Rob Zapple",
 "method": "name-rule"
 },
-"local|rob zapple for county commissioner": {
-"name": "Rob Zapple",
+"local|rocky marsh for city council": {
+"name": "Rocky Marsh City",
 "method": "name-rule"
 },
 "local|sandoval for justice of the peace": {
@@ -6012,10 +6424,6 @@
 "name": "Tom Horne",
 "method": "name-rule"
 },
-"local|unknown": {
-"name": "Unknown",
-"method": "name-rule"
-},
 "local|washoe county district attorney": {
 "name": "Blaise Washoe",
 "method": "name-rule"
@@ -6032,21 +6440,17 @@
 "name": "Wright Superior",
 "method": "name-rule"
 },
-"other|making michigans future": {
-"name": "Making Michigans Future",
+"other|addr": {
+"name": "Addr",
 "method": "name-rule"
 },
-"other|protect the north dakota constitution": {
-"name": "Protect the North Dakota Constitution",
+"other|address": {
+"name": "Address",
 "method": "name-rule"
 },
 "other|talarico for texas": {
 "name": "Talarico for Texas",
 "method": "fec-committee"
-},
-"other|together for school meals": {
-"name": "Together for School Meals",
-"method": "name-rule"
 },
 "other|too extreme for idaho pac": {
 "name": "Too Extreme for Idaho PAC",
@@ -6133,15 +6537,11 @@
 "method": "name-rule"
 },
 "state|adcc spaude nichols and tollefson": {
-"name": "Spaude Tollefson",
+"name": "Spaude Nichols Tollefson",
 "method": "name-rule"
 },
 "state|adriana for nevada 2026": {
 "name": "Shirley Folkins Roberts Adriana",
-"method": "name-rule"
-},
-"state|adriana for nevada and flippo for nevada": {
-"name": "Adriana Flippo",
 "method": "name-rule"
 },
 "state|adriana for nevada and lombardo for governor 846225 09-15-2026": {
@@ -6176,6 +6576,14 @@
 "name": "Adrian Fontes",
 "method": "name-rule"
 },
+"state|adrian fontes -navajo county": {
+"name": "Adrian Fontes Navajo",
+"method": "name-rule"
+},
+"state|adrian fontes - navajo county": {
+"name": "Adrian Fontes Navajo",
+"method": "name-rule"
+},
 "state|afor - aaron ford for governor": {
 "name": "Afor Aaron Ford",
 "method": "name-rule"
@@ -6192,6 +6600,10 @@
 "name": "Alan Branson",
 "method": "name-rule"
 },
+"state|alan wilson": {
+"name": "Alan Wilson",
+"method": "name-rule"
+},
 "state|alan wilson sc gov": {
 "name": "Alan Wilson",
 "method": "name-rule"
@@ -6201,6 +6613,10 @@
 "method": "name-rule"
 },
 "state|allen": {
+"name": "Allen",
+"method": "name-rule"
+},
+"state|allen for lt governor": {
 "name": "Allen",
 "method": "name-rule"
 },
@@ -6370,6 +6786,10 @@
 },
 "state|arizonas family sports network kphe": {
 "name": "Arizonas Family Sports Network Kphe",
+"method": "name-rule"
+},
+"state|ashley wright": {
+"name": "Ashley Wright",
 "method": "name-rule"
 },
 "state|ashley wright for superior court judge": {
@@ -6544,6 +6964,10 @@
 "name": "Brad Raffensperger",
 "method": "name-rule"
 },
+"state|brandy tollefson": {
+"name": "Brandy Tollefson",
+"method": "name-rule"
+},
 "state|brenda pugh hrcc - r- pa state house": {
 "name": "Brenda Pugh",
 "method": "name-rule"
@@ -6684,6 +7108,10 @@
 "name": "Captain Scott Timko St",
 "method": "name-rule"
 },
+"state|carmen rice": {
+"name": "Carmen Rice",
+"method": "name-rule"
+},
 "state|carol glanville dem": {
 "name": "Carol Glanville",
 "method": "name-rule"
@@ -6726,6 +7154,10 @@
 },
 "state|chedrick greene for mi state senate": {
 "name": "Chedrick Greene",
+"method": "name-rule"
+},
+"state|chen for state auditor": {
+"name": "Chen",
 "method": "name-rule"
 },
 "state|chief justice megan cavanagh also see megan c and hood folder": {
@@ -6820,6 +7252,10 @@
 "name": "Cisco Aguillar",
 "method": "name-rule"
 },
+"state|cisco - cisco aguilar for sec of state": {
+"name": "Cisco Cisco Aguilar Sec",
+"method": "name-rule"
+},
 "state|cisco for nevada 849069 10-12-2026": {
 "name": "Cisco",
 "method": "name-rule"
@@ -6896,12 +7332,16 @@
 "name": "Keep Whitaker",
 "method": "name-rule"
 },
+"state|committee to re-elect frank burns to pa house": {
+"name": "Re Frank Burns",
+"method": "name-rule"
+},
 "state|controller": {
 "name": "Controller",
 "method": "name-rule"
 },
 "state|cooke for congress": {
-"name": "Cooke",
+"name": "Rebecca Cooke",
 "method": "name-rule"
 },
 "state|cooper for north carolina": {
@@ -7292,6 +7732,10 @@
 "name": "Erik Severson",
 "method": "name-rule"
 },
+"state|e savit for attorney general": {
+"name": "Eli Savit",
+"method": "name-rule"
+},
 "state|est 15524 canx": {
 "name": "Canx",
 "method": "name-rule"
@@ -7648,8 +8092,16 @@
 "name": "Georgians Warren",
 "method": "name-rule"
 },
+"state|georgia public service commission": {
+"name": "Service",
+"method": "name-rule"
+},
 "state|gflc-sarah warren": {
 "name": "Gflc Sarah Warren",
+"method": "name-rule"
+},
+"state|g gilchrist for state secretary": {
+"name": "Garlin Gilchrist",
 "method": "name-rule"
 },
 "state|gilchrist": {
@@ -7737,7 +8189,7 @@
 "method": "name-rule"
 },
 "state|haadsma for state house": {
-"name": "Jim Haadsma",
+"name": "Haadsma",
 "method": "name-rule"
 },
 "state|haas": {
@@ -8004,6 +8456,10 @@
 "name": "Jeff Warren",
 "method": "name-rule"
 },
+"state|jen jordan": {
+"name": "Jen Jordan",
+"method": "name-rule"
+},
 "state|jenna jacobson": {
 "name": "Jenna Jacobson",
 "method": "name-rule"
@@ -8046,6 +8502,10 @@
 },
 "state|jfk for georgia inc": {
 "name": "Jfk",
+"method": "name-rule"
+},
+"state|j goldwater srcc": {
+"name": "John Goldwater",
 "method": "name-rule"
 },
 "state|jim croft for wisconsin": {
@@ -8176,6 +8636,10 @@
 "name": "John James",
 "method": "name-rule"
 },
+"state|john james for gov-mirp": {
+"name": "John James Mirp",
+"method": "name-rule"
+},
 "state|john james for mi": {
 "name": "John James",
 "method": "name-rule"
@@ -8185,6 +8649,10 @@
 "method": "name-rule"
 },
 "state|john james for mi governor": {
+"name": "John James",
+"method": "name-rule"
+},
+"state|john james for mi rep party": {
 "name": "John James",
 "method": "name-rule"
 },
@@ -8217,7 +8685,7 @@
 "method": "name-rule"
 },
 "state|johnson for governor": {
-"name": "Perry Johnson",
+"name": "Johnson",
 "method": "name-rule"
 },
 "state|johnson perry for michigan governor": {
@@ -8225,7 +8693,11 @@
 "method": "name-rule"
 },
 "state|johnson-republican-governor": {
-"name": "Perry Johnson",
+"name": "Johnson",
+"method": "name-rule"
+},
+"state|john wahl": {
+"name": "John Wahl",
 "method": "name-rule"
 },
 "state|john wahl for lieutenant governor": {
@@ -8262,6 +8734,10 @@
 },
 "state|joseph mccluskey for state representative": {
 "name": "Joseph Mccluskey",
+"method": "name-rule"
+},
+"state|joseph mccluskey mhdf for state representative": {
+"name": "Joseph Mccluskey Mhdf",
 "method": "name-rule"
 },
 "state|joseph mcclusky for st rep": {
@@ -8429,7 +8905,7 @@
 "method": "name-rule"
 },
 "state|k hertel for state senate": {
-"name": "Hertel",
+"name": "Msdf Hertel",
 "method": "name-rule"
 },
 "state|kiesha lance bottoms": {
@@ -8468,12 +8944,20 @@
 "name": "Kris Mayes Navajo",
 "method": "name-rule"
 },
+"state|kris mayes - navajo county": {
+"name": "Kris Mayes Navajo",
+"method": "name-rule"
+},
 "state|kris mayes-navajo county democratic committee": {
 "name": "Kris Mayes Navajo",
 "method": "name-rule"
 },
 "state|kris mayes navajo county democratic committee": {
 "name": "Kris Mayes Navajo",
+"method": "name-rule"
+},
+"state|kristen mcdonald rivet": {
+"name": "Kristen Mcdonald Rivet",
 "method": "name-rule"
 },
 "state|kristen mcdonald rivet also see federal folder": {
@@ -8490,6 +8974,10 @@
 },
 "state|laura budd - state rep nc hd 103": {
 "name": "Laura Budd",
+"method": "name-rule"
+},
+"state|lawrence for ala rep dist 69": {
+"name": "Lawrence Ala",
 "method": "name-rule"
 },
 "state|lazar for wi supreme court": {
@@ -8580,12 +9068,12 @@
 "name": "Mackenzie Milou",
 "method": "name-rule"
 },
-"state|maino for state house": {
-"name": "Jan Maino",
+"state|madison for ala rep dist 69": {
+"name": "Madison Ala",
 "method": "name-rule"
 },
-"state|making michigans future": {
-"name": "Making Michigans Future",
+"state|maino for state house": {
+"name": "Jan Maino",
 "method": "name-rule"
 },
 "state|malone d state senate": {
@@ -8617,11 +9105,11 @@
 "method": "name-rule"
 },
 "state|mansour democrat treasurer": {
-"name": "Mansour",
+"name": "Nick Mansour",
 "method": "name-rule"
 },
 "state|mansour for arizona": {
-"name": "Mansour",
+"name": "Nick Mansour",
 "method": "name-rule"
 },
 "state|maria lazar": {
@@ -8720,8 +9208,16 @@
 "name": "Merkl Gump",
 "method": "name-rule"
 },
+"state|mhdf jim haadsma dem": {
+"name": "Mhdf Jim Haadsma",
+"method": "name-rule"
+},
 "state|mhdf joseph mcclusky dem": {
 "name": "Mhdf Joseph Mcclusky",
+"method": "name-rule"
+},
+"state|mhdf-joseph mcclusky for st rep": {
+"name": "Mhdf Joseph Mcclusky St",
 "method": "name-rule"
 },
 "state|mhrccschmoltz": {
@@ -8790,6 +9286,10 @@
 },
 "state|michigan state democratic fund - carlson": {
 "name": "Msdf Carlson",
+"method": "name-rule"
+},
+"state|michigan state democratic fund - hertel": {
+"name": "Msdf Hertel",
 "method": "name-rule"
 },
 "state|mi house rep campaign comm": {
@@ -8968,6 +9468,10 @@
 "name": "Mitchell Berman",
 "method": "name-rule"
 },
+"state|mitchell for attorney general": {
+"name": "Mitchell",
+"method": "name-rule"
+},
 "state|mn dfl party ellison attorney general": {
 "name": "Dfl Ellison",
 "method": "name-rule"
@@ -8996,6 +9500,10 @@
 "name": "Msdf Carol Glanville",
 "method": "name-rule"
 },
+"state|msdf-hertel": {
+"name": "Msdf Hertel",
+"method": "name-rule"
+},
 "state|msdf rebecca amidon dem": {
 "name": "Msdf Rebecca Amidon",
 "method": "name-rule"
@@ -9022,6 +9530,10 @@
 },
 "state|nabilah parkes d ltg ga": {
 "name": "Nabilah Parkes Ltg",
+"method": "name-rule"
+},
+"state|nabilah parkes for ga lg": {
+"name": "Nabilah Parkes Lg",
 "method": "name-rule"
 },
 "state|nabilah parkes for ga lt governor": {
@@ -9176,6 +9688,10 @@
 "name": "Controller",
 "method": "name-rule"
 },
+"state|nick mansour for state treasurer": {
+"name": "Nick Mansour",
+"method": "name-rule"
+},
 "state|nick rowe for state representative": {
 "name": "Nick Rowe",
 "method": "name-rule"
@@ -9277,7 +9793,7 @@
 "method": "name-rule"
 },
 "state|nrcc perry r congress": {
-"name": "Patriots Perry",
+"name": "Perry",
 "method": "name-rule"
 },
 "state|oct 15 thru oct 21": {
@@ -9290,6 +9806,10 @@
 },
 "state|oct 29 thru nov 3": {
 "name": "Oct Thru Nov",
+"method": "name-rule"
+},
+"state|oden for psc": {
+"name": "Oden",
 "method": "name-rule"
 },
 "state|ojeda d nc congress": {
@@ -9432,6 +9952,10 @@
 "name": "Penny Reynolds Sec",
 "method": "name-rule"
 },
+"state|penny brown": {
+"name": "Penny Brown",
+"method": "name-rule"
+},
 "state|penny brown reynolds": {
 "name": "Penny Brown Reynolds",
 "method": "name-rule"
@@ -9485,7 +10009,11 @@
 "method": "name-rule"
 },
 "state|perry r us congress": {
-"name": "Patriots Perry",
+"name": "Perry",
+"method": "name-rule"
+},
+"state|perryy johnson for governor": {
+"name": "Perryy Johnson",
 "method": "name-rule"
 },
 "state|peter hubbard": {
@@ -9549,11 +10077,15 @@
 "method": "name-rule"
 },
 "state|p johnson for governor": {
-"name": "Perry Johnson",
+"name": "Johnson",
 "method": "name-rule"
 },
 "state|pol b dukes pa h d str pa": {
 "name": "Dukes Str",
+"method": "name-rule"
+},
+"state|pol/ brett miller / pahrcc / r / st house rep / pa": {
+"name": "Brett Miller Pahrcc St",
 "method": "name-rule"
 },
 "state|pol c bartolotta r ssn pa": {
@@ -9580,6 +10112,14 @@
 "name": "James Malone St",
 "method": "name-rule"
 },
+"state|pol/ janelle stelson / dccc / d / congress / pa": {
+"name": "Janelle Stelson",
+"method": "name-rule"
+},
+"state|pol/ janelle stelson / d / congress / pa": {
+"name": "Janelle Stelson",
+"method": "name-rule"
+},
 "state|pol j borello dssnpa": {
 "name": "Borello Dssnpa",
 "method": "name-rule"
@@ -9592,11 +10132,31 @@
 "name": "Josh Shapiro",
 "method": "name-rule"
 },
+"state|pol/ lloyd smucker / r / us house / pa": {
+"name": "Lloyd Smucker",
+"method": "name-rule"
+},
 "state|pol pa hdcc h hass d str pa": {
 "name": "Hass Str",
 "method": "name-rule"
 },
+"state|pol/ sara agerton / pa hdcc/ d/ st house rep/ pa": {
+"name": "Sara Agerton St",
+"method": "name-rule"
+},
+"state|pol/ scott perry / nrcc / r / us house /pa": {
+"name": "Scott Perry",
+"method": "name-rule"
+},
+"state|pol/ scott perry / r / us house / pa": {
+"name": "Scott Perry",
+"method": "name-rule"
+},
 "state|pol s garrity r gov pa": {
+"name": "Stacy Garrity",
+"method": "name-rule"
+},
+"state|pol/ stacy garrity / r / governor / pa": {
 "name": "Stacy Garrity",
 "method": "name-rule"
 },
@@ -9638,10 +10198,6 @@
 },
 "state|project battleground - k bottoms": {
 "name": "Project Battleground Bottoms",
-"method": "name-rule"
-},
-"state|project battleground keisha l bottoms": {
-"name": "Project Battleground Keisha Bottoms",
 "method": "name-rule"
 },
 "state|project blue print ga inc jason esteves": {
@@ -9704,6 +10260,10 @@
 "name": "Randy Feenstra",
 "method": "name-rule"
 },
+"state|randy price- al- rep": {
+"name": "Randy Price",
+"method": "name-rule"
+},
 "state|randy price for state senate district 13": {
 "name": "Randy Price",
 "method": "name-rule"
@@ -9720,6 +10280,10 @@
 "name": "Ray",
 "method": "name-rule"
 },
+"state|r berman": {
+"name": "Berman",
+"method": "name-rule"
+},
 "state|rebecca amidon": {
 "name": "Rebecca Amidon",
 "method": "name-rule"
@@ -9730,6 +10294,10 @@
 },
 "state|rebecca amidon msdf for state senate": {
 "name": "Rebecca Amidon Msdf",
+"method": "name-rule"
+},
+"state|rebecca cooke": {
+"name": "Rebecca Cooke",
 "method": "name-rule"
 },
 "state|rebecca lamb for treasurer": {
@@ -9890,6 +10458,10 @@
 },
 "state|right direction wisconsin pac": {
 "name": "Right Direction PAC",
+"method": "name-rule"
+},
+"state|robertson for attorney general": {
+"name": "Robertson",
 "method": "name-rule"
 },
 "state|rob sand-d-governor": {
@@ -10120,12 +10692,20 @@
 "name": "Simon",
 "method": "name-rule"
 },
+"state|smith for al house of rep dist 74": {
+"name": "Smith",
+"method": "name-rule"
+},
 "state|smucker for congress": {
-"name": "Smucker",
+"name": "Lloyd Smucker",
 "method": "name-rule"
 },
 "state|smucker r congress": {
-"name": "Smucker",
+"name": "Lloyd Smucker",
+"method": "name-rule"
+},
+"state|sorrell for state auditor": {
+"name": "Sorrell",
 "method": "name-rule"
 },
 "state|spaude and tollefson": {
@@ -10237,7 +10817,7 @@
 "method": "name-rule"
 },
 "state|state senate democratic committee ellis": {
-"name": "Ssdc Christian Ellis",
+"name": "Ellis",
 "method": "name-rule"
 },
 "state|stavros anthony": {
@@ -10416,10 +10996,6 @@
 "name": "Tim Hayes",
 "method": "name-rule"
 },
-"state|tim merrick nc house": {
-"name": "Tim Merrick",
-"method": "name-rule"
-},
 "state|t miller dem ga": {
 "name": "Pahrcc Brett Miller",
 "method": "name-rule"
@@ -10524,10 +11100,6 @@
 "name": "Tyler Meyers",
 "method": "name-rule"
 },
-"state|unknown": {
-"name": "Unknown",
-"method": "name-rule"
-},
 "state|valerie gaydos - pahrcc": {
 "name": "Valerie Gaydos Pahrcc",
 "method": "name-rule"
@@ -10546,6 +11118,10 @@
 },
 "state|vanorden for congress": {
 "name": "Vanorden",
+"method": "name-rule"
+},
+"state|wahl for lt governor": {
+"name": "Wahl",
 "method": "name-rule"
 },
 "state|warren for supreme court": {
@@ -10652,6 +11228,10 @@
 "name": "Bob Donovan Wiracc",
 "method": "name-rule"
 },
+"state|wiracc ad94 keith purnell": {
+"name": "Wiracc Ad94 Keith Purnell",
+"method": "name-rule"
+},
 "state|wiracc bob donovan wi st assembly": {
 "name": "Wiracc Bob Donovan St",
 "method": "name-rule"
@@ -10710,6 +11290,10 @@
 },
 "state|wisconsin senate district 25": {
 "name": "Wisconsin Senate District",
+"method": "name-rule"
+},
+"state|wi sdcc friends of christian ellis": {
+"name": "Christian Ellis",
 "method": "name-rule"
 },
 "state|wissdc smith wiadcc frederickson": {
@@ -10782,6 +11366,7 @@
 "ABDUL FOR US SENATE",
 "DSCC - Abdul El-Sayed",
 "DSCC- Abdul El-Sayed",
+"DSCC ABDUL EL-SAYED FOR US SENATE",
 "DSCC Abdul for Senate",
 "DSCC - ABDUL FOR US SENATE",
 "DSCC ABDUL FOR US SENATE",
@@ -10791,6 +11376,7 @@
 "MDSCC-ABDUL SAYED FOR US SENATE",
 "MI Dem State Central Committee El-Sayed",
 "MI Dem State Central Committee-El-Sayed",
+"MIDP-ABDUL EL-SAYED FOR US SENATE",
 "MSDCC El-Sayed"
 ],
 "method": "fec-candidate",
@@ -10821,6 +11407,43 @@
 "fec_committee_id": "C00860064",
 "fec_committee_name": "MCDOWELL FOR CONGRESS"
 },
+"federal|david flippo": {
+"category": "federal",
+"name": "David Flippo",
+"fec_name": "David Flippo",
+"labels": [
+"Adriana for Nevada and Flippo for Nevada",
+"David Flippo"
+],
+"method": "fec-candidate",
+"kind": "candidate",
+"party": "Republican",
+"office": "US House",
+"district": "02",
+"state": "NV",
+"fec_candidate_id": "H4NV04108",
+"fec_committee_id": "C00901710",
+"fec_committee_name": "DAVID FLIPPO FOR NEVADA"
+},
+"federal|shomari figures": {
+"category": "federal",
+"name": "Shomari Figures",
+"fec_name": "Shomari Figures",
+"labels": [
+"Alabama- Shomari Figures",
+"Committee to Elect Shomari Figures Alabama House",
+"Committee to Elect Shomari Figures for Congress"
+],
+"method": "fec-candidate",
+"kind": "candidate",
+"party": "Democratic",
+"office": "US House",
+"district": "02",
+"state": "AL",
+"fec_candidate_id": "H4AL02170",
+"fec_committee_id": "C00856237",
+"fec_committee_name": "COMMITTEE TO ELECT SHOMARI FIGURES FOR CONGRESS"
+},
 "federal|aversa no labels": {
 "category": "federal",
 "name": "Aversa No Labels",
@@ -10838,17 +11461,6 @@
 "fec_candidate_id": "H4AZ03174",
 "fec_committee_id": "C00891051",
 "fec_committee_name": "ALAN AVERSA FOR CONGRESS"
-},
-"federal|alan wilson": {
-"category": "federal",
-"name": "Alan Wilson",
-"fec_name": null,
-"labels": [
-"Alan Wilson"
-],
-"method": "name-rule",
-"kind": "candidate",
-"state": "NC"
 },
 "federal|nida allam": {
 "category": "federal",
@@ -11097,6 +11709,22 @@
 "fec_candidate_id": "H6NC13228",
 "fec_committee_id": "C00906057",
 "fec_committee_name": "PAUL BARRINGER FOR CONGRESS"
+},
+"federal|barry moore": {
+"category": "federal",
+"name": "Barry Moore",
+"fec_name": "Felix Moore",
+"labels": [
+"Barry Moore"
+],
+"method": "fec-candidate",
+"kind": "candidate",
+"party": "Republican",
+"office": "US Senate",
+"state": "AL",
+"fec_candidate_id": "S6AL00476",
+"fec_committee_id": "C00954974",
+"fec_committee_name": "BARRY MOORE FOR SENATE"
 },
 "federal|ben watson": {
 "category": "federal",
@@ -11430,8 +12058,10 @@
 "labels": [
 "Carrie Buck",
 "Carrie Buck for Congress",
+"Carrie Buck for US Congress",
 "National Republican Congressional Committee Carrie Buck",
-"NRCC Carrie Buck for Congress"
+"NRCC Carrie Buck for Congress",
+"NRCC - Carrie Buck for US Congress"
 ],
 "method": "fec-candidate",
 "kind": "candidate",
@@ -11588,6 +12218,7 @@
 "fec_name": "Michael Collins",
 "labels": [
 "Collins for Senate",
+"M Collins for US Senate",
 "Mike Collins",
 "Mike Collins for Senate",
 "MIKE COLLINS FOR SENATE",
@@ -11621,24 +12252,6 @@
 "fec_candidate_id": "H6MI01242",
 "fec_committee_id": "C00897637",
 "fec_committee_name": "JUSTIN MICHAL FOR CONGRESS"
-},
-"federal|shomari figures": {
-"category": "federal",
-"name": "Shomari Figures",
-"fec_name": "Shomari Figures",
-"labels": [
-"Committee to Elect Shomari Figures Alabama House",
-"Committee to Elect Shomari Figures for Congress"
-],
-"method": "fec-candidate",
-"kind": "candidate",
-"party": "Democratic",
-"office": "US House",
-"district": "02",
-"state": "AL",
-"fec_candidate_id": "H4AL02170",
-"fec_committee_id": "C00856237",
-"fec_committee_name": "COMMITTEE TO ELECT SHOMARI FIGURES FOR CONGRESS"
 },
 "federal|rebecca cooke": {
 "category": "federal",
@@ -11682,7 +12295,6 @@
 "Roy Cooper",
 "ROY COOPER",
 "Roy Cooper D",
-"Roy Cooper for NC Senate",
 "ROY COOPER FOR NC SENATE - CFNCCC INC",
 "Roy Cooper for North Carolina",
 "ROY COOPER FOR NORTH CAROLINA",
@@ -11787,23 +12399,6 @@
 "kind": "candidate",
 "state": "NC"
 },
-"federal|david flippo": {
-"category": "federal",
-"name": "David Flippo",
-"fec_name": "David Flippo",
-"labels": [
-"David Flippo"
-],
-"method": "fec-candidate",
-"kind": "candidate",
-"party": "Republican",
-"office": "US House",
-"district": "02",
-"state": "NV",
-"fec_candidate_id": "H4NV04108",
-"fec_committee_id": "C00901710",
-"fec_committee_name": "DAVID FLIPPO FOR NEVADA"
-},
 "federal|david rouzer": {
 "category": "federal",
 "name": "David Rouzer",
@@ -11838,9 +12433,11 @@
 "fec_name": "Dina Titus",
 "labels": [
 "DCCC Dina Titus for Congress",
+"DCCC - Dina Titus for US Congress",
 "Democratic Congressional Campaign Committee Dina Titus",
 "Dina Titus",
-"Dina Titus for Congress"
+"Dina Titus for Congress",
+"Dina Titus for US Congress"
 ],
 "method": "fec-candidate",
 "kind": "candidate",
@@ -12073,6 +12670,7 @@
 "fec_name": "Susie Lee",
 "labels": [
 "DCCC Susie Lee for Congress",
+"DCCC - Susie Lee for US Congress",
 "Democratic Congressional Campaign Committee Susie Lee",
 "Susie Lee",
 "Susie Lee for Nevada",
@@ -12498,6 +13096,23 @@
 "fec_candidate_id": "H4NV02193",
 "fec_committee_id": "C00944132",
 "fec_committee_name": "SIMONFORCONGRESSCD2"
+},
+"federal|french hill": {
+"category": "federal",
+"name": "French Hill",
+"fec_name": "James Hill",
+"labels": [
+"FRENCH HILL - Congress"
+],
+"method": "fec-candidate",
+"kind": "candidate",
+"party": "Republican",
+"office": "US House",
+"district": "02",
+"state": "AR",
+"fec_candidate_id": "H4AR02141",
+"fec_committee_id": "C00551275",
+"fec_committee_name": "FRENCH HILL FOR ARKANSAS"
 },
 "federal|jim kingston": {
 "category": "federal",
@@ -13195,7 +13810,8 @@
 "Marty ODonnell for Congress Nevada",
 "Marty ODonnell for US Congress",
 "National Republican Congressional Committee Marty ODonnell",
-"NRCC Marty ODonnell for Congress Nevada"
+"NRCC Marty ODonnell for Congress Nevada",
+"NRCC - Marty ODonnell for US Congress"
 ],
 "method": "fec-candidate",
 "kind": "candidate",
@@ -13302,6 +13918,7 @@
 "Mike Rogers for Senate",
 "Mike Rogers For Senate",
 "MIKE ROGERS FOR SENATE",
+"MIKE ROGERS FOR SENATE-MI VICTORY FUND",
 "Mike Rogers for US Senate",
 "Mike Rogers MI Victory Fund",
 "Mike Rogers NRSC for US Senate",
@@ -13397,7 +14014,8 @@
 "fec_name": "Steven Horsford",
 "labels": [
 "Nevadans for Horsford",
-"Steven Horsford"
+"Steven Horsford",
+"Steven Horsford for Congress"
 ],
 "method": "fec-candidate",
 "kind": "candidate",
@@ -13534,6 +14152,27 @@
 "method": "name-rule",
 "kind": "candidate",
 "state": "MI"
+},
+"federal|congressman shri thanedar": {
+"category": "federal",
+"name": "Congressman Shri Thanedar",
+"fec_name": "Shri Thanedar",
+"labels": [
+"Office of Congressman Shri Thanedar",
+"Shri for Congress",
+"SHRI FOR CONGRESS",
+"Shri Thenedar",
+"Sri Thanedar"
+],
+"method": "fec-candidate",
+"kind": "candidate",
+"party": "Democratic",
+"office": "US House",
+"district": "13",
+"state": "MI",
+"fec_candidate_id": "H2MI13204",
+"fec_committee_id": "C00798132",
+"fec_committee_name": "SHRI FOR CONGRESS"
 },
 "federal|richard ojeda": {
 "category": "federal",
@@ -13780,26 +14419,6 @@
 "kind": "candidate",
 "state": "GA"
 },
-"federal|sri thanedar": {
-"category": "federal",
-"name": "Sri Thanedar",
-"fec_name": "Shri Thanedar",
-"labels": [
-"Shri for Congress",
-"SHRI FOR CONGRESS",
-"Shri Thenedar",
-"Sri Thanedar"
-],
-"method": "fec-candidate",
-"kind": "candidate",
-"party": "Democratic",
-"office": "US House",
-"district": "13",
-"state": "MI",
-"fec_candidate_id": "H2MI13204",
-"fec_committee_id": "C00798132",
-"fec_committee_name": "SHRI FOR CONGRESS"
-},
 "federal|slf fka leadership": {
 "category": "federal",
 "name": "Slf Fka Leadership",
@@ -13930,12 +14549,39 @@
 "fec_committee_id": "C00951830",
 "fec_committee_name": "TOM SMITH FOR CONGRESS"
 },
+"federal|tony wied": {
+"category": "federal",
+"name": "Tony Wied",
+"fec_name": "Tony Wied",
+"labels": [
+"Tony Wied"
+],
+"method": "fec-candidate",
+"kind": "candidate",
+"party": "Republican",
+"office": "US House",
+"district": "08",
+"state": "WI",
+"fec_candidate_id": "H4WI08119",
+"fec_committee_id": "C00875518",
+"fec_committee_name": "TONY WIED FOR CONGRESS"
+},
 "federal|us house": {
 "category": "federal",
 "name": "US House",
 "fec_name": null,
 "labels": [
 "US House"
+],
+"method": "name-rule",
+"kind": "unknown"
+},
+"federal|us senate": {
+"category": "federal",
+"name": "US Senate",
+"fec_name": null,
+"labels": [
+"US Senate"
 ],
 "method": "name-rule",
 "kind": "unknown"
@@ -14067,6 +14713,26 @@
 "method": "name-rule",
 "kind": "issue"
 },
+"issue|addr": {
+"category": "issue",
+"name": "Addr",
+"fec_name": null,
+"labels": [
+"Addr"
+],
+"method": "name-rule",
+"kind": "issue"
+},
+"issue|address": {
+"category": "issue",
+"name": "Address",
+"fec_name": null,
+"labels": [
+"Address"
+],
+"method": "name-rule",
+"kind": "issue"
+},
 "issue|advance minnesota iec": {
 "category": "issue",
 "name": "Advance Minnesota Iec",
@@ -14141,6 +14807,48 @@
 "method": "name-rule",
 "kind": "issue"
 },
+"issue|airlines for america": {
+"category": "issue",
+"name": "Airlines for America",
+"fec_name": null,
+"labels": [
+"AIRLINES FOR AMERICA"
+],
+"method": "name-rule",
+"kind": "issue"
+},
+"issue|alabama families for ivf": {
+"category": "issue",
+"name": "Alabama Families for Ivf",
+"fec_name": null,
+"labels": [
+"Alabama Families for IVF"
+],
+"method": "name-rule",
+"kind": "issue"
+},
+"issue|alabama freedom fund": {
+"category": "issue",
+"name": "Alabama Freedom Fund",
+"fec_name": "Alabama Freedom Fund",
+"labels": [
+"Alabama Freedom Fund"
+],
+"method": "fec-committee",
+"kind": "pac",
+"fec_committee_id": "C00930438",
+"fec_committee_name": "ALABAMA FREEDOM FUND"
+},
+"issue|alabama patients first": {
+"category": "issue",
+"name": "Alabama Patients First",
+"fec_name": null,
+"labels": [
+"Alabama Patients First"
+],
+"method": "name-rule",
+"kind": "issue"
+},
 "issue|alliance for a better future inc": {
 "category": "issue",
 "name": "Alliance for a Better Future INC",
@@ -14165,7 +14873,18 @@
 "labels": [
 "Alliance for Economic Freedom",
 "Alliance For Economic Freedom",
-"ALLIANCE FOR ECONOMIC FREEDOM"
+"ALLIANCE FOR ECONOMIC FREEDOM",
+"ALLIANCE FOR ECONOMIC FREEDOM PAC"
+],
+"method": "name-rule",
+"kind": "issue"
+},
+"issue|aman a more affordable nevada": {
+"category": "issue",
+"name": "Aman a More Affordable Nevada",
+"fec_name": null,
+"labels": [
+"AMAN - A More Affordable Nevada"
 ],
 "method": "name-rule",
 "kind": "issue"
@@ -14208,6 +14927,16 @@
 "kind": "pac",
 "fec_committee_id": "C90011230",
 "fec_committee_name": "AMERICAN ACTION NETWORK INC"
+},
+"issue|american advancement": {
+"category": "issue",
+"name": "American Advancement",
+"fec_name": null,
+"labels": [
+"American Advancement"
+],
+"method": "name-rule",
+"kind": "issue"
 },
 "issue|american civil liberties union foundation": {
 "category": "issue",
@@ -14260,7 +14989,9 @@
 "name": "America Next INC",
 "fec_name": "America Next INC",
 "labels": [
-"America Next"
+"America Next",
+"AMERICA NEXT",
+"AMERICA NEXT PAC"
 ],
 "method": "fec-committee",
 "kind": "pac",
@@ -14302,6 +15033,7 @@
 "name": "American for Prosperity Action",
 "fec_name": null,
 "labels": [
+"American for Prosperity Action",
 "AMERICAN FOR PROSPERITY ACTION"
 ],
 "method": "name-rule",
@@ -14434,6 +15166,18 @@
 "method": "name-rule",
 "kind": "issue"
 },
+"issue|americans 4 security pac": {
+"category": "issue",
+"name": "Americans 4 Security PAC",
+"fec_name": "Americans 4 Security PAC",
+"labels": [
+"Americans 4 Security"
+],
+"method": "fec-committee",
+"kind": "pac",
+"fec_committee_id": "C00733352",
+"fec_committee_name": "AMERICANS 4 SECURITY PAC"
+},
 "issue|americans for open govamerican prosperity alliance": {
 "category": "issue",
 "name": "Americans for Open Govamerican Prosperity Alliance",
@@ -14474,7 +15218,8 @@
 "labels": [
 "Americans for Prosperity",
 "Americans For Prosperity",
-"AMERICANS FOR PROSPERITY"
+"AMERICANS FOR PROSPERITY",
+"AMERICANS FOR PROSPERITY PAC"
 ],
 "method": "fec-committee",
 "kind": "pac",
@@ -14486,7 +15231,8 @@
 "name": "Americans for Prosperity Action",
 "fec_name": null,
 "labels": [
-"Americans for Prosperity Action"
+"Americans for Prosperity Action",
+"AMERICANS FOR PROSPERITY ACTION"
 ],
 "method": "name-rule",
 "kind": "issue"
@@ -14546,6 +15292,18 @@
 "kind": "pac",
 "fec_committee_id": "C00229385",
 "fec_committee_name": "AMERICAN SOVEREIGNTY PAC"
+},
+"issue|american values pac inc": {
+"category": "issue",
+"name": "American Values PAC INC",
+"fec_name": "American Values PAC INC",
+"labels": [
+"American Values"
+],
+"method": "fec-committee",
+"kind": "pac",
+"fec_committee_id": "C00623371",
+"fec_committee_name": "AMERICAN VALUES PAC INC."
 },
 "issue|america one policies": {
 "category": "issue",
@@ -14726,7 +15484,6 @@
 "name": "A Strong Innovation Economy Requires Strong Ip Protection",
 "fec_name": "A Strong Innovation Economy Requires Strong Ip Protection",
 "labels": [
-"A Strong Innovation Economy Requires Strong IP Protection PAC",
 "A STRONG INNOVATION ECONOMY REQUIRES STRONG IP PROTECTION PAC"
 ],
 "method": "fec-committee",
@@ -14734,12 +15491,32 @@
 "fec_committee_id": "C00853770",
 "fec_committee_name": "A STRONG INNOVATION ECONOMY REQUIRES STRONG IP PROTECTION"
 },
+"issue|az dass ncdc fontes": {
+"category": "issue",
+"name": "AZ Dass Ncdc Fontes",
+"fec_name": null,
+"labels": [
+"AZ DASS NCDC-Fontes"
+],
+"method": "name-rule",
+"kind": "issue"
+},
 "issue|az dlcc a project of ncdc edgar soto": {
 "category": "issue",
 "name": "AZ Dlcc a Project of Ncdc Edgar Soto",
 "fec_name": null,
 "labels": [
 "AZ DLCC A project of NCDC-Edgar Soto"
+],
+"method": "name-rule",
+"kind": "issue"
+},
+"issue|az dlcc a project of ncdc lyon and volk": {
+"category": "issue",
+"name": "AZ Dlcc a Project of Ncdc Lyon and Volk",
+"fec_name": null,
+"labels": [
+"AZ DLCC A Project of NCDC-Lyon and Volk"
 ],
 "method": "name-rule",
 "kind": "issue"
@@ -14816,6 +15593,16 @@
 "method": "name-rule",
 "kind": "issue"
 },
+"issue|blue cross blue shield": {
+"category": "issue",
+"name": "Blue Cross Blue Shield",
+"fec_name": null,
+"labels": [
+"Blue Cross Blue Shield"
+],
+"method": "name-rule",
+"kind": "issue"
+},
 "issue|bnv better nevada pac": {
 "category": "issue",
 "name": "Bnv Better Nevada PAC",
@@ -14866,7 +15653,8 @@
 "fec_name": null,
 "labels": [
 "Building a Better Arizona",
-"BUILDING A BETTER ARIZONA"
+"BUILDING A BETTER ARIZONA",
+"Building a Better Arizona 115080"
 ],
 "method": "name-rule",
 "kind": "issue"
@@ -14889,6 +15677,7 @@
 "fec_name": null,
 "labels": [
 "Californians for Voter ID",
+"Californians For Voter ID",
 "CALIFORNIANS FOR VOTER ID",
 "Californians For Voter ID PAC 12"
 ],
@@ -14901,6 +15690,27 @@
 "fec_name": null,
 "labels": [
 "Californians For Voter ID CW"
+],
+"method": "name-rule",
+"kind": "issue"
+},
+"issue|californians for voter id cw network": {
+"category": "issue",
+"name": "Californians for Voter Id Cw Network",
+"fec_name": null,
+"labels": [
+"Californians for Voter ID - CW Network",
+"Californians For Voter ID-CW Network"
+],
+"method": "name-rule",
+"kind": "issue"
+},
+"issue|californians for voters id": {
+"category": "issue",
+"name": "Californians for Voters Id",
+"fec_name": null,
+"labels": [
+"Californians For Voters ID"
 ],
 "method": "name-rule",
 "kind": "issue"
@@ -15259,7 +16069,6 @@
 "name": "Coalition for Accountability and Road Safety",
 "fec_name": null,
 "labels": [
-"Coalition for Accountability and Road Safety",
 "COALITION FOR ACCOUNTABILITY AND ROAD SAFETY"
 ],
 "method": "name-rule",
@@ -15271,6 +16080,26 @@
 "fec_name": null,
 "labels": [
 "Coalition For Accountability Road Safety"
+],
+"method": "name-rule",
+"kind": "issue"
+},
+"issue|coalition to restore california middle class": {
+"category": "issue",
+"name": "Coalition to Restore California Middle Class",
+"fec_name": null,
+"labels": [
+"Coalition to Restore California Middle Class"
+],
+"method": "name-rule",
+"kind": "issue"
+},
+"issue|committees with no acronyms name must match the sponsorship id in ad": {
+"category": "issue",
+"name": "Committees With No Acronyms Name Must Match the Sponsorship Id in Ad",
+"fec_name": null,
+"labels": [
+"committees] with no acronyms; name must match the sponsorship ID in ad)"
 ],
 "method": "name-rule",
 "kind": "issue"
@@ -15302,6 +16131,16 @@
 "fec_name": null,
 "labels": [
 "Congressional Leadership Fund PAC CLF PAC"
+],
+"method": "name-rule",
+"kind": "issue"
+},
+"issue|congress leadership fund": {
+"category": "issue",
+"name": "Congress Leadership Fund",
+"fec_name": null,
+"labels": [
+"CONGRESS LEADERSHIP FUND"
 ],
 "method": "name-rule",
 "kind": "issue"
@@ -15360,12 +16199,23 @@
 "name": "Crush Maga PAC",
 "fec_name": "Crush Maga PAC",
 "labels": [
+"Crush Maga",
 "Crush MAGA PAC"
 ],
 "method": "fec-committee",
 "kind": "pac",
 "fec_committee_id": "C00879221",
 "fec_committee_name": "CRUSH MAGA PAC"
+},
+"issue|cw californians for voter id pac": {
+"category": "issue",
+"name": "Cw Californians for Voter Id PAC",
+"fec_name": null,
+"labels": [
+"CW - CALIFORNIANS FOR VOTER ID PAC"
+],
+"method": "name-rule",
+"kind": "issue"
 },
 "issue|cw making michigan future": {
 "category": "issue",
@@ -15403,6 +16253,16 @@
 "fec_name": null,
 "labels": [
 "CW NETWORK BUYS"
+],
+"method": "name-rule",
+"kind": "issue"
+},
+"issue|cw network californians for voter id yes on": {
+"category": "issue",
+"name": "Cw Network Californians for Voter Id Yes on",
+"fec_name": null,
+"labels": [
+"CW NETWORK - CALIFORNIANS FOR VOTER ID YES ON 39"
 ],
 "method": "name-rule",
 "kind": "issue"
@@ -15447,6 +16307,26 @@
 "method": "name-rule",
 "kind": "issue"
 },
+"issue|cw network strong nd fund": {
+"category": "issue",
+"name": "Cw Network Strong Nd Fund",
+"fec_name": null,
+"labels": [
+"CW NETWORK - STRONG ND FUND"
+],
+"method": "name-rule",
+"kind": "issue"
+},
+"issue|cw network texas pac": {
+"category": "issue",
+"name": "Cw Network Texas PAC",
+"fec_name": null,
+"labels": [
+"CW NETWORK - TEXAS PAC"
+],
+"method": "name-rule",
+"kind": "issue"
+},
 "issue|cw network together for school meals": {
 "category": "issue",
 "name": "Cw Network Together for School Meals",
@@ -15477,6 +16357,16 @@
 "method": "name-rule",
 "kind": "issue"
 },
+"issue|cw texas pac": {
+"category": "issue",
+"name": "Cw Texas PAC",
+"fec_name": null,
+"labels": [
+"CW - TEXAS PAC"
+],
+"method": "name-rule",
+"kind": "issue"
+},
 "issue|cw too extreme for idaho": {
 "category": "issue",
 "name": "Cw Too Extreme for Idaho",
@@ -15486,6 +16376,18 @@
 ],
 "method": "name-rule",
 "kind": "issue"
+},
+"issue|daga pac": {
+"category": "issue",
+"name": "Daga PAC",
+"fec_name": "Daga PAC",
+"labels": [
+"DAGA"
+],
+"method": "fec-committee",
+"kind": "pac",
+"fec_committee_id": "C00638320",
+"fec_committee_name": "DAGA PAC"
 },
 "issue|daga people lawyer project": {
 "category": "issue",
@@ -15503,7 +16405,8 @@
 "fec_name": null,
 "labels": [
 "Daga Peoples Lawyer Project",
-"DAGA Peoples Lawyer Project"
+"DAGA Peoples Lawyer Project",
+"DAGA Peoples Lawyer Project PAC"
 ],
 "method": "name-rule",
 "kind": "issue"
@@ -15560,7 +16463,8 @@
 "labels": [
 "Defend the Vote",
 "Defend The Vote",
-"DEFEND THE VOTE"
+"DEFEND THE VOTE",
+"DEFEND THE VOTE PAC"
 ],
 "method": "fec-committee",
 "kind": "pac",
@@ -15616,6 +16520,26 @@
 "fec_name": null,
 "labels": [
 "Detroits American Priorities"
+],
+"method": "name-rule",
+"kind": "issue"
+},
+"issue|disclosures": {
+"category": "issue",
+"name": "Disclosures",
+"fec_name": null,
+"labels": [
+"DISCLOSURES"
+],
+"method": "name-rule",
+"kind": "issue"
+},
+"issue|dmfi democratic majority party for israel pac": {
+"category": "issue",
+"name": "Dmfi Democratic Majority Party for Israel PAC",
+"fec_name": null,
+"labels": [
+"DMFI Democratic Majority Party for Israel PAC"
 ],
 "method": "name-rule",
 "kind": "issue"
@@ -15832,6 +16756,16 @@
 "method": "name-rule",
 "kind": "issue"
 },
+"issue|fair fairshake": {
+"category": "issue",
+"name": "Fair Fairshake",
+"fec_name": null,
+"labels": [
+"FAIR - Fairshake"
+],
+"method": "name-rule",
+"kind": "issue"
+},
 "issue|fair fight action": {
 "category": "issue",
 "name": "Fair Fight Action",
@@ -15875,6 +16809,18 @@
 ],
 "method": "name-rule",
 "kind": "issue"
+},
+"issue|fellowship pac": {
+"category": "issue",
+"name": "Fellowship PAC",
+"fec_name": "Fellowship PAC",
+"labels": [
+"Fellowship PAC"
+],
+"method": "fec-committee",
+"kind": "pac",
+"fec_committee_id": "C00915181",
+"fec_committee_name": "FELLOWSHIP PAC"
 },
 "issue|fight for michigan pac": {
 "category": "issue",
@@ -15934,6 +16880,18 @@
 "kind": "pac",
 "fec_committee_id": "C00894428",
 "fec_committee_name": "FIRST PRINCIPLES DIGITAL"
+},
+"issue|first state pac": {
+"category": "issue",
+"name": "First State PAC",
+"fec_name": "First State PAC",
+"labels": [
+"First State PAC"
+],
+"method": "fec-committee",
+"kind": "pac",
+"fec_committee_id": "C00363648",
+"fec_committee_name": "FIRST STATE PAC"
 },
 "issue|first state service pac": {
 "category": "issue",
@@ -16036,6 +16994,16 @@
 "method": "name-rule",
 "kind": "issue"
 },
+"issue|friends of public transportation": {
+"category": "issue",
+"name": "Friends of Public Transportation",
+"fec_name": null,
+"labels": [
+"Friends of Public Transportation"
+],
+"method": "name-rule",
+"kind": "issue"
+},
 "issue|the front line action": {
 "category": "issue",
 "name": "The Front Line Action",
@@ -16054,6 +17022,16 @@
 "fec_name": null,
 "labels": [
 "Full Life"
+],
+"method": "name-rule",
+"kind": "issue"
+},
+"issue|future forward usa action": {
+"category": "issue",
+"name": "Future Forward USA Action",
+"fec_name": null,
+"labels": [
+"FUTURE FORWARD USA ACTION"
 ],
 "method": "name-rule",
 "kind": "issue"
@@ -16121,7 +17099,8 @@
 "Georgia Values Leadership Fund",
 "GEORGIA VALUES LEADERSHIP FUND",
 "Georgia Values Leadership Fund INC",
-"GEORGIA VALUES LEADERSHIP FUND INC"
+"GEORGIA VALUES LEADERSHIP FUND INC",
+"Georgia Values Leadership Fund PAC"
 ],
 "method": "name-rule",
 "kind": "issue"
@@ -16212,6 +17191,7 @@
 "name": "Government That Works PAC",
 "fec_name": "Government That Works PAC",
 "labels": [
+"Government That Works",
 "Government that Works PAC",
 "Government That Works PAC"
 ],
@@ -16226,7 +17206,8 @@
 "fec_name": null,
 "labels": [
 "Great Lakes Conservative Fund",
-"GREAT LAKES CONSERVATIVE FUND"
+"GREAT LAKES CONSERVATIVE FUND",
+"GREAT LAKES CONSERVATIVE FUND PAC"
 ],
 "method": "name-rule",
 "kind": "issue"
@@ -16237,6 +17218,16 @@
 "fec_name": null,
 "labels": [
 "GREAT LAKES CONSERVATIVE FUND GLCF"
+],
+"method": "name-rule",
+"kind": "issue"
+},
+"issue|great lakes conservative fund red eagle media group": {
+"category": "issue",
+"name": "Great Lakes Conservative Fund Red Eagle Media Group",
+"fec_name": null,
+"labels": [
+"Great Lakes Conservative Fund-Red Eagle Media Group"
 ],
 "method": "name-rule",
 "kind": "issue"
@@ -16478,7 +17469,8 @@
 "name": "Iss American Action Network",
 "fec_name": null,
 "labels": [
-"ISS AMERICAN ACTION NETWORK"
+"ISS AMERICAN ACTION NETWORK",
+"ISS/ American Action Network INC"
 ],
 "method": "name-rule",
 "kind": "issue"
@@ -16489,6 +17481,16 @@
 "fec_name": null,
 "labels": [
 "ISS AMERICAN MISSION SUPER PAC"
+],
+"method": "name-rule",
+"kind": "issue"
+},
+"issue|iss americans for open government": {
+"category": "issue",
+"name": "Iss Americans for Open Government",
+"fec_name": null,
+"labels": [
+"ISS/ Americans for Open Government"
 ],
 "method": "name-rule",
 "kind": "issue"
@@ -16518,7 +17520,8 @@
 "name": "Iss Bold America",
 "fec_name": null,
 "labels": [
-"ISS BOLD AMERICA"
+"ISS BOLD AMERICA",
+"ISS BOLD AMERICA PAC"
 ],
 "method": "name-rule",
 "kind": "issue"
@@ -16549,7 +17552,8 @@
 "name": "Iss Choose Freedom",
 "fec_name": null,
 "labels": [
-"ISS CHOOSE FREEDOM"
+"ISS CHOOSE FREEDOM",
+"ISS/ Choose Freedom INC"
 ],
 "method": "name-rule",
 "kind": "issue"
@@ -16579,7 +17583,18 @@
 "name": "Iss Clf",
 "fec_name": null,
 "labels": [
-"ISS CLF"
+"ISS CLF",
+"ISS/ CLF"
+],
+"method": "name-rule",
+"kind": "issue"
+},
+"issue|iss club for growth action": {
+"category": "issue",
+"name": "Iss Club for Growth Action",
+"fec_name": null,
+"labels": [
+"ISS/ Club for Growth Action"
 ],
 "method": "name-rule",
 "kind": "issue"
@@ -16590,6 +17605,16 @@
 "fec_name": null,
 "labels": [
 "Iss Coalfield Justice ACTN"
+],
+"method": "name-rule",
+"kind": "issue"
+},
+"issue|iss coalition for accountability and road safety": {
+"category": "issue",
+"name": "Iss Coalition for Accountability and Road Safety",
+"fec_name": null,
+"labels": [
+"ISS/ Coalition for Accountability & Road Safety"
 ],
 "method": "name-rule",
 "kind": "issue"
@@ -16614,12 +17639,32 @@
 "method": "name-rule",
 "kind": "issue"
 },
+"issue|iss edf action votes": {
+"category": "issue",
+"name": "Iss Edf Action Votes",
+"fec_name": null,
+"labels": [
+"ISS/ EDF Action Votes"
+],
+"method": "name-rule",
+"kind": "issue"
+},
 "issue|iss everytown gun safety": {
 "category": "issue",
 "name": "Iss Everytown Gun Safety",
 "fec_name": null,
 "labels": [
 "ISS EVERYTOWN GUN SAFETY"
+],
+"method": "name-rule",
+"kind": "issue"
+},
+"issue|iss freedom caucus fund": {
+"category": "issue",
+"name": "Iss Freedom Caucus Fund",
+"fec_name": null,
+"labels": [
+"ISS/ Freedom Caucus Fund"
 ],
 "method": "name-rule",
 "kind": "issue"
@@ -16681,6 +17726,7 @@
 "name": "Iss No Going Back",
 "fec_name": null,
 "labels": [
+"ISS/ No Going Back",
 "ISS NO GOING BACK"
 ],
 "method": "name-rule",
@@ -16691,7 +17737,18 @@
 "name": "Iss PA Fund for Change",
 "fec_name": null,
 "labels": [
-"Iss Pa Fund For Change"
+"Iss Pa Fund For Change",
+"ISS/ PA Fund for Change"
+],
+"method": "name-rule",
+"kind": "issue"
+},
+"issue|iss pennsylvania chamber of business and industry": {
+"category": "issue",
+"name": "Iss Pennsylvania Chamber of Business and Industry",
+"fec_name": null,
+"labels": [
+"ISS/ Pennsylvania Chamber of Business & Industry"
 ],
 "method": "name-rule",
 "kind": "issue"
@@ -16772,6 +17829,16 @@
 "fec_name": null,
 "labels": [
 "ISS TEP FOR TUCSON"
+],
+"method": "name-rule",
+"kind": "issue"
+},
+"issue|iss texas pac": {
+"category": "issue",
+"name": "Iss Texas PAC",
+"fec_name": null,
+"labels": [
+"ISS TEXAS PAC"
 ],
 "method": "name-rule",
 "kind": "issue"
@@ -16889,7 +17956,8 @@
 "Safety and Affordability PAC",
 "SAFETY AND AFFORDABILITY PAC",
 "Safety and Affordability PAC Inc",
-"Safety and Affordablility PAC"
+"Safety and Affordablility PAC",
+"SA - Safety and Affordability PAC"
 ],
 "method": "fec-committee",
 "kind": "pac",
@@ -16942,6 +18010,16 @@
 "labels": [
 "Iss Win For Pennsylvania",
 "ISS/ Win for Pennsylvania"
+],
+"method": "name-rule",
+"kind": "issue"
+},
+"issue|iss winsenate": {
+"category": "issue",
+"name": "Iss Winsenate",
+"fec_name": null,
+"labels": [
+"ISS WinSenate 2026"
 ],
 "method": "name-rule",
 "kind": "issue"
@@ -17373,6 +18451,16 @@
 "method": "name-rule",
 "kind": "issue"
 },
+"issue|michigan principles first": {
+"category": "issue",
+"name": "Michigan Principles First",
+"fec_name": null,
+"labels": [
+"Michigan Principles First"
+],
+"method": "name-rule",
+"kind": "issue"
+},
 "issue|michigan sunrise pac": {
 "category": "issue",
 "name": "Michigan Sunrise PAC",
@@ -17485,7 +18573,8 @@
 "fec_name": null,
 "labels": [
 "Mission Michigan",
-"MISSION MICHIGAN"
+"MISSION MICHIGAN",
+"MISSION MICHIGAN PAC"
 ],
 "method": "name-rule",
 "kind": "issue"
@@ -17579,6 +18668,16 @@
 "method": "name-rule",
 "kind": "issue"
 },
+"issue|nc true conservative": {
+"category": "issue",
+"name": "NC True Conservative",
+"fec_name": null,
+"labels": [
+"NC TRUE CONSERVATIVE"
+],
+"method": "name-rule",
+"kind": "issue"
+},
 "issue|nc true conservatives": {
 "category": "issue",
 "name": "NC True Conservatives",
@@ -17647,7 +18746,8 @@
 "No Going Back PAC",
 "NO GOING BACK PAC",
 "No Going Back PAC 2026",
-"No Going Back PAC Inc"
+"No Going Back PAC Inc",
+"No Going Back PAC INC 116225"
 ],
 "method": "fec-committee",
 "kind": "pac",
@@ -17758,6 +18858,16 @@
 "method": "name-rule",
 "kind": "issue"
 },
+"issue|office of congresswoman kristen mcdonald rivet": {
+"category": "issue",
+"name": "Office of Congresswoman Kristen Mcdonald Rivet",
+"fec_name": null,
+"labels": [
+"Office of Congresswoman Kristen McDonald Rivet"
+],
+"method": "name-rule",
+"kind": "issue"
+},
 "issue|old nation action": {
 "category": "issue",
 "name": "Old Nation Action",
@@ -17825,6 +18935,16 @@
 "fec_name": null,
 "labels": [
 "Opportunity Action Fund dba Affordable PA"
+],
+"method": "name-rule",
+"kind": "issue"
+},
+"issue|opportunity action fund dba affordable pennsylvania": {
+"category": "issue",
+"name": "Opportunity Action Fund Dba Affordable Pennsylvania",
+"fec_name": null,
+"labels": [
+"Opportunity Action Fund dba Affordable Pennsylvania"
 ],
 "method": "name-rule",
 "kind": "issue"
@@ -18005,16 +19125,6 @@
 "method": "name-rule",
 "kind": "issue"
 },
-"issue|pennsylvania chamber of business and industry": {
-"category": "issue",
-"name": "Pennsylvania Chamber of Business and Industry",
-"fec_name": null,
-"labels": [
-"Pennsylvania Chamber of Business and Industry"
-],
-"method": "name-rule",
-"kind": "issue"
-},
 "issue|pennsylvania fund for change": {
 "category": "issue",
 "name": "Pennsylvania Fund for Change",
@@ -18028,6 +19138,16 @@
 "kind": "committee",
 "fec_committee_id": "C30003107",
 "fec_committee_name": "PENNSYLVANIA FUND FOR CHANGE"
+},
+"issue|peoples lawyer project": {
+"category": "issue",
+"name": "Peoples Lawyer Project",
+"fec_name": null,
+"labels": [
+"Peoples Lawyer Project"
+],
+"method": "name-rule",
+"kind": "issue"
 },
 "issue|piedmont accountability coalition": {
 "category": "issue",
@@ -18222,7 +19342,9 @@
 "fec_name": "Public First Action INC",
 "labels": [
 "Public First Action",
-"PUBLIC FIRST ACTION"
+"PUBLIC FIRST ACTION",
+"Public First Action PAC",
+"PUBLIC FIRST ACTION PAC"
 ],
 "method": "fec-committee",
 "kind": "committee",
@@ -18255,6 +19377,7 @@
 "fec_name": null,
 "labels": [
 "Put Progress First",
+"Put Progress FIrst",
 "PUT PROGRESS FIRST",
 "PUT PROGRESS FIRST PAC"
 ],
@@ -18266,7 +19389,8 @@
 "name": "Ready for the Fight",
 "fec_name": "Ready for the Fight",
 "labels": [
-"Ready for the Fight"
+"Ready for the Fight",
+"Ready for the Fight PAC"
 ],
 "method": "fec-committee",
 "kind": "pac",
@@ -18387,6 +19511,16 @@
 "method": "name-rule",
 "kind": "issue"
 },
+"issue|right direction": {
+"category": "issue",
+"name": "Right Direction",
+"fec_name": null,
+"labels": [
+"Right Direction"
+],
+"method": "name-rule",
+"kind": "issue"
+},
 "issue|right direction wi pac": {
 "category": "issue",
 "name": "Right Direction WI PAC",
@@ -18496,7 +19630,8 @@
 "name": "Safer Michigan Fund",
 "fec_name": null,
 "labels": [
-"Safer Michigan Fund"
+"Safer Michigan Fund",
+"SAFER MICHIGAN FUND"
 ],
 "method": "name-rule",
 "kind": "issue"
@@ -18517,6 +19652,26 @@
 "fec_name": null,
 "labels": [
 "Safer Wisconsin Fund"
+],
+"method": "name-rule",
+"kind": "issue"
+},
+"issue|safer wis fund": {
+"category": "issue",
+"name": "Safer Wis Fund",
+"fec_name": null,
+"labels": [
+"Safer Wis Fund"
+],
+"method": "name-rule",
+"kind": "issue"
+},
+"issue|safety accountability": {
+"category": "issue",
+"name": "Safety Accountability",
+"fec_name": null,
+"labels": [
+"Safety Accountability"
 ],
 "method": "name-rule",
 "kind": "issue"
@@ -18594,6 +19749,16 @@
 "method": "name-rule",
 "kind": "issue"
 },
+"issue|saving college sports": {
+"category": "issue",
+"name": "Saving College Sports",
+"fec_name": null,
+"labels": [
+"SAVING COLLEGE SPORTS"
+],
+"method": "name-rule",
+"kind": "issue"
+},
 "issue|sc integrity watch": {
 "category": "issue",
 "name": "Sc Integrity Watch",
@@ -18624,7 +19789,9 @@
 "fec_name": "Security Is Strength PAC",
 "labels": [
 "Security is Strength",
-"SECURITY IS STRENGTH"
+"SECURITY IS STRENGTH",
+"Security is Strength PAC",
+"SECURITY IS STRENGTH PAC"
 ],
 "method": "fec-committee",
 "kind": "pac",
@@ -18680,6 +19847,16 @@
 "fec_name": null,
 "labels": [
 "SFF - Service First Fund"
+],
+"method": "name-rule",
+"kind": "issue"
+},
+"issue|shor strategic horizons pac": {
+"category": "issue",
+"name": "Shor Strategic Horizons PAC",
+"fec_name": null,
+"labels": [
+"SHOR - Strategic Horizons PAC"
 ],
 "method": "name-rule",
 "kind": "issue"
@@ -18822,6 +19999,16 @@
 "method": "name-rule",
 "kind": "issue"
 },
+"issue|station representative": {
+"category": "issue",
+"name": "Station Representative",
+"fec_name": null,
+"labels": [
+"Station Representative"
+],
+"method": "name-rule",
+"kind": "issue"
+},
 "issue|stcs vote yes bond committee": {
 "category": "issue",
 "name": "Stcs Vote Yes Bond Committee",
@@ -18870,7 +20057,18 @@
 "name": "Strong Nd Fund",
 "fec_name": null,
 "labels": [
-"Strong ND Fund"
+"Strong ND Fund",
+"STRONG ND FUND"
+],
+"method": "name-rule",
+"kind": "issue"
+},
+"issue|strong nd fund cw network": {
+"category": "issue",
+"name": "Strong Nd Fund Cw Network",
+"fec_name": null,
+"labels": [
+"Strong ND Fund-CW Network"
 ],
 "method": "name-rule",
 "kind": "issue"
@@ -18950,6 +20148,18 @@
 "fec_name": null,
 "labels": [
 "Texas PAC CW"
+],
+"method": "name-rule",
+"kind": "issue"
+},
+"issue|texas pac cw network": {
+"category": "issue",
+"name": "Texas PAC Cw Network",
+"fec_name": null,
+"labels": [
+"Texas PAC - CW network",
+"Texas PAC - CW Network",
+"Texas PAC-CW Network"
 ],
 "method": "name-rule",
 "kind": "issue"
@@ -19077,7 +20287,8 @@
 "fec_name": "Tomorrow Together",
 "labels": [
 "Tomorrow Together",
-"TOMORROW TOGETHER"
+"TOMORROW TOGETHER",
+"Tomorrow Together 116354"
 ],
 "method": "fec-committee",
 "kind": "pac",
@@ -19266,16 +20477,6 @@
 "fec_committee_id": "C00739771",
 "fec_committee_name": "UNITE TO WIN"
 },
-"issue|unknown": {
-"category": "issue",
-"name": "Unknown",
-"fec_name": null,
-"labels": [
-"Unknown"
-],
-"method": "name-rule",
-"kind": "issue"
-},
 "issue|virginians for fair elections": {
 "category": "issue",
 "name": "Virginians for Fair Elections",
@@ -19361,6 +20562,7 @@
 "name": "West Michigan for Common Sense",
 "fec_name": "West Michigan for Common Sense",
 "labels": [
+"West Michigan for Common Sense",
 "WEST MICHIGAN FOR COMMON SENSE PAC"
 ],
 "method": "fec-committee",
@@ -19579,12 +20781,42 @@
 "method": "name-rule",
 "kind": "issue"
 },
+"issue|wmcimc": {
+"category": "issue",
+"name": "Wmcimc",
+"fec_name": null,
+"labels": [
+"WMCIMC"
+],
+"method": "name-rule",
+"kind": "issue"
+},
+"issue|wmc mobilization": {
+"category": "issue",
+"name": "Wmc Mobilization",
+"fec_name": null,
+"labels": [
+"WMC Issue Mobilization"
+],
+"method": "name-rule",
+"kind": "issue"
+},
 "issue|wmc mobilization council": {
 "category": "issue",
 "name": "Wmc Mobilization Council",
 "fec_name": null,
 "labels": [
 "WMC Issue Mobilization Council Inc"
+],
+"method": "name-rule",
+"kind": "issue"
+},
+"issue|wmsn confirmation contract": {
+"category": "issue",
+"name": "Wmsn Confirmation Contract",
+"fec_name": null,
+"labels": [
+"WMSN Confirmation Contract"
 ],
 "method": "name-rule",
 "kind": "issue"
@@ -19876,18 +21108,16 @@
 "kind": "candidate",
 "state": "MI"
 },
-"local|clark": {
+"local|charmaine crabb": {
 "category": "local",
-"name": "Clark",
+"name": "Charmaine Crabb",
 "fec_name": null,
 "labels": [
-"Clark county Commission",
-"Clark County Commissioner",
-"Clark County Recorder Office"
+"COMMITTEE TO ELECT CHARMAINE CRABB"
 ],
 "method": "name-rule",
 "kind": "candidate",
-"state": "NV"
+"state": "GA"
 },
 "local|danielle tarmu": {
 "category": "local",
@@ -19895,7 +21125,8 @@
 "fec_name": null,
 "labels": [
 "Committee to Elect Danielle Tarmu",
-"Danielle Tarmu"
+"Danielle Tarmu",
+"Danielle Tarmu for Judge"
 ],
 "method": "name-rule",
 "kind": "candidate",
@@ -19923,6 +21154,17 @@
 "kind": "candidate",
 "state": "NV"
 },
+"local|jacob": {
+"category": "local",
+"name": "Jacob",
+"fec_name": null,
+"labels": [
+"Committee to Elect Jacob for Judge 848749 10-07-2026"
+],
+"method": "name-rule",
+"kind": "candidate",
+"state": "NV"
+},
 "local|kate marshall": {
 "category": "local",
 "name": "Kate Marshall",
@@ -19944,6 +21186,17 @@
 "method": "name-rule",
 "kind": "candidate",
 "state": "GA"
+},
+"local|marie rodriguez": {
+"category": "local",
+"name": "Marie Rodriguez",
+"fec_name": null,
+"labels": [
+"Committee to Elect Marie Rodriguez"
+],
+"method": "name-rule",
+"kind": "candidate",
+"state": "NV"
 },
 "local|scott black las vegas": {
 "category": "local",
@@ -20099,12 +21352,12 @@
 "kind": "candidate",
 "state": "GA"
 },
-"local|katie hobbs": {
+"local|terry leyba ruiz st": {
 "category": "local",
-"name": "Katie Hobbs",
+"name": "Terry Leyba Ruiz St",
 "fec_name": null,
 "labels": [
-"Elect Katie Hobbs"
+"Dr TERRY LEYBA RUIZ ST SUPERINTENDENT AZ"
 ],
 "method": "name-rule",
 "kind": "candidate",
@@ -20294,7 +21547,8 @@
 "fec_name": null,
 "labels": [
 "Jacob Reynolds",
-"Jacob Reynolds 4 Judge"
+"Jacob Reynolds 4 Judge",
+"Jacob Reynolds for Judge"
 ],
 "method": "name-rule",
 "kind": "candidate",
@@ -20321,6 +21575,17 @@
 "method": "name-rule",
 "kind": "candidate",
 "state": "PA"
+},
+"local|jerry wiese": {
+"category": "local",
+"name": "Jerry Wiese",
+"fec_name": null,
+"labels": [
+"Jerry Wiese for Judge"
+],
+"method": "name-rule",
+"kind": "candidate",
+"state": "NV"
 },
 "local|jerry wiess": {
 "category": "local",
@@ -20426,23 +21691,23 @@
 "kind": "candidate",
 "state": "GA"
 },
-"local|juan ciscomani": {
-"category": "local",
-"name": "Juan Ciscomani",
-"fec_name": null,
-"labels": [
-"Juan Ciscomani for Congress"
-],
-"method": "name-rule",
-"kind": "candidate",
-"state": "AZ"
-},
 "local|lisa jones superior": {
 "category": "local",
 "name": "Lisa Jones Superior",
 "fec_name": null,
 "labels": [
 "Judge Lisa Jones Superior Court"
+],
+"method": "name-rule",
+"kind": "candidate",
+"state": "GA"
+},
+"local|karen gordon": {
+"category": "local",
+"name": "Karen Gordon",
+"fec_name": null,
+"labels": [
+"Karen Gordon"
 ],
 "method": "name-rule",
 "kind": "candidate",
@@ -20526,16 +21791,30 @@
 "kind": "candidate",
 "state": "NC"
 },
-"local|making michigans future": {
+"local|manny kess clark commissio": {
 "category": "local",
-"name": "Making Michigans Future",
+"name": "Manny Kess Clark Commissio",
 "fec_name": null,
 "labels": [
-"Making Michigans Future"
+"Manny Kess Clark County Commissio"
 ],
 "method": "name-rule",
 "kind": "candidate",
-"state": "MI"
+"state": "NV"
+},
+"local|manny kess clark": {
+"category": "local",
+"name": "Manny Kess Clark",
+"fec_name": null,
+"labels": [
+"Manny Kess for Clark County Commission - District E",
+"Clark county Commission",
+"Clark County Commissioner",
+"Clark County Recorder Office"
+],
+"method": "name-rule",
+"kind": "candidate",
+"state": "NV"
 },
 "local|marty flynn": {
 "category": "local",
@@ -20576,7 +21855,8 @@
 "name": "Michelle Leavitt",
 "fec_name": null,
 "labels": [
-"Michelle Leavitt"
+"Michelle Leavitt",
+"Michelle Leavitt for Judge"
 ],
 "method": "name-rule",
 "kind": "candidate",
@@ -20603,17 +21883,6 @@
 "method": "name-rule",
 "kind": "candidate",
 "state": "GA"
-},
-"local|navajo community": {
-"category": "local",
-"name": "Navajo Community",
-"fec_name": null,
-"labels": [
-"Navajo County Democratic Community"
-],
-"method": "name-rule",
-"kind": "candidate",
-"state": "AZ"
 },
 "local|cory thornton": {
 "category": "local",
@@ -20775,12 +22044,22 @@
 "name": "Rob Zapple",
 "fec_name": null,
 "labels": [
-"Rob Zapple County Commissioner",
 "Rob Zapple for County Commissioner"
 ],
 "method": "name-rule",
 "kind": "candidate",
 "state": "NC"
+},
+"local|rocky marsh city": {
+"category": "local",
+"name": "Rocky Marsh City",
+"fec_name": null,
+"labels": [
+"ROCKY MARSH FOR CITY COUNCIL"
+],
+"method": "name-rule",
+"kind": "candidate",
+"state": "GA"
 },
 "local|sandoval peace": {
 "category": "local",
@@ -20939,16 +22218,6 @@
 "kind": "candidate",
 "state": "AZ"
 },
-"local|unknown": {
-"category": "local",
-"name": "Unknown",
-"fec_name": null,
-"labels": [
-"Unknown"
-],
-"method": "name-rule",
-"kind": "candidate"
-},
 "local|wiley": {
 "category": "local",
 "name": "Wiley",
@@ -20982,22 +22251,22 @@
 "kind": "candidate",
 "state": "GA"
 },
-"other|making michigans future": {
+"other|addr": {
 "category": "other",
-"name": "Making Michigans Future",
+"name": "Addr",
 "fec_name": null,
 "labels": [
-"Making Michigans Future"
+"Addr"
 ],
 "method": "name-rule",
 "kind": "unknown"
 },
-"other|protect the north dakota constitution": {
+"other|address": {
 "category": "other",
-"name": "Protect the North Dakota Constitution",
+"name": "Address",
 "fec_name": null,
 "labels": [
-"Protect the North Dakota Constitution"
+"Address"
 ],
 "method": "name-rule",
 "kind": "unknown"
@@ -21014,16 +22283,6 @@
 "party": "Democratic",
 "fec_committee_id": "C00919084",
 "fec_committee_name": "TALARICO FOR TEXAS"
-},
-"other|together for school meals": {
-"category": "other",
-"name": "Together for School Meals",
-"fec_name": null,
-"labels": [
-"Together for School Meals"
-],
-"method": "name-rule",
-"kind": "unknown"
 },
 "other|too extreme for idaho pac": {
 "category": "other",
@@ -21221,28 +22480,16 @@
 "kind": "candidate",
 "state": "WI"
 },
-"state|spaude tollefson": {
+"state|spaude nichols tollefson": {
 "category": "state",
-"name": "Spaude Tollefson",
+"name": "Spaude Nichols Tollefson",
 "fec_name": null,
 "labels": [
-"ADCC Spaude Nichols and Tollefson",
-"Spaude and Tollefson"
+"ADCC Spaude Nichols and Tollefson"
 ],
 "method": "name-rule",
 "kind": "candidate",
 "state": "WI"
-},
-"state|adriana flippo": {
-"category": "state",
-"name": "Adriana Flippo",
-"fec_name": null,
-"labels": [
-"Adriana for Nevada and Flippo for Nevada"
-],
-"method": "name-rule",
-"kind": "candidate",
-"state": "NV"
 },
 "state|adriana lombardo": {
 "category": "state",
@@ -21293,6 +22540,18 @@
 "kind": "candidate",
 "state": "AZ"
 },
+"state|adrian fontes navajo": {
+"category": "state",
+"name": "Adrian Fontes Navajo",
+"fec_name": null,
+"labels": [
+"Adrian Fontes -Navajo County",
+"ADRIAN FONTES - NAVAJO COUNTY"
+],
+"method": "name-rule",
+"kind": "candidate",
+"state": "AZ"
+},
 "state|afor aaron ford": {
 "category": "state",
 "name": "Afor Aaron Ford",
@@ -21333,6 +22592,7 @@
 "name": "Alan Wilson",
 "fec_name": null,
 "labels": [
+"Alan Wilson",
 "Alan Wilson SC Gov"
 ],
 "method": "name-rule",
@@ -21355,7 +22615,8 @@
 "name": "Allen",
 "fec_name": null,
 "labels": [
-"Allen"
+"Allen",
+"Allen for Lt Governor"
 ],
 "method": "name-rule",
 "kind": "candidate",
@@ -21644,6 +22905,17 @@
 "method": "name-rule",
 "kind": "candidate",
 "state": "AZ"
+},
+"state|ashley wright": {
+"category": "state",
+"name": "Ashley Wright",
+"fec_name": null,
+"labels": [
+"Ashley Wright"
+],
+"method": "name-rule",
+"kind": "candidate",
+"state": "GA"
 },
 "state|ashley wright superior": {
 "category": "state",
@@ -21946,6 +23218,17 @@
 "kind": "candidate",
 "state": "GA"
 },
+"state|brandy tollefson": {
+"category": "state",
+"name": "Brandy Tollefson",
+"fec_name": null,
+"labels": [
+"Brandy Tollefson"
+],
+"method": "name-rule",
+"kind": "candidate",
+"state": "WI"
+},
 "state|brenda pugh": {
 "category": "state",
 "name": "Brenda Pugh",
@@ -22181,6 +23464,17 @@
 "kind": "candidate",
 "state": "PA"
 },
+"state|carmen rice": {
+"category": "state",
+"name": "Carmen Rice",
+"fec_name": null,
+"labels": [
+"Carmen Rice"
+],
+"method": "name-rule",
+"kind": "candidate",
+"state": "GA"
+},
 "state|carol glanville": {
 "category": "state",
 "name": "Carol Glanville",
@@ -22264,6 +23558,17 @@
 "method": "name-rule",
 "kind": "candidate",
 "state": "MI"
+},
+"state|chen": {
+"category": "state",
+"name": "Chen",
+"fec_name": null,
+"labels": [
+"Chen for State Auditor"
+],
+"method": "name-rule",
+"kind": "candidate",
+"state": "AL"
 },
 "state|chief megan cavanagh also see megan hood": {
 "category": "state",
@@ -22429,6 +23734,17 @@
 "kind": "candidate",
 "state": "NV"
 },
+"state|cisco cisco aguilar sec": {
+"category": "state",
+"name": "Cisco Cisco Aguilar Sec",
+"fec_name": null,
+"labels": [
+"CISCO - Cisco Aguilar for Sec of State"
+],
+"method": "name-rule",
+"kind": "candidate",
+"state": "NV"
+},
 "state|citizens allice pac buchtan": {
 "category": "state",
 "name": "Citizens Allice PAC Buchtan",
@@ -22570,8 +23886,7 @@
 "name": "Tim Merrick",
 "fec_name": null,
 "labels": [
-"Committee to Elect Tim Merrick",
-"Tim Merrick NC House"
+"Committee to Elect Tim Merrick"
 ],
 "method": "name-rule",
 "kind": "candidate",
@@ -22600,6 +23915,17 @@
 "kind": "candidate",
 "state": "GA"
 },
+"state|re frank burns": {
+"category": "state",
+"name": "Re Frank Burns",
+"fec_name": null,
+"labels": [
+"COMMITTEE TO RE-ELECT FRANK BURNS TO PA HOUSE"
+],
+"method": "name-rule",
+"kind": "candidate",
+"state": "PA"
+},
 "state|controller": {
 "category": "state",
 "name": "Controller",
@@ -22611,17 +23937,6 @@
 "method": "name-rule",
 "kind": "candidate",
 "state": "NV"
-},
-"state|cooke": {
-"category": "state",
-"name": "Cooke",
-"fec_name": null,
-"labels": [
-"Cooke for Congress"
-],
-"method": "name-rule",
-"kind": "candidate",
-"state": "WI"
 },
 "state|cortez sandoval": {
 "category": "state",
@@ -22874,6 +24189,8 @@
 "labels": [
 "DCCC and Friends of Janelle Stelson For Congress",
 "Janelle Stelson For Congress",
+"POL/ Janelle Stelson / DCCC / D / Congress / PA",
+"POL/ Janelle Stelson / D / Congress / PA",
 "DCCC STELSON D CONGRESS",
 "Stelson D Us Congress"
 ],
@@ -23163,6 +24480,7 @@
 "labels": [
 "Eli Savit for AG",
 "ELI SAVIT FOR ATTORNEY GENERAL",
+"E Savit for Attorney General",
 "Savit - Democratic"
 ],
 "method": "name-rule",
@@ -23805,6 +25123,7 @@
 "Garlin Gilchrist for Secretary of State",
 "GARLIN GILCHRIST - MI SOS",
 "Garlin Gilchrist - Secretary of State",
+"G Gilchrist for State Secretary",
 "Gilchrist",
 "Gilchrist for Secretary of State",
 "Gilchrist for SOS"
@@ -23937,6 +25256,18 @@
 "Georgians for Justice Warren",
 "Georgians for Justice Warren Inc",
 "GEORGIANS FOR JUSTICE WARREN INC"
+],
+"method": "name-rule",
+"kind": "candidate",
+"state": "GA"
+},
+"state|service": {
+"category": "state",
+"name": "Service",
+"fec_name": null,
+"labels": [
+"Georgia Public Service Commission",
+"Public Service Commission"
 ],
 "method": "name-rule",
 "kind": "candidate",
@@ -24093,6 +25424,17 @@
 "method": "name-rule",
 "kind": "candidate",
 "state": "PA"
+},
+"state|haadsma": {
+"category": "state",
+"name": "Haadsma",
+"fec_name": null,
+"labels": [
+"Haadsma for State House"
+],
+"method": "name-rule",
+"kind": "candidate",
+"state": "MI"
 },
 "state|hadley haas": {
 "category": "state",
@@ -24551,6 +25893,17 @@
 "kind": "candidate",
 "state": "PA"
 },
+"state|jen jordan": {
+"category": "state",
+"name": "Jen Jordan",
+"fec_name": null,
+"labels": [
+"Jen Jordan"
+],
+"method": "name-rule",
+"kind": "candidate",
+"state": "GA"
+},
 "state|jerry tillet": {
 "category": "state",
 "name": "Jerry Tillet",
@@ -24620,8 +25973,7 @@
 "fec_name": null,
 "labels": [
 "JIM HAADSMA FOR STATE REP",
-"Jim Haadsma for State Representative",
-"Haadsma for State House"
+"Jim Haadsma for State Representative"
 ],
 "method": "name-rule",
 "kind": "candidate",
@@ -24791,6 +26143,7 @@
 "John James for Michigan",
 "JOHN JAMES FOR MICHIGAN",
 "John James for MI Governor",
+"John James for MI Rep Party",
 "John James MI Governor",
 "JOHN JAMES MI GOVERNOR-R",
 "John James MI Rep Party",
@@ -24810,6 +26163,17 @@
 "kind": "candidate",
 "state": "MI"
 },
+"state|john james mirp": {
+"category": "state",
+"name": "John James Mirp",
+"fec_name": null,
+"labels": [
+"JOHN JAMES FOR GOV-MIRP"
+],
+"method": "name-rule",
+"kind": "candidate",
+"state": "MI"
+},
 "state|john kennedy": {
 "category": "state",
 "name": "John Kennedy",
@@ -24820,6 +26184,19 @@
 "method": "name-rule",
 "kind": "candidate",
 "state": "GA"
+},
+"state|johnson": {
+"category": "state",
+"name": "Johnson",
+"fec_name": null,
+"labels": [
+"Johnson for Governor",
+"Johnson-Republican-Governor",
+"P Johnson for Governor"
+],
+"method": "name-rule",
+"kind": "candidate",
+"state": "MI"
 },
 "state|johnson perry": {
 "category": "state",
@@ -24837,6 +26214,7 @@
 "name": "John Wahl",
 "fec_name": null,
 "labels": [
+"John Wahl",
 "John Wahl for Lieutenant Governor",
 "John Wahl for Lt Governor"
 ],
@@ -24876,6 +26254,17 @@
 "fec_name": null,
 "labels": [
 "Joseph McCluskey for State Representative"
+],
+"method": "name-rule",
+"kind": "candidate",
+"state": "MI"
+},
+"state|joseph mccluskey mhdf": {
+"category": "state",
+"name": "Joseph Mccluskey Mhdf",
+"fec_name": null,
+"labels": [
+"Joseph McCluskey MHDF for State Representative"
 ],
 "method": "name-rule",
 "kind": "candidate",
@@ -25140,17 +26529,6 @@
 "kind": "candidate",
 "state": "AZ"
 },
-"state|hertel": {
-"category": "state",
-"name": "Hertel",
-"fec_name": null,
-"labels": [
-"K Hertel for State Senate"
-],
-"method": "name-rule",
-"kind": "candidate",
-"state": "MI"
-},
 "state|kiesha lance bottoms": {
 "category": "state",
 "name": "Kiesha Lance Bottoms",
@@ -25210,12 +26588,24 @@
 "fec_name": null,
 "labels": [
 "Kris Mayes for AZ Navajo",
+"KRIS MAYES - NAVAJO COUNTY",
 "Kris Mayes-Navajo County Democratic Committee",
 "KRIS MAYES NAVAJO COUNTY DEMOCRATIC COMMITTEE"
 ],
 "method": "name-rule",
 "kind": "candidate",
 "state": "AZ"
+},
+"state|kristen mcdonald rivet": {
+"category": "state",
+"name": "Kristen Mcdonald Rivet",
+"fec_name": null,
+"labels": [
+"Kristen McDonald Rivet"
+],
+"method": "name-rule",
+"kind": "candidate",
+"state": "MI"
 },
 "state|kristen mcdonald rivet also see": {
 "category": "state",
@@ -25254,6 +26644,17 @@
 "method": "name-rule",
 "kind": "candidate",
 "state": "NC"
+},
+"state|lawrence ala": {
+"category": "state",
+"name": "Lawrence Ala",
+"fec_name": null,
+"labels": [
+"Lawrence for Ala Rep Dist 69"
+],
+"method": "name-rule",
+"kind": "candidate",
+"state": "AL"
 },
 "state|lemario brown": {
 "category": "state",
@@ -25376,16 +26777,16 @@
 "kind": "candidate",
 "state": "PA"
 },
-"state|making michigans future": {
+"state|madison ala": {
 "category": "state",
-"name": "Making Michigans Future",
+"name": "Madison Ala",
 "fec_name": null,
 "labels": [
-"Making Michigans Future"
+"Madison for Ala Rep Dist 69"
 ],
 "method": "name-rule",
 "kind": "candidate",
-"state": "NC"
+"state": "AL"
 },
 "state|mandela barnes": {
 "category": "state",
@@ -25422,18 +26823,6 @@
 "method": "name-rule",
 "kind": "candidate",
 "state": "IA"
-},
-"state|mansour": {
-"category": "state",
-"name": "Mansour",
-"fec_name": null,
-"labels": [
-"Mansour Democrat Treasurer",
-"Mansour for Arizona"
-],
-"method": "name-rule",
-"kind": "candidate",
-"state": "AZ"
 },
 "state|mark huizenga": {
 "category": "state",
@@ -25583,6 +26972,17 @@
 "kind": "candidate",
 "state": "PA"
 },
+"state|mhdf jim haadsma": {
+"category": "state",
+"name": "Mhdf Jim Haadsma",
+"fec_name": null,
+"labels": [
+"MHDF JIM HAADSMA DEM"
+],
+"method": "name-rule",
+"kind": "candidate",
+"state": "MI"
+},
 "state|mhdf joseph mcclusky": {
 "category": "state",
 "name": "Mhdf Joseph Mcclusky",
@@ -25590,6 +26990,17 @@
 "labels": [
 "MHDF JOSEPH MCCLUSKY DEM",
 "McClusky for State House"
+],
+"method": "name-rule",
+"kind": "candidate",
+"state": "MI"
+},
+"state|mhdf joseph mcclusky st": {
+"category": "state",
+"name": "Mhdf Joseph Mcclusky St",
+"fec_name": null,
+"labels": [
+"MHDF-JOSEPH MCCLUSKY FOR ST REP"
 ],
 "method": "name-rule",
 "kind": "candidate",
@@ -25875,6 +27286,17 @@
 "kind": "candidate",
 "state": "WI"
 },
+"state|mitchell": {
+"category": "state",
+"name": "Mitchell",
+"fec_name": null,
+"labels": [
+"Mitchell for Attorney General"
+],
+"method": "name-rule",
+"kind": "candidate",
+"state": "AL"
+},
 "state|dfl ellison": {
 "category": "state",
 "name": "Dfl Ellison",
@@ -25953,6 +27375,19 @@
 "fec_name": null,
 "labels": [
 "MSDF CAROL GLANVILLE DEM"
+],
+"method": "name-rule",
+"kind": "candidate",
+"state": "MI"
+},
+"state|msdf hertel": {
+"category": "state",
+"name": "Msdf Hertel",
+"fec_name": null,
+"labels": [
+"MSDF-Hertel",
+"K Hertel for State Senate",
+"Michigan State Democratic Fund - Hertel"
 ],
 "method": "name-rule",
 "kind": "candidate",
@@ -26038,6 +27473,17 @@
 "fec_name": null,
 "labels": [
 "Nabilah Parkes D LTG GA"
+],
+"method": "name-rule",
+"kind": "candidate",
+"state": "GA"
+},
+"state|nabilah parkes lg": {
+"category": "state",
+"name": "Nabilah Parkes Lg",
+"fec_name": null,
+"labels": [
+"NABILAH PARKES FOR GA LG"
 ],
 "method": "name-rule",
 "kind": "candidate",
@@ -26252,6 +27698,19 @@
 "kind": "candidate",
 "state": "NC"
 },
+"state|nick mansour": {
+"category": "state",
+"name": "Nick Mansour",
+"fec_name": null,
+"labels": [
+"Nick Mansour for State Treasurer",
+"Mansour Democrat Treasurer",
+"Mansour for Arizona"
+],
+"method": "name-rule",
+"kind": "candidate",
+"state": "AZ"
+},
 "state|nick rowe": {
 "category": "state",
 "name": "Nick Rowe",
@@ -26359,7 +27818,17 @@
 "fec_name": null,
 "labels": [
 "NRCC / Patriots for Perry",
-"Patriots for Perry",
+"Patriots for Perry"
+],
+"method": "name-rule",
+"kind": "candidate",
+"state": "PA"
+},
+"state|perry": {
+"category": "state",
+"name": "Perry",
+"fec_name": null,
+"labels": [
 "NRCC Perry R Congress",
 "Perry R Us Congress"
 ],
@@ -26389,6 +27858,17 @@
 "method": "name-rule",
 "kind": "candidate",
 "state": "PA"
+},
+"state|oden": {
+"category": "state",
+"name": "Oden",
+"fec_name": null,
+"labels": [
+"Oden for PSC"
+],
+"method": "name-rule",
+"kind": "candidate",
+"state": "AL"
 },
 "state|ojeda": {
 "category": "state",
@@ -26592,6 +28072,17 @@
 "kind": "candidate",
 "state": "GA"
 },
+"state|penny brown": {
+"category": "state",
+"name": "Penny Brown",
+"fec_name": null,
+"labels": [
+"Penny Brown"
+],
+"method": "name-rule",
+"kind": "candidate",
+"state": "GA"
+},
 "state|penny brown reynolds sec": {
 "category": "state",
 "name": "Penny Brown Reynolds Sec",
@@ -26616,10 +28107,18 @@
 "Perry Johnson For Governor",
 "PERRY JOHNSON FOR GOVERNOR",
 "PERRY JOHNSON FOR GOVERNOR-R",
-"PERRY JOHNSON REP",
-"Johnson for Governor",
-"Johnson-Republican-Governor",
-"P Johnson for Governor"
+"PERRY JOHNSON REP"
+],
+"method": "name-rule",
+"kind": "candidate",
+"state": "MI"
+},
+"state|perryy johnson": {
+"category": "state",
+"name": "Perryy Johnson",
+"fec_name": null,
+"labels": [
+"Perryy Johnson for Governor"
 ],
 "method": "name-rule",
 "kind": "candidate",
@@ -26714,6 +28213,17 @@
 "kind": "candidate",
 "state": "PA"
 },
+"state|brett miller pahrcc st": {
+"category": "state",
+"name": "Brett Miller Pahrcc St",
+"fec_name": null,
+"labels": [
+"POL/ Brett Miller / PAHRCC / R / St House Rep / PA"
+],
+"method": "name-rule",
+"kind": "candidate",
+"state": "PA"
+},
 "state|bartolotta ssn": {
 "category": "state",
 "name": "Bartolotta Ssn",
@@ -26780,12 +28290,74 @@
 "kind": "candidate",
 "state": "PA"
 },
+"state|lloyd smucker": {
+"category": "state",
+"name": "Lloyd Smucker",
+"fec_name": null,
+"labels": [
+"POL/ Lloyd Smucker / R / US House / PA",
+"SMUCKER FOR CONGRESS",
+"Smucker R Congress"
+],
+"method": "name-rule",
+"kind": "candidate",
+"state": "PA"
+},
 "state|hass str": {
 "category": "state",
 "name": "Hass Str",
 "fec_name": null,
 "labels": [
 "Pol PA HDCC H Hass D STR PA"
+],
+"method": "name-rule",
+"kind": "candidate",
+"state": "PA"
+},
+"state|sara agerton st": {
+"category": "state",
+"name": "Sara Agerton St",
+"fec_name": null,
+"labels": [
+"POL/ Sara Agerton / PA HDCC/ D/ St House Rep/ PA"
+],
+"method": "name-rule",
+"kind": "candidate",
+"state": "PA"
+},
+"state|scott perry": {
+"category": "state",
+"name": "Scott Perry",
+"fec_name": null,
+"labels": [
+"POL/ Scott Perry / NRCC / R / US House /PA",
+"POL/ Scott Perry / R / US House / PA"
+],
+"method": "name-rule",
+"kind": "candidate",
+"state": "PA"
+},
+"state|stacy garrity": {
+"category": "state",
+"name": "Stacy Garrity",
+"fec_name": null,
+"labels": [
+"POL/ Stacy Garrity / R / Governor / PA",
+"Stacy Garrity",
+"STACY GARRITY FOR GOVERNOR",
+"Stacy Garrity for PA Gov",
+"STACY GARRITY FOR PA GOV R",
+"STACY GARRITY FOR PA GOV-R",
+"Stacy Garrity - Gov - PA",
+"Stacy Garrity PA Governor Republican",
+"Stacy Garrity-R- Governor",
+"GARRITY",
+"Garrity for Gov",
+"Garrity for PA",
+"Garrity For PA",
+"GARRITY FOR PA",
+"Garrity R Governor",
+"Pol S Garrity R GOV PA"
 ],
 "method": "name-rule",
 "kind": "candidate",
@@ -26821,8 +28393,7 @@
 "name": "Project Battleground Keisha Bottoms",
 "fec_name": null,
 "labels": [
-"Project Battleground GA Keisha Bottoms for Gov",
-"Project Battleground Keisha L Bottoms"
+"Project Battleground GA Keisha Bottoms for Gov"
 ],
 "method": "name-rule",
 "kind": "candidate",
@@ -26899,17 +28470,6 @@
 "kind": "candidate",
 "state": "GA"
 },
-"state|service": {
-"category": "state",
-"name": "Service",
-"fec_name": null,
-"labels": [
-"Public Service Commission"
-],
-"method": "name-rule",
-"kind": "candidate",
-"state": "GA"
-},
 "state|ralph norman": {
 "category": "state",
 "name": "Ralph Norman",
@@ -26967,6 +28527,7 @@
 "name": "Randy Price",
 "fec_name": null,
 "labels": [
+"Randy Price- AL- Rep",
 "Randy Price For State Senate District 13",
 "RANDY PRICE FOR STATE SENATE DISTRICT 13"
 ],
@@ -26997,6 +28558,18 @@
 "kind": "candidate",
 "state": "WI"
 },
+"state|berman": {
+"category": "state",
+"name": "Berman",
+"fec_name": null,
+"labels": [
+"R Berman",
+"SRCC Berman"
+],
+"method": "name-rule",
+"kind": "candidate",
+"state": "MI"
+},
 "state|rebecca amidon msdf": {
 "category": "state",
 "name": "Rebecca Amidon Msdf",
@@ -27007,6 +28580,18 @@
 "method": "name-rule",
 "kind": "candidate",
 "state": "MI"
+},
+"state|rebecca cooke": {
+"category": "state",
+"name": "Rebecca Cooke",
+"fec_name": null,
+"labels": [
+"Rebecca Cooke",
+"Cooke for Congress"
+],
+"method": "name-rule",
+"kind": "candidate",
+"state": "WI"
 },
 "state|rebecca lamb": {
 "category": "state",
@@ -27122,6 +28707,17 @@
 "method": "name-rule",
 "kind": "candidate",
 "state": "WI"
+},
+"state|robertson": {
+"category": "state",
+"name": "Robertson",
+"fec_name": null,
+"labels": [
+"Robertson for Attorney General"
+],
+"method": "name-rule",
+"kind": "candidate",
+"state": "AL"
 },
 "state|rob sand": {
 "category": "state",
@@ -27372,6 +28968,7 @@
 "fec_name": null,
 "labels": [
 "Shirley Folkins-Roberts Adriana For Nevada",
+"Adriana for Nevada 2026",
 "ADRIANA FOR NEVADA 2026",
 "Adriana for Nevada Attorney General - Order 845544 09-09-2026"
 ],
@@ -27390,17 +28987,38 @@
 "kind": "candidate",
 "state": "WI"
 },
-"state|smucker": {
+"state|smith": {
 "category": "state",
-"name": "Smucker",
+"name": "Smith",
 "fec_name": null,
 "labels": [
-"SMUCKER FOR CONGRESS",
-"Smucker R Congress"
+"Smith for AL House of Rep Dist 74"
 ],
 "method": "name-rule",
 "kind": "candidate",
-"state": "PA"
+"state": "AL"
+},
+"state|sorrell": {
+"category": "state",
+"name": "Sorrell",
+"fec_name": null,
+"labels": [
+"Sorrell for State Auditor"
+],
+"method": "name-rule",
+"kind": "candidate",
+"state": "AL"
+},
+"state|spaude tollefson": {
+"category": "state",
+"name": "Spaude Tollefson",
+"fec_name": null,
+"labels": [
+"Spaude and Tollefson"
+],
+"method": "name-rule",
+"kind": "candidate",
+"state": "WI"
 },
 "state|john goldwater": {
 "category": "state",
@@ -27408,6 +29026,7 @@
 "fec_name": null,
 "labels": [
 "SRCC AUTHORIZED BY JOHN GOLDWATER",
+"J Goldwater SRCC",
 "SRCC Goldwater"
 ],
 "method": "name-rule",
@@ -27420,17 +29039,6 @@
 "fec_name": null,
 "labels": [
 "SRCC AUTHORIZED BY RYAN BERMAN"
-],
-"method": "name-rule",
-"kind": "candidate",
-"state": "MI"
-},
-"state|berman": {
-"category": "state",
-"name": "Berman",
-"fec_name": null,
-"labels": [
-"SRCC Berman"
 ],
 "method": "name-rule",
 "kind": "candidate",
@@ -27474,8 +29082,7 @@
 "name": "Ssdc Christian Ellis",
 "fec_name": null,
 "labels": [
-"SSDC Friends of Christian Ellis",
-"State Senate Democratic Committee Ellis"
+"SSDC Friends of Christian Ellis"
 ],
 "method": "name-rule",
 "kind": "candidate",
@@ -27494,30 +29101,16 @@
 "kind": "candidate",
 "state": "NC"
 },
-"state|stacy garrity": {
+"state|ellis": {
 "category": "state",
-"name": "Stacy Garrity",
+"name": "Ellis",
 "fec_name": null,
 "labels": [
-"Stacy Garrity",
-"STACY GARRITY FOR GOVERNOR",
-"Stacy Garrity for PA Gov",
-"STACY GARRITY FOR PA GOV R",
-"STACY GARRITY FOR PA GOV-R",
-"Stacy Garrity - Gov - PA",
-"Stacy Garrity PA Governor Republican",
-"Stacy Garrity-R- Governor",
-"GARRITY",
-"Garrity for Gov",
-"Garrity for PA",
-"Garrity For PA",
-"GARRITY FOR PA",
-"Garrity R Governor",
-"Pol S Garrity R GOV PA"
+"State Senate Democratic Committee Ellis"
 ],
 "method": "name-rule",
 "kind": "candidate",
-"state": "PA"
+"state": "WI"
 },
 "state|stavros anthony": {
 "category": "state",
@@ -27871,16 +29464,6 @@
 "kind": "candidate",
 "state": "PA"
 },
-"state|unknown": {
-"category": "state",
-"name": "Unknown",
-"fec_name": null,
-"labels": [
-"Unknown"
-],
-"method": "name-rule",
-"kind": "candidate"
-},
 "state|valerie gaydos pahrcc": {
 "category": "state",
 "name": "Valerie Gaydos Pahrcc",
@@ -27915,6 +29498,17 @@
 "method": "name-rule",
 "kind": "candidate",
 "state": "WI"
+},
+"state|wahl": {
+"category": "state",
+"name": "Wahl",
+"fec_name": null,
+"labels": [
+"Wahl for Lt Governor"
+],
+"method": "name-rule",
+"kind": "candidate",
+"state": "AL"
 },
 "state|warren": {
 "category": "state",
@@ -27978,7 +29572,6 @@
 "fec_name": null,
 "labels": [
 "WBJ Leadership Committee Inc",
-"WBJ Leadership Committee INC",
 "WBJ LEADERSHIP COMMITTEE INC"
 ],
 "method": "name-rule",
@@ -28090,6 +29683,17 @@
 "kind": "candidate",
 "state": "GA"
 },
+"state|wiracc ad94 keith purnell": {
+"category": "state",
+"name": "Wiracc Ad94 Keith Purnell",
+"fec_name": null,
+"labels": [
+"WIRACC AD94 KEITH PURNELL"
+],
+"method": "name-rule",
+"kind": "candidate",
+"state": "WI"
+},
 "state|wiracc bob donovan st": {
 "category": "state",
 "name": "Wiracc Bob Donovan St",
@@ -28156,6 +29760,17 @@
 ],
 "method": "name-rule",
 "kind": "unknown"
+},
+"state|christian ellis": {
+"category": "state",
+"name": "Christian Ellis",
+"fec_name": null,
+"labels": [
+"WI SDCC Friends of Christian Ellis"
+],
+"method": "name-rule",
+"kind": "candidate",
+"state": "WI"
 },
 "state|wissdc smith wiadcc frederickson": {
 "category": "state",
