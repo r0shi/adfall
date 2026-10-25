@@ -11,12 +11,14 @@ Resumable and idempotent:
     so a killed run never leaves a half file that looks done; files on disk but not marked
     downloaded are verified and adopted;
   * every download failure is recorded on the file (download_attempts, download_error) and
-    retried on later runs until MAX_ATTEMPTS, then reported by ingest.status as given up.
+    retried on later runs until MAX_ATTEMPTS, then reported by ingest.status as given up; a 401, 404
+    or 410 is permanent (the station removed or restricted the file) and is given up at once, counted
+    as downloads_gone, and does not fail the stage.
 Stations that are not in the `station` table (web/data/stations.json, `make stations`) are reported
 and skipped, never silently dropped. Logs to data/logs/crawl-<ts>.log; exits non-zero if failures
 exceed the threshold.
 """
-import argparse, logging, os, sys, time
+import argparse, logging, os, re, sys, time
 from concurrent.futures import ThreadPoolExecutor
 from . import fcc, db
 from .runlog import Stage
@@ -27,6 +29,7 @@ PDF_DIR = os.path.join(ROOT, "data", "pdfs")
 MAX_ATTEMPTS = 5
 CONSECUTIVE_FAIL_PAUSE = 25      # this many download failures in a row: pause (the FCC edge is throttling us)
 CONSECUTIVE_FAIL_ABORT = 150     # this many in a row: stop the stage, it is not going to recover by itself
+PERMANENT = re.compile(r"^HTTP (401|404|410)\b")   # the FCC will not serve this file (removed, restricted, gone): no retries, not a stage failure
 
 
 def known_stations(con, st, facs):
@@ -133,7 +136,7 @@ def download_pending(con, st, facs, years, workers, max_attempts=MAX_ATTEMPTS):
         time.sleep(0.05)
         return fid, dest, ok, reason, size
 
-    done = ok_n = fail_n = consecutive = 0
+    done = ok_n = fail_n = gone_n = consecutive = 0
     total_bytes = 0
     with ThreadPoolExecutor(workers) as ex:
         for fid, dest, ok, reason, size in ex.map(one, rows):
@@ -141,6 +144,10 @@ def download_pending(con, st, facs, years, workers, max_attempts=MAX_ATTEMPTS):
             if ok:
                 mark_downloaded(con, fid, dest)
                 ok_n += 1; total_bytes += size; consecutive = 0
+            elif PERMANENT.match(reason or ""):
+                con.execute("UPDATE opif_file SET download_attempts=%s, download_error=%s WHERE file_id=%s", (max_attempts, f"{reason} (permanent)", fid))
+                log.info("  %s: %s; the FCC does not serve this file, not retried (ingest.status lists it as given up)", fid, reason)
+                gone_n += 1; consecutive = 0
             else:
                 con.execute("UPDATE opif_file SET download_attempts=download_attempts+1, download_error=%s WHERE file_id=%s", (reason, fid))
                 st.fail(fid, f"download: {reason}")
@@ -156,8 +163,8 @@ def download_pending(con, st, facs, years, workers, max_attempts=MAX_ATTEMPTS):
                 con.commit()
             st.progress(done, len(rows), every=200, label="download")
     con.commit()
-    st.count("downloads_ok", ok_n); st.count("downloads_failed", fail_n); st.count("download_mb", round(total_bytes / 1e6, 1))
-    log.info("  downloads: %d ok, %d failed, %.1f MB", ok_n, fail_n, total_bytes / 1e6)
+    st.count("downloads_ok", ok_n); st.count("downloads_failed", fail_n); st.count("downloads_gone", gone_n); st.count("download_mb", round(total_bytes / 1e6, 1))
+    log.info("  downloads: %d ok, %d failed, %d gone (401/404/410, given up at once), %.1f MB", ok_n, fail_n, gone_n, total_bytes / 1e6)
 
 
 def verify_downloads(con, st, facs):
