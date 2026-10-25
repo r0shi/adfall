@@ -34,6 +34,20 @@ def parquet(con, name, sql, params=None):
     log.info(f"  {name}.parquet: {len(rows)} rows")
 
 
+def party_label(p, category):
+    """Fold the free-text party from NAB forms to a few labels (mirrors partyLabel in the app)."""
+    s = (p or "").strip().lower()
+    if not s:
+        return "Issue groups" if category == "issue" else "Unknown"
+    if re.match(r"^(d|dem|demo|democrat|democratic)", s): return "Democratic"
+    if re.match(r"^(r|rep|repub|republican|gop)", s): return "Republican"
+    if re.search(r"non.?partisan|^np$|nonpartisan", s): return "Nonpartisan"
+    if re.match(r"^(i|ind|independent)", s): return "Independent"
+    if "libertarian" in s: return "Libertarian"
+    if "green" in s: return "Green"
+    return p.strip()
+
+
 def export_stations(con, year, build):
     os.makedirs(os.path.join(WEB, "spend"), exist_ok=True)
     totals = {r[0]: r for r in con.execute("SELECT facility_id, booked, invoiced, spots_aired, creatives, buyers, docs FROM station_total WHERE docs > 0")}
@@ -48,16 +62,17 @@ def export_stations(con, year, build):
         buyers = [{"name": r[0], "slug": slug(r[1], r[0]), "category": CAT_LABEL.get(r[1], r[1]), "kind": r[2], "party": r[3], "office": r[4],
                    "gross": float(r[5] or 0), "invoiced": float(r[6] or 0), "orders": r[7], "spots_aired": r[8], "ad_ids": r[9],
                    "agencies": (r[10] or [])[:5], "advertisers": (r[11] or [])[:3]} for r in rows]
-        by_cat = {}
-        for b in buyers:
+        by_cat, by_party = {}, {}
+        for b, r in zip(buyers, rows):
             by_cat[b["category"]] = by_cat.get(b["category"], 0) + b["gross"]
+            pl = party_label(r[3], r[1]); by_party[pl] = by_party.get(pl, 0) + b["gross"]
         ok, n = parse.get(fac, (0, docs))
         out = {"fac": fac, "year": year, "generated": build["date"], "build": build["id"], "docs": docs, "parse_status": {"ok": ok},
                "total": float(booked), "invoiced": float(invoiced), "spots_aired": spots, "creatives": creatives,
-               "by_category": {k: round(v, 2) for k, v in by_cat.items()}, "buyers": buyers}
+               "by_category": {k: round(v, 2) for k, v in by_cat.items()}, "by_party": {k: round(v, 2) for k, v in by_party.items()}, "buyers": buyers}
         json.dump(out, open(os.path.join(WEB, "spend", f"{fac}.json"), "w"), separators=(",", ":"))
         index[str(fac)] = {"total": float(booked), "invoiced": float(invoiced), "buyers": nbuyers, "docs": docs,
-                           "by_category": out["by_category"], "top": [b["name"] for b in buyers[:3]]}
+                           "by_category": out["by_category"], "by_party": out["by_party"], "top": [b["name"] for b in buyers[:3]]}
     json.dump({"year": year, "generated": build["date"], "build": build["id"], "stations": index},
               open(os.path.join(WEB, "spend", "index.json"), "w"), separators=(",", ":"))
     log.info(f"  spend/: {len(index)} stations")

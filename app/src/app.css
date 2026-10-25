@@ -16,7 +16,7 @@ nav.top { height: var(--nav-h); display: flex; align-items: center; gap: 4px; pa
 nav.top .brand { font-weight: 700; margin-right: 10px; letter-spacing: -0.01em; white-space: nowrap; }
 nav.top a { text-decoration: none; padding: 6px 10px; border-radius: 8px; color: var(--muted); font-size: 14px; white-space: nowrap; }
 nav.top a.active, nav.top a:hover { color: var(--fg); background: var(--chip); }
-nav.top .loc { margin-left: auto; font-size: 13px; color: var(--muted); max-width: 40vw; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+nav.top .loc { margin-left: auto; margin-right: 10px; font-size: 13px; color: var(--muted); max-width: 40vw; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .shell { display: grid; grid-template-columns: var(--panel-w) 1fr; height: calc(100% - var(--nav-h)); }
 .shell.wide { grid-template-columns: 1fr; }
 .panel { display: flex; flex-direction: column; min-height: 0; border-right: 1px solid var(--line); overflow: auto; }

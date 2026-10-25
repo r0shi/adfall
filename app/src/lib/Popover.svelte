@@ -1,6 +1,6 @@
 <script>
   // Floating panel anchored to the pin; draggable; collapses to a pill; a bottom sheet on phones.
-  let { api, anchor, title, sub = '', tabs = [], active = $bindable(), collapsed = $bindable(false), children, onclose = null } = $props();
+  let { api, anchor, title, sub = '', tabs = [], active = $bindable(), collapsed = $bindable(false), children, onclose = null, badge = '', accent = '', oncompare = null, compareLabel = 'Compare' } = $props();
   let pos = $state({ x: 40, y: 40 }), drag = $state(null), el;
   let userMoved = $state(false), w = 420, h = 520;
   function place() {
@@ -20,7 +20,9 @@
 </script>
 <div class="pop" class:collapsed bind:this={el} style="left:{pos.x}px;top:{pos.y}px">
   <div class="pophead" onpointerdown={down} onpointermove={move} onpointerup={() => drag = null} role="presentation">
+    {#if badge}<span class="badge" style:background={accent || 'var(--fg)'}>{badge}</span>{/if}
     <div class="poptitle"><b>{title}</b>{#if sub}<span class="muted small">{sub}</span>{/if}</div>
+    {#if oncompare}<button class="ghost popbtn" style="width:auto;padding:0 8px;font-size:12px" onclick={oncompare} title="Drop a second pin to compare">{compareLabel}</button>{/if}
     <button class="ghost popbtn" onclick={() => collapsed = !collapsed} title={collapsed ? 'Expand' : 'Collapse'}>{collapsed ? '▴' : '▾'}</button>
     {#if onclose}<button class="ghost popbtn" onclick={onclose} title="Clear place">×</button>{/if}
   </div>
@@ -34,6 +36,7 @@
     background: color-mix(in srgb, var(--bg) 92%, transparent); backdrop-filter: blur(12px); border: 1px solid var(--line); border-radius: 14px;
     box-shadow: 0 10px 30px rgba(0,0,0,.18); overflow: hidden; }
   .pop.collapsed { width: auto; max-width: 420px; }
+  .badge { width: 22px; height: 22px; border-radius: 50%; color: #fff; font-weight: 700; font-size: 12px; display: inline-flex; align-items: center; justify-content: center; flex: none; }
   .pophead { display: flex; align-items: center; gap: 6px; padding: 10px 12px; cursor: grab; user-select: none; border-bottom: 1px solid var(--line); }
   .pop.collapsed .pophead { border-bottom: 0; }
   .poptitle { display: flex; flex-direction: column; min-width: 0; flex: 1; }
