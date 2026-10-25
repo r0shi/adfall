@@ -5888,6 +5888,18 @@
 "name": "Your Community PAC",
 "method": "fec-committee"
 },
+"local|ada calvo": {
+"name": "Ada Calvo",
+"method": "name-rule"
+},
+"local|ada calvo 2026": {
+"name": "Ada Calvo",
+"method": "name-rule"
+},
+"local|agency requesting time (and contact information)": {
+"name": "Agency Requesting Time Contact Information",
+"method": "name-rule"
+},
 "local|alamance county sheriff": {
 "name": "Alamance",
 "method": "name-rule"
@@ -5920,8 +5932,28 @@
 "name": "Andrea Legendre Genesee Cty Probate",
 "method": "name-rule"
 },
+"local|anthony wayne taijeron": {
+"name": "Anthony Wayne Taijeron",
+"method": "name-rule"
+},
+"local|attomey thomas j. fisher": {
+"name": "Attomey Thomas Fisher",
+"method": "name-rule"
+},
+"local|attorney thomas j. fisher": {
+"name": "Thomas Fisher",
+"method": "name-rule"
+},
+"local|august 1, 2026": {
+"name": "August",
+"method": "name-rule"
+},
 "local|ausley for tallahassee mayor": {
 "name": "Ausley Tallahassee",
+"method": "name-rule"
+},
+"local|authorized committee: * n/a date of election": {
+"name": "Sought No Acronyms Abbreviations My Date",
 "method": "name-rule"
 },
 "local|bill gaughan county commissioner": {
@@ -5940,6 +5972,10 @@
 "name": "Blaise Washoe",
 "method": "name-rule"
 },
+"local|blas okada for a better gram": {
+"name": "Blas Okada Better Gram",
+"method": "name-rule"
+},
 "local|bruce bannister for sc house": {
 "name": "Bruce Bannister",
 "method": "name-rule"
@@ -5948,8 +5984,16 @@
 "name": "Building Better",
 "method": "name-rule"
 },
+"local|candidate name": {
+"name": "Name",
+"method": "name-rule"
+},
 "local|chedrick greene": {
 "name": "Chedrick Greene",
+"method": "name-rule"
+},
+"local|chris 4 guam": {
+"name": "Chris Guam",
 "method": "name-rule"
 },
 "local|clark county commission": {
@@ -5984,8 +6028,16 @@
 "name": "Jacob",
 "method": "name-rule"
 },
+"local|committee to elect jesse lujan": {
+"name": "Jesse Lujan",
+"method": "name-rule"
+},
 "local|committee to elect kate marshall": {
 "name": "Kate Marshall",
+"method": "name-rule"
+},
+"local|committee to \u00e9lect lillian guerrero for senator 2026": {
+"name": "Lect Lillian Guerrero",
 "method": "name-rule"
 },
 "local|committee to elect lyndsey walters": {
@@ -6000,12 +6052,24 @@
 "name": "Scott Black Las Vegas",
 "method": "name-rule"
 },
+"local|committee to elect terlaje perez 20240": {
+"name": "Terlaje Perez",
+"method": "name-rule"
+},
+"local|committee to elect therese terlaje and sabina perez": {
+"name": "Therese Terlaje Sabina Perez",
+"method": "name-rule"
+},
 "local|committee to re-elect anthony jones": {
 "name": "Re Anthony Jones",
 "method": "name-rule"
 },
 "local|committee to re-elect chris hicks": {
 "name": "Re Chris Hicks",
+"method": "name-rule"
+},
+"local|committee to re-elect jesse a lujan": {
+"name": "Re Jesse Lujan",
 "method": "name-rule"
 },
 "local|committee to re-elect judge jerry wiese": {
@@ -6064,6 +6128,10 @@
 "name": "Terry Leyba Ruiz St",
 "method": "name-rule"
 },
+"local|eulogio shawn gumataotao for senator": {
+"name": "Eulogio Shawn Gumataotao",
+"method": "name-rule"
+},
 "local|forsyth county district attorney": {
 "name": "Jim Oneill Da Forsyth",
 "method": "name-rule"
@@ -6074,6 +6142,14 @@
 },
 "local|frank farry and friends of tracy pennycuik": {
 "name": "Frank Farry Tracy Pennycuik",
+"method": "name-rule"
+},
+"local|friends for frank & mary": {
+"name": "Frank Mary",
+"method": "name-rule"
+},
+"local|friends of donna muna quinata": {
+"name": "Donna Muna Quinata",
 "method": "name-rule"
 },
 "local|friends of eileen alibillar": {
@@ -6216,8 +6292,16 @@
 "name": "Jon Burns",
 "method": "name-rule"
 },
+"local|jordan pauluhn for attorney general": {
+"name": "Jordan Pauluhn",
+"method": "name-rule"
+},
 "local|judge lisa jones superior court": {
 "name": "Lisa Jones Superior",
+"method": "name-rule"
+},
+"local|kapha 2026": {
+"name": "Kapha",
 "method": "name-rule"
 },
 "local|karen gordon": {
@@ -6300,6 +6384,10 @@
 "name": "Miracle Jen Jordan",
 "method": "name-rule"
 },
+"local|navajo county democratic community": {
+"name": "Navajo Community",
+"method": "name-rule"
+},
 "local|nchrc-committee to elect cory thornton": {
 "name": "Cory Thornton",
 "method": "name-rule"
@@ -6324,6 +6412,10 @@
 "name": "Las Vegas",
 "method": "name-rule"
 },
+"local|november 3, 2026": {
+"name": "November",
+"method": "name-rule"
+},
 "local|pa dem party pinsley mark friends of": {
 "name": "Pinsley Mark",
 "method": "name-rule"
@@ -6340,8 +6432,24 @@
 "name": "Patrick Crowley",
 "method": "name-rule"
 },
+"local|patsy paulivo": {
+"name": "Patsy Paulivo",
+"method": "name-rule"
+},
 "local|payne for superior court judge": {
 "name": "Payne Superior",
+"method": "name-rule"
+},
+"local|primary general office sought (no acronyms or abbreviations); my date of election": {
+"name": "Sought No Acronyms Abbreviations My Date",
+"method": "name-rule"
+},
+"local|ralphy 2026": {
+"name": "Ralphy",
+"method": "name-rule"
+},
+"local|ralphy 2u2": {
+"name": "Ralphy 2u2",
 "method": "name-rule"
 },
 "local|randolph county sheriff": {
@@ -6362,6 +6470,14 @@
 },
 "local|rocky marsh for city council": {
 "name": "Rocky Marsh City",
+"method": "name-rule"
+},
+"local|sabrina for senator": {
+"name": "Sabrina",
+"method": "name-rule"
+},
+"local|same an above": {
+"name": "Same Above",
 "method": "name-rule"
 },
 "local|sandoval for justice of the peace": {
@@ -6414,6 +6530,18 @@
 },
 "local|taylor for mayor -city of reno 2026": {
 "name": "Taylor City Reno",
+"method": "name-rule"
+},
+"local|tenorio muna-bames for guam": {
+"name": "Tenorio Muna Bames Guam",
+"method": "name-rule"
+},
+"local|tenorio muna-bares for guam": {
+"name": "Tenorio Muna Bares Guam",
+"method": "name-rule"
+},
+"local|tenorio muna-barnes for guam": {
+"name": "Tenorio Muna Barnes Guam",
 "method": "name-rule"
 },
 "local|tom derzypolski city commissioner": {
@@ -8370,6 +8498,10 @@
 },
 "state|james malone for state senate": {
 "name": "James Malone",
+"method": "name-rule"
+},
+"state|james moylan for congress": {
+"name": "James Moylan",
 "method": "name-rule"
 },
 "state|james-republican-governor": {
@@ -19390,6 +19522,7 @@
 "fec_name": "Ready for the Fight",
 "labels": [
 "Ready for the Fight",
+"READY FOR THE FIGHT",
 "Ready for the Fight PAC"
 ],
 "method": "fec-committee",
@@ -20940,6 +21073,29 @@
 "fec_committee_id": "C00886614",
 "fec_committee_name": "YOUR COMMUNITY PAC"
 },
+"local|ada calvo": {
+"category": "local",
+"name": "Ada Calvo",
+"fec_name": null,
+"labels": [
+"ADA CALVO",
+"Ada Calvo 2026"
+],
+"method": "name-rule",
+"kind": "candidate",
+"state": "GU"
+},
+"local|agency requesting time contact information": {
+"category": "local",
+"name": "Agency Requesting Time Contact Information",
+"fec_name": null,
+"labels": [
+"Agency requesting time (and contact information)"
+],
+"method": "name-rule",
+"kind": "candidate",
+"state": "GU"
+},
 "local|alamance": {
 "category": "local",
 "name": "Alamance",
@@ -21018,6 +21174,50 @@
 "kind": "candidate",
 "state": "MI"
 },
+"local|anthony wayne taijeron": {
+"category": "local",
+"name": "Anthony Wayne Taijeron",
+"fec_name": null,
+"labels": [
+"ANTHONY WAYNE TAIJERON"
+],
+"method": "name-rule",
+"kind": "candidate",
+"state": "GU"
+},
+"local|attomey thomas fisher": {
+"category": "local",
+"name": "Attomey Thomas Fisher",
+"fec_name": null,
+"labels": [
+"Attomey Thomas J. Fisher"
+],
+"method": "name-rule",
+"kind": "candidate",
+"state": "GU"
+},
+"local|thomas fisher": {
+"category": "local",
+"name": "Thomas Fisher",
+"fec_name": null,
+"labels": [
+"Attorney Thomas J. Fisher"
+],
+"method": "name-rule",
+"kind": "candidate",
+"state": "GU"
+},
+"local|august": {
+"category": "local",
+"name": "August",
+"fec_name": null,
+"labels": [
+"August 1, 2026"
+],
+"method": "name-rule",
+"kind": "candidate",
+"state": "GU"
+},
 "local|ausley tallahassee": {
 "category": "local",
 "name": "Ausley Tallahassee",
@@ -21075,6 +21275,17 @@
 "kind": "candidate",
 "state": "NV"
 },
+"local|blas okada better gram": {
+"category": "local",
+"name": "Blas Okada Better Gram",
+"fec_name": null,
+"labels": [
+"BLAS OKADA FOR A BETTER GrAM"
+],
+"method": "name-rule",
+"kind": "candidate",
+"state": "GU"
+},
 "local|bruce bannister": {
 "category": "local",
 "name": "Bruce Bannister",
@@ -21097,6 +21308,17 @@
 "kind": "candidate",
 "state": "AZ"
 },
+"local|name": {
+"category": "local",
+"name": "Name",
+"fec_name": null,
+"labels": [
+"Candidate name"
+],
+"method": "name-rule",
+"kind": "candidate",
+"state": "GU"
+},
 "local|chedrick greene": {
 "category": "local",
 "name": "Chedrick Greene",
@@ -21107,6 +21329,17 @@
 "method": "name-rule",
 "kind": "candidate",
 "state": "MI"
+},
+"local|chris guam": {
+"category": "local",
+"name": "Chris Guam",
+"fec_name": null,
+"labels": [
+"CHRIS 4 GUAM"
+],
+"method": "name-rule",
+"kind": "candidate",
+"state": "GU"
 },
 "local|charmaine crabb": {
 "category": "local",
@@ -21165,6 +21398,17 @@
 "kind": "candidate",
 "state": "NV"
 },
+"local|jesse lujan": {
+"category": "local",
+"name": "Jesse Lujan",
+"fec_name": null,
+"labels": [
+"Committee to Elect Jesse Lujan"
+],
+"method": "name-rule",
+"kind": "candidate",
+"state": "GU"
+},
 "local|kate marshall": {
 "category": "local",
 "name": "Kate Marshall",
@@ -21175,6 +21419,17 @@
 "method": "name-rule",
 "kind": "candidate",
 "state": "NV"
+},
+"local|lect lillian guerrero": {
+"category": "local",
+"name": "Lect Lillian Guerrero",
+"fec_name": null,
+"labels": [
+"committee to \u00e9lect Lillian Guerrero for Senator 2026"
+],
+"method": "name-rule",
+"kind": "candidate",
+"state": "GU"
 },
 "local|lyndsey walters": {
 "category": "local",
@@ -21209,6 +21464,28 @@
 "kind": "candidate",
 "state": "NV"
 },
+"local|terlaje perez": {
+"category": "local",
+"name": "Terlaje Perez",
+"fec_name": null,
+"labels": [
+"Committee to Elect Terlaje Perez 20240"
+],
+"method": "name-rule",
+"kind": "candidate",
+"state": "GU"
+},
+"local|therese terlaje sabina perez": {
+"category": "local",
+"name": "Therese Terlaje Sabina Perez",
+"fec_name": null,
+"labels": [
+"Committee to elect Therese Terlaje and Sabina Perez"
+],
+"method": "name-rule",
+"kind": "candidate",
+"state": "GU"
+},
 "local|re anthony jones": {
 "category": "local",
 "name": "Re Anthony Jones",
@@ -21230,6 +21507,17 @@
 "method": "name-rule",
 "kind": "candidate",
 "state": "NV"
+},
+"local|re jesse lujan": {
+"category": "local",
+"name": "Re Jesse Lujan",
+"fec_name": null,
+"labels": [
+"Committee to re-elect Jesse A Lujan"
+],
+"method": "name-rule",
+"kind": "candidate",
+"state": "GU"
 },
 "local|re jerry wiese": {
 "category": "local",
@@ -21363,6 +21651,17 @@
 "kind": "candidate",
 "state": "AZ"
 },
+"local|eulogio shawn gumataotao": {
+"category": "local",
+"name": "Eulogio Shawn Gumataotao",
+"fec_name": null,
+"labels": [
+"EULOGIO SHAWN GUMATAOTAO FOR SENATOR"
+],
+"method": "name-rule",
+"kind": "candidate",
+"state": "GU"
+},
 "local|frank farry tracy pennycuik": {
 "category": "local",
 "name": "Frank Farry Tracy Pennycuik",
@@ -21373,6 +21672,28 @@
 "method": "name-rule",
 "kind": "candidate",
 "state": "PA"
+},
+"local|frank mary": {
+"category": "local",
+"name": "Frank Mary",
+"fec_name": null,
+"labels": [
+"FRIENDS For FRANK & MARY"
+],
+"method": "name-rule",
+"kind": "candidate",
+"state": "GU"
+},
+"local|donna muna quinata": {
+"category": "local",
+"name": "Donna Muna Quinata",
+"fec_name": null,
+"labels": [
+"Friends of Donna Muna Quinata"
+],
+"method": "name-rule",
+"kind": "candidate",
+"state": "GU"
 },
 "local|eileen alibillar": {
 "category": "local",
@@ -21691,6 +22012,17 @@
 "kind": "candidate",
 "state": "GA"
 },
+"local|jordan pauluhn": {
+"category": "local",
+"name": "Jordan Pauluhn",
+"fec_name": null,
+"labels": [
+"Jordan Pauluhn for Attorney General"
+],
+"method": "name-rule",
+"kind": "candidate",
+"state": "GU"
+},
 "local|lisa jones superior": {
 "category": "local",
 "name": "Lisa Jones Superior",
@@ -21701,6 +22033,17 @@
 "method": "name-rule",
 "kind": "candidate",
 "state": "GA"
+},
+"local|kapha": {
+"category": "local",
+"name": "Kapha",
+"fec_name": null,
+"labels": [
+"Kapha 2026"
+],
+"method": "name-rule",
+"kind": "candidate",
+"state": "GU"
 },
 "local|karen gordon": {
 "category": "local",
@@ -21884,6 +22227,17 @@
 "kind": "candidate",
 "state": "GA"
 },
+"local|navajo community": {
+"category": "local",
+"name": "Navajo Community",
+"fec_name": null,
+"labels": [
+"Navajo County Democratic Community"
+],
+"method": "name-rule",
+"kind": "candidate",
+"state": "AZ"
+},
 "local|cory thornton": {
 "category": "local",
 "name": "Cory Thornton",
@@ -21950,6 +22304,17 @@
 "kind": "candidate",
 "state": "NV"
 },
+"local|november": {
+"category": "local",
+"name": "November",
+"fec_name": null,
+"labels": [
+"November 3, 2026"
+],
+"method": "name-rule",
+"kind": "candidate",
+"state": "GU"
+},
 "local|pinsley mark": {
 "category": "local",
 "name": "Pinsley Mark",
@@ -21994,6 +22359,17 @@
 "kind": "candidate",
 "state": "MI"
 },
+"local|patsy paulivo": {
+"category": "local",
+"name": "Patsy Paulivo",
+"fec_name": null,
+"labels": [
+"Patsy Paulivo"
+],
+"method": "name-rule",
+"kind": "candidate",
+"state": "GU"
+},
 "local|payne superior": {
 "category": "local",
 "name": "Payne Superior",
@@ -22004,6 +22380,40 @@
 "method": "name-rule",
 "kind": "candidate",
 "state": "GA"
+},
+"local|sought no acronyms abbreviations my date": {
+"category": "local",
+"name": "Sought No Acronyms Abbreviations My Date",
+"fec_name": null,
+"labels": [
+"Primary General Office sought (no acronyms or abbreviations); MY Date of election",
+"Authorized committee: * N/A Date of election"
+],
+"method": "name-rule",
+"kind": "candidate",
+"state": "GU"
+},
+"local|ralphy": {
+"category": "local",
+"name": "Ralphy",
+"fec_name": null,
+"labels": [
+"Ralphy 2026"
+],
+"method": "name-rule",
+"kind": "candidate",
+"state": "GU"
+},
+"local|ralphy 2u2": {
+"category": "local",
+"name": "Ralphy 2u2",
+"fec_name": null,
+"labels": [
+"Ralphy 2U2"
+],
+"method": "name-rule",
+"kind": "candidate",
+"state": "GU"
 },
 "local|randolph": {
 "category": "local",
@@ -22060,6 +22470,28 @@
 "method": "name-rule",
 "kind": "candidate",
 "state": "GA"
+},
+"local|sabrina": {
+"category": "local",
+"name": "Sabrina",
+"fec_name": null,
+"labels": [
+"Sabrina for Senator"
+],
+"method": "name-rule",
+"kind": "candidate",
+"state": "GU"
+},
+"local|same above": {
+"category": "local",
+"name": "Same Above",
+"fec_name": null,
+"labels": [
+"Same an above"
+],
+"method": "name-rule",
+"kind": "candidate",
+"state": "GU"
 },
 "local|sandoval peace": {
 "category": "local",
@@ -22195,6 +22627,39 @@
 "method": "name-rule",
 "kind": "candidate",
 "state": "NV"
+},
+"local|tenorio muna bames guam": {
+"category": "local",
+"name": "Tenorio Muna Bames Guam",
+"fec_name": null,
+"labels": [
+"Tenorio Muna-Bames for Guam"
+],
+"method": "name-rule",
+"kind": "candidate",
+"state": "GU"
+},
+"local|tenorio muna bares guam": {
+"category": "local",
+"name": "Tenorio Muna Bares Guam",
+"fec_name": null,
+"labels": [
+"Tenorio Muna-Bares for Guam"
+],
+"method": "name-rule",
+"kind": "candidate",
+"state": "GU"
+},
+"local|tenorio muna barnes guam": {
+"category": "local",
+"name": "Tenorio Muna Barnes Guam",
+"fec_name": null,
+"labels": [
+"Tenorio Muna-Barnes for Guam"
+],
+"method": "name-rule",
+"kind": "candidate",
+"state": "GU"
 },
 "local|tom derzypolski city": {
 "category": "local",
@@ -25736,6 +26201,17 @@
 "method": "name-rule",
 "kind": "candidate",
 "state": "PA"
+},
+"state|james moylan": {
+"category": "state",
+"name": "James Moylan",
+"fec_name": null,
+"labels": [
+"James Moylan for Congress"
+],
+"method": "name-rule",
+"kind": "candidate",
+"state": "GU"
 },
 "state|jane dane": {
 "category": "state",
