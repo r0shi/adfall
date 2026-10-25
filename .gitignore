@@ -18,3 +18,12 @@ web/data/stations/
 web/data/spend/[0-9]*.json
 web/data/marts/
 web/data/tiles/*.pmtiles
+
+# pipeline working state
+data/text/
+data/logs/
+data/locks/
+data/validate-*.json
+data/political.sqlite-wal
+data/political.sqlite-shm
+data/ocr/*.tesseract
