@@ -5,7 +5,8 @@
   import Coverage from '../Coverage.svelte';
   import Heatmap from '../Heatmap.svelte';
   import { stationDetail } from '../data.js';
-  let list = $state.raw([]), mode = $state('cloud'), loading = $state(true), grid = $state.raw(null);
+  import Wall from '../video/Wall.svelte';                    // video chain (ingest.video): thumbnail wall mode
+  let list = $state.raw([]), mode = $state('wall'), loading = $state(true), grid = $state.raw(null);
   $effect(() => { loading = true; const f = found; creativesHere(f).then(c => { list = c; loading = false; }).catch(() => { list = []; loading = false; }); });
   $effect(() => {
     const facs = idx ? found.filter(s => idx.stations[s.fac]) : found;
@@ -24,6 +25,9 @@
   const size = (a, mx) => 11 + 24 * Math.sqrt(a / mx);
 </script>
 <div class="chips" style="margin:0 0 8px">
+  <!-- video chain: thumbnail wall (components under src/lib/video/) -->
+  <span class="chip" class:on={mode === 'wall'} onclick={() => mode = 'wall'} role="button" tabindex="0" title="The spots as video, sized by airings here">Wall</span>
+  <!-- /video chain -->
   <span class="chip" class:on={mode === 'cloud'} onclick={() => mode = 'cloud'} role="button" tabindex="0">Buyers</span>
   <span class="chip" class:on={mode === 'list'} onclick={() => mode = 'list'} role="button" tabindex="0">Creatives</span>
   <span class="chip" class:on={mode === 'daypart'} onclick={() => mode = 'daypart'} role="button" tabindex="0" title="When the ads ran: hour × weekday">Daypart</span>
@@ -31,6 +35,10 @@
 </div>
 {#if loading}<div class="muted small">Loading…</div>
 {:else if !list.length}<Coverage {found} {idx} what="aired ads on record" />
+{:else if mode === 'wall'}
+  <!-- video chain: thumbnail wall -->
+  <Wall {list} />
+  <!-- /video chain -->
 {:else if mode === 'daypart'}
   <div class="muted small" style="margin-bottom:4px">When political spots aired on these stations (invoiced airings with a known time).</div>
   <Heatmap {grid} />
