@@ -51,8 +51,31 @@ make fec                        # FEC candidate/committee master files (once per
 make pipeline                   # load -> entities -> identity -> entities -> marts -> export -> tiles (tippecanoe)
 ```
 
-Crawl and parse (`python3 -m ingest.crawl`, `ingest.parse`, `ingest.ocr`, `ingest.update`) still
-write the SQLite store at `data/political.sqlite`; `make load` upserts it into Postgres.
+## Ingest pipeline
+
+Stages, in order: `crawl` (list + download PDFs into `data/political.sqlite` and `data/pdfs/`),
+`parse` (text layer -> structured rows; image-only PDFs are flagged), `ocr` (Apple Vision, or
+tesseract), `parse --only-failed` (pick up OCR text), `load_pg`, `entities`, `identity`,
+`entities`, `marts`, then `geo`/`export`/`tiles` for the site. `update` applies the FCC change
+feed for daily upkeep.
+
+```bash
+make status                     # counts per stage, running/failed stages, problems; STATE=PA for per-station rows
+make coverage                   # crawled vs the national 2024/2026 document counts, by state (MISSING=1 lists gaps)
+make validate                   # parse invariants per template with worst examples (needs Postgres loaded)
+make batch                      # national 2026 crawl+OCR+parse, state by state, resumable; Postgres refreshed in the background
+make crawl STATE=TX             # one state from data/crawl_targets_2026_national.txt
+make update                     # FCC change feed since the last sync, plus downloads
+make refresh                    # load -> entities -> identity -> entities -> marts
+```
+
+Every stage writes `data/logs/<stage>-<timestamp>.log` (mirrored to stderr) ending in a
+`SUMMARY` line with counts and failures, records a row in the `pipeline_run` table (SQLite,
+mirrored to Postgres), holds a lock in `data/locks/` so it cannot overlap itself, and exits
+non-zero when failures exceed its threshold. Everything resumes after a kill: listings are
+redone unless complete, downloads are atomic and verified, OCR and download failures are
+retried a capped number of times and then reported by `make status`. Operations notes and
+findings: [docs/research.md](docs/research.md).
 
 ## What it does not do
 
