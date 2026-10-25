@@ -1,107 +1,186 @@
 {
- "generated": "2026-10-24T22:46:47",
- "documents": 93750,
+ "generated": "2026-10-24T23:26:32",
+ "documents": 93923,
  "by_status": {
-  "ok": 73905,
-  "failed": 17114,
-  "partial": 2731
+  "ok": 79247,
+  "unrecognized": 6967,
+  "failed": 2048,
+  "partial": 5661
  },
  "coverage": [
   {
-   "kind": "other",
-   "template": "other/-",
+   "kind": "order",
+   "template": "wideorbit-contract",
    "status": "ok",
-   "n": 32017
+   "n": 19074
   },
   {
    "kind": "order",
-   "template": "order/-",
+   "template": "wideorbit-order",
    "status": "ok",
-   "n": 18993
+   "n": 17741
   },
   {
    "kind": "form",
-   "template": "form/-",
-   "status": "failed",
-   "n": 14401
+   "template": "nab-text",
+   "status": "ok",
+   "n": 15899
   },
   {
    "kind": "invoice",
-   "template": "invoice/-",
+   "template": "wideorbit-invoice",
    "status": "ok",
-   "n": 11794
+   "n": 11882
+  },
+  {
+   "kind": "other",
+   "template": "other/-",
+   "status": "unrecognized",
+   "n": 6967
   },
   {
    "kind": "form",
-   "template": "form/-",
+   "template": "nab-acroform",
    "status": "ok",
-   "n": 4914
+   "n": 4050
   },
   {
    "kind": "order",
    "template": "katz",
    "status": "ok",
-   "n": 3573
+   "n": 3643
+  },
+  {
+   "kind": "order",
+   "template": "wideorbit-contract-ocr",
+   "status": "ok",
+   "n": 2514
   },
   {
    "kind": "invoice",
-   "template": "sinclair",
+   "template": "sinclair-invoice",
+   "status": "partial",
+   "n": 2340
+  },
+  {
+   "kind": "order",
+   "template": "wideorbit-contract-ocr",
+   "status": "partial",
+   "n": 1672
+  },
+  {
+   "kind": "form",
+   "template": "nab-text",
    "status": "failed",
-   "n": 2426
+   "n": 1145
   },
   {
    "kind": "order",
-   "template": "wideorbit-ocr",
+   "template": "wideorbit-order-ocr",
    "status": "ok",
-   "n": 2302
+   "n": 1128
   },
   {
    "kind": "order",
-   "template": "wideorbit-ocr",
-   "status": "partial",
-   "n": 1628
-  },
-  {
-   "kind": "invoice",
-   "template": "sinclair",
-   "status": "partial",
-   "n": 615
-  },
-  {
-   "kind": "invoice",
-   "template": "invoice/-",
-   "status": "partial",
-   "n": 414
-  },
-  {
-   "kind": "invoice",
-   "template": "sinclair",
+   "template": "katz-ecr",
    "status": "ok",
-   "n": 302
+   "n": 1127
+  },
+  {
+   "kind": "other",
+   "template": "nab-supplement",
+   "status": "ok",
+   "n": 1058
+  },
+  {
+   "kind": "order",
+   "template": "katz-ecr",
+   "status": "partial",
+   "n": 746
+  },
+  {
+   "kind": "order",
+   "template": "locality-worksheet",
+   "status": "ok",
+   "n": 532
+  },
+  {
+   "kind": "invoice",
+   "template": "sinclair-invoice",
+   "status": "ok",
+   "n": 502
+  },
+  {
+   "kind": "invoice",
+   "template": "sinclair-invoice",
+   "status": "failed",
+   "n": 502
+  },
+  {
+   "kind": "invoice",
+   "template": "wideorbit-invoice",
+   "status": "partial",
+   "n": 480
+  },
+  {
+   "kind": "order",
+   "template": "wideorbit-order-ocr",
+   "status": "failed",
+   "n": 205
+  },
+  {
+   "kind": "order",
+   "template": "wideorbit-order",
+   "status": "partial",
+   "n": 187
+  },
+  {
+   "kind": "order",
+   "template": "wideorbit-order-ocr",
+   "status": "partial",
+   "n": 126
   },
   {
    "kind": "other",
    "template": "other/-",
    "status": "failed",
-   "n": 244
+   "n": 115
   },
   {
    "kind": "order",
-   "template": "order/-",
+   "template": "sinclair-contract",
+   "status": "ok",
+   "n": 87
+  },
+  {
+   "kind": "order",
+   "template": "wideorbit-contract",
    "status": "partial",
-   "n": 63
+   "n": 61
   },
   {
-   "kind": "order",
-   "template": "wideorbit-ocr",
+   "kind": "form",
+   "template": "nab-acroform",
    "status": "failed",
-   "n": 35
+   "n": 43
   },
   {
    "kind": "order",
-   "template": "eport",
+   "template": "locality-worksheet",
    "status": "partial",
-   "n": 11
+   "n": 28
+  },
+  {
+   "kind": "order",
+   "template": "wideorbit-contract-ocr",
+   "status": "failed",
+   "n": 27
+  },
+  {
+   "kind": "order",
+   "template": "katz",
+   "status": "partial",
+   "n": 13
   },
   {
    "kind": "order",
@@ -111,336 +190,67 @@
   },
   {
    "kind": "invoice",
-   "template": "invoice/-",
+   "template": "wideorbit-invoice",
    "status": "failed",
+   "n": 10
+  },
+  {
+   "kind": "order",
+   "template": "eport",
+   "status": "partial",
    "n": 8
+  },
+  {
+   "kind": "order",
+   "template": "wideorbit-order",
+   "status": "failed",
+   "n": 1
   }
  ],
  "checks": {
-  "wideorbit-ocr": {
-   "net_ratio": {
-    "n": 3741,
-    "fail": 7,
-    "rate": 0.0019,
-    "examples": [
-     {
-      "file_id": "6b4226b3-cd8d-4e43-8b3b-7bfd50183106",
-      "call": "WJRT-TV",
-      "file_name": "182645PutProgressFirstJan5-Jan30Orig",
-      "local_path": "data/pdfs/21735/2026/6b4226b3-cd8d-4e43-8b3b-7bfd50183106.pdf",
-      "gross": 11350.0,
-      "net": 10215.0,
-      "ratio": 0.9
-     },
-     {
-      "file_id": "7d1229f8-59c4-483f-8cf7-7d52786e3577",
-      "call": "WFQX-TV",
-      "file_name": "PERRY JOHNSON - WFQX 58416 REV1",
-      "local_path": "data/pdfs/25396/2026/7d1229f8-59c4-483f-8cf7-7d52786e3577.pdf",
-      "gross": 4540.0,
-      "net": 3.85,
-      "ratio": 0.0008
-     },
-     {
-      "file_id": "81f41e50-7c93-446a-960c-7a495a1d1c0d",
-      "call": "WWTV",
-      "file_name": "PPF - WWTV 59134",
-      "local_path": "data/pdfs/26994/2026/81f41e50-7c93-446a-960c-7a495a1d1c0d.pdf",
-      "gross": 13950.0,
-      "net": 741857.5,
-      "ratio": 53.1797
-     }
-    ]
-   },
-   "flight_range": {
-    "n": 3831,
-    "fail": 2,
-    "rate": 0.0005,
-    "examples": [
-     {
-      "file_id": "b3c5adc0-1b21-4227-9872-4ea0a23205a8",
-      "call": "WHO-DT",
-      "file_name": "Bohannan Starts 090126 Rev 3",
-      "local_path": "data/pdfs/66221/2026/b3c5adc0-1b21-4227-9872-4ea0a23205a8.pdf",
-      "flight_start": "2026-09-01",
-      "flight_end": "2026-08-07"
-     },
-     {
-      "file_id": "eeaf4bfa-2979-4e18-9cee-4fc486695e0c",
-      "call": "WWTV",
-      "file_name": "PERRY JOHNSON - WWTV 58219",
-      "local_path": "data/pdfs/26994/2026/eeaf4bfa-2979-4e18-9cee-4fc486695e0c.pdf",
-      "flight_start": "2026-04-29",
-      "flight_end": "2026-02-02"
-     }
-    ]
-   },
-   "gross_range": {
-    "n": 3904,
-    "fail": 0,
-    "rate": 0.0,
-    "examples": []
-   },
-   "dup_order_cross": {
-    "n": 14,
-    "fail": 13,
-    "rate": 0.9286,
-    "examples": [
-     {
-      "file_id": "150981c2-fe0a-49b1-bd34-ff10fbd3f1ea",
-      "call": "WHO-DT",
-      "file_name": "WinSenate Starts 092926 Rev 2",
-      "local_path": "data/pdfs/66221/2026/150981c2-fe0a-49b1-bd34-ff10fbd3f1ea.pdf",
-      "order_no": "9914573",
-      "stations": [
-       12033,
-       43847,
-       66221
-      ]
-     },
-     {
-      "file_id": "39e69c25-e85f-4229-91c5-f4e9418bcda1",
-      "call": "WHO-DT",
-      "file_name": "SLF PAC Starts 100726 Rev 2",
-      "local_path": "data/pdfs/66221/2026/39e69c25-e85f-4229-91c5-f4e9418bcda1.pdf",
-      "order_no": "9920140",
-      "stations": [
-       12033,
-       66221
-      ]
-     },
-     {
-      "file_id": "c3b1453d-3b3b-4890-873b-5518722724ca",
-      "call": "WHO-DT",
-      "file_name": "SLF PAC Starts 092326 Rev 2",
-      "local_path": "data/pdfs/66221/2026/c3b1453d-3b3b-4890-873b-5518722724ca.pdf",
-      "order_no": "9920140",
-      "stations": [
-       12033,
-       66221
-      ]
-     }
-    ]
-   },
-   "order_no_filename": {
-    "n": 1159,
-    "fail": 75,
-    "rate": 0.0647,
-    "examples": [
-     {
-      "file_id": "238ca3af-4700-4c35-9038-3a616eed5084",
-      "call": "WHO-DT",
-      "file_name": "DCCC-Trone Starts 0922926",
-      "local_path": "data/pdfs/66221/2026/238ca3af-4700-4c35-9038-3a616eed5084.pdf",
-      "order_no": "5417429",
-      "in_name": [
-       "0922926"
-      ]
-     },
-     {
-      "file_id": "b8fde4e3-d74b-4a99-83fb-82e491b88f12",
-      "call": "WHO-DT",
-      "file_name": "Naig Starts 1021226",
-      "local_path": "data/pdfs/66221/2026/b8fde4e3-d74b-4a99-83fb-82e491b88f12.pdf",
-      "order_no": "8419672",
-      "in_name": [
-       "1021226"
-      ]
-     },
-     {
-      "file_id": "3b04c004-805d-4a3a-a165-666b610964d5",
-      "call": "WHO-DT",
-      "file_name": "DCCC-Trone Starts 0922926 Rev 1",
-      "local_path": "data/pdfs/66221/2026/3b04c004-805d-4a3a-a165-666b610964d5.pdf",
-      "order_no": "5417429",
-      "in_name": [
-       "0922926"
-      ]
-     }
-    ]
-   }
-  },
-  "sinclair": {
-   "gross_range": {
-    "n": 913,
-    "fail": 0,
-    "rate": 0.0,
-    "examples": []
-   }
-  },
-  "eport": {
-   "order_no_filename": {
-    "n": 10,
-    "fail": 0,
-    "rate": 0.0,
-    "examples": []
-   },
-   "flight_range": {
-    "n": 18,
-    "fail": 0,
-    "rate": 0.0,
-    "examples": []
-   },
-   "gross_range": {
-    "n": 21,
-    "fail": 0,
-    "rate": 0.0,
-    "examples": []
-   }
-  },
-  "katz": {
-   "flight_range": {
-    "n": 3573,
-    "fail": 0,
-    "rate": 0.0,
-    "examples": []
-   },
-   "gross_range": {
-    "n": 3573,
-    "fail": 0,
-    "rate": 0.0,
-    "examples": []
-   },
-   "dup_order_cross": {
-    "n": 974,
-    "fail": 0,
-    "rate": 0.0,
-    "examples": []
-   },
-   "order_no_filename": {
-    "n": 1497,
-    "fail": 551,
-    "rate": 0.3681,
-    "examples": [
-     {
-      "file_id": "65211bd0-429d-4e2d-a0aa-e0ed72e9ce74",
-      "call": "WMSN-TV",
-      "file_name": "WMSN No Going Back PAC EST 490102 New Order 10.23.26-10.29.26_28739369_KATZ",
-      "local_path": "data/pdfs/10221/2026/65211bd0-429d-4e2d-a0aa-e0ed72e9ce74.pdf",
-      "order_no": "28739269",
-      "in_name": [
-       "28739369"
-      ]
-     },
-     {
-      "file_id": "a1ab183e-4f0c-4cfc-9586-c4e202889e6d",
-      "call": "WMSN-TV",
-      "file_name": "Impossible Until Its Done EST 17518 new order 7.21.26-7.27.26 cont. 28707037_KATZ",
-      "local_path": "data/pdfs/10221/2026/a1ab183e-4f0c-4cfc-9586-c4e202889e6d.pdf",
-      "order_no": "28703037",
-      "in_name": [
-       "28707037"
-      ]
-     },
-     {
-      "file_id": "dae1e6c9-56bb-497a-a29e-fc36f3d90b97",
-      "call": "WXOW",
-      "file_name": "a115613-request-214447-8-17-26-20260819-172006341-pdf",
-      "local_path": "data/pdfs/64549/2026/dae1e6c9-56bb-497a-a29e-fc36f3d90b97.pdf",
-      "order_no": "28710780",
-      "in_name": [
-       "20260819"
-      ]
-     }
-    ]
-   }
-  },
-  "form/-": {
-   "form_fields": {
-    "n": 19315,
-    "fail": 14401,
-    "rate": 0.7456,
-    "examples": [
-     {
-      "file_id": "0d719d00-fa69-459c-8d14-44d32b919fca",
-      "call": "WOI-DT",
-      "file_name": "VoteVets 2026-IA Senate NAB WOI 9.29",
-      "local_path": "data/pdfs/8661/2026/0d719d00-fa69-459c-8d14-44d32b919fca.pdf",
-      "form": {}
-     },
-     {
-      "file_id": "1a107c02-0843-485e-8d86-4cb1af8d660d",
-      "call": "WOI-DT",
-      "file_name": "Vote Vets Action Fund NAB 2026 IA WOI",
-      "local_path": "data/pdfs/8661/2026/1a107c02-0843-485e-8d86-4cb1af8d660d.pdf",
-      "form": {}
-     },
-     {
-      "file_id": "930ce833-3867-418f-b8aa-53df9a585c94",
-      "call": "WOI-DT",
-      "file_name": "VoteVets 2026-IA Senate NAB WOI",
-      "local_path": "data/pdfs/8661/2026/930ce833-3867-418f-b8aa-53df9a585c94.pdf",
-      "form": {}
-     }
-    ]
-   },
-   "flight_range": {
-    "n": 1803,
-    "fail": 1,
-    "rate": 0.0006,
-    "examples": [
-     {
-      "file_id": "af3b0781-66b3-4249-a20b-3e31118aa3d4",
-      "call": "WMAZ-TV",
-      "file_name": "Amy Morton_3278910",
-      "local_path": "data/pdfs/46991/2026/af3b0781-66b3-4249-a20b-3e31118aa3d4.pdf",
-      "election_date": "2025-05-19"
-     }
-    ]
-   }
-  },
-  "order/-": {
+  "wideorbit-contract": {
    "lines_sum": {
-    "n": 18239,
-    "fail": 853,
-    "rate": 0.0468,
+    "n": 19059,
+    "fail": 397,
+    "rate": 0.0208,
     "examples": [
      {
-      "file_id": "0c12eaef-f505-4e63-8d91-30d3a0b0da97",
-      "call": "KCCI",
-      "file_name": "4419445 Zach Lahn-R-Governor 5.27-5.28.26",
-      "local_path": "data/pdfs/33710/2026/0c12eaef-f505-4e63-8d91-30d3a0b0da97.pdf",
-      "gross": 10600.0,
-      "lines_sum": 10530.0,
-      "diff": 70.0,
-      "lines": 16
+      "file_id": "0c5a43ff-17ed-442b-afef-574b0303a7af",
+      "call": "KYW-TV",
+      "file_name": "782509--4",
+      "local_path": "data/pdfs/25453/2026/0c5a43ff-17ed-442b-afef-574b0303a7af.pdf",
+      "gross": 94075.0,
+      "lines_sum": 104050.0,
+      "diff": -9975.0,
+      "lines": 51
      },
      {
-      "file_id": "4ef3a199-795e-49a8-abc1-d2c84650144b",
+      "file_id": "46858fe3-c93f-46f7-b07e-3001ece6ac28",
       "call": "KCCI",
-      "file_name": "4419445 Zach Lahn-R-Governor 5.27-5.28.26 rev1",
-      "local_path": "data/pdfs/33710/2026/4ef3a199-795e-49a8-abc1-d2c84650144b.pdf",
-      "gross": 15590.0,
-      "lines_sum": 15520.0,
-      "diff": 70.0,
-      "lines": 16
+      "file_name": "4454624 Rob Sand-D-Governor 8.18-8.24.26 NCCI",
+      "local_path": "data/pdfs/33710/2026/46858fe3-c93f-46f7-b07e-3001ece6ac28.pdf",
+      "gross": 900008.34,
+      "lines_sum": 900.0,
+      "diff": 899108.34,
+      "lines": 1
      },
      {
-      "file_id": "073ed656-a61e-45b0-bcba-7f5bdbcb915a",
+      "file_id": "42141b1a-8699-433a-ac5c-b259e92a388a",
       "call": "KCCI",
-      "file_name": "4420085 Zach Lahn-R-Governor 5.28-6.01.26 rev1",
-      "local_path": "data/pdfs/33710/2026/073ed656-a61e-45b0-bcba-7f5bdbcb915a.pdf",
-      "gross": 27695.0,
-      "lines_sum": 27625.0,
-      "diff": 70.0,
-      "lines": 37
+      "file_name": "4482401 State of Israel via Clock Tower X, LLC 10.24-10.31.26 NCCI",
+      "local_path": "data/pdfs/33710/2026/42141b1a-8699-433a-ac5c-b259e92a388a.pdf",
+      "gross": 6000007.44,
+      "lines_sum": 6000.0,
+      "diff": 5994007.44,
+      "lines": 1
      }
     ]
    },
    "net_ratio": {
-    "n": 18523,
-    "fail": 40,
-    "rate": 0.0022,
+    "n": 18604,
+    "fail": 183,
+    "rate": 0.0098,
     "examples": [
-     {
-      "file_id": "4a9fac3c-514e-4c5d-9f84-98c7d5e6d05c",
-      "call": "KYW-TV",
-      "file_name": "782509--3",
-      "local_path": "data/pdfs/25453/2026/4a9fac3c-514e-4c5d-9f84-98c7d5e6d05c.pdf",
-      "gross": 78025.0,
-      "net": 88442.5,
-      "ratio": 1.1335
-     },
      {
       "file_id": "0c5a43ff-17ed-442b-afef-574b0303a7af",
       "call": "KYW-TV",
@@ -451,18 +261,27 @@
       "ratio": 0.9401
      },
      {
-      "file_id": "6d0b8e51-87d9-4414-9720-354dc9c6b981",
-      "call": "KYW-TV",
-      "file_name": "783289--3",
-      "local_path": "data/pdfs/25453/2026/6d0b8e51-87d9-4414-9720-354dc9c6b981.pdf",
-      "gross": 101200.0,
-      "net": 107057.5,
-      "ratio": 1.0579
+      "file_id": "46858fe3-c93f-46f7-b07e-3001ece6ac28",
+      "call": "KCCI",
+      "file_name": "4454624 Rob Sand-D-Governor 8.18-8.24.26 NCCI",
+      "local_path": "data/pdfs/33710/2026/46858fe3-c93f-46f7-b07e-3001ece6ac28.pdf",
+      "gross": 900008.34,
+      "net": 765.0,
+      "ratio": 0.0008
+     },
+     {
+      "file_id": "42141b1a-8699-433a-ac5c-b259e92a388a",
+      "call": "KCCI",
+      "file_name": "4482401 State of Israel via Clock Tower X, LLC 10.24-10.31.26 NCCI",
+      "local_path": "data/pdfs/33710/2026/42141b1a-8699-433a-ac5c-b259e92a388a.pdf",
+      "gross": 6000007.44,
+      "net": 5100.0,
+      "ratio": 0.0008
      }
     ]
    },
    "order_no_filename": {
-    "n": 15666,
+    "n": 15667,
     "fail": 827,
     "rate": 0.0528,
     "examples": [
@@ -499,63 +318,279 @@
     ]
    },
    "flight_range": {
-    "n": 19009,
+    "n": 19090,
     "fail": 0,
     "rate": 0.0,
     "examples": []
    },
    "gross_range": {
-    "n": 18998,
+    "n": 19077,
+    "fail": 63,
+    "rate": 0.0033,
+    "examples": [
+     {
+      "file_id": "42141b1a-8699-433a-ac5c-b259e92a388a",
+      "call": "KCCI",
+      "file_name": "4482401 State of Israel via Clock Tower X, LLC 10.24-10.31.26 NCCI",
+      "local_path": "data/pdfs/33710/2026/42141b1a-8699-433a-ac5c-b259e92a388a.pdf",
+      "gross": 6000007.44
+     },
+     {
+      "file_id": "9af0abde-df03-44eb-b6ae-73006596093b",
+      "call": "WOI-DT",
+      "file_name": "WOI_RGA RIGHT DIRECTION MEDIA_19077_CONTRACT_5.9.26-5.14.26",
+      "local_path": "data/pdfs/8661/2026/9af0abde-df03-44eb-b6ae-73006596093b.pdf",
+      "gross": 13800008.5
+     },
+     {
+      "file_id": "090f6d44-2401-45af-97e0-f6bfc1b83615",
+      "call": "KYW-TV",
+      "file_name": "782909--3",
+      "local_path": "data/pdfs/25453/2026/090f6d44-2401-45af-97e0-f6bfc1b83615.pdf",
+      "gross": 27830000.6
+     }
+    ]
+   },
+   "dup_order_cross": {
+    "n": 243,
+    "fail": 42,
+    "rate": 0.1728,
+    "examples": [
+     {
+      "file_id": "562942f7-2529-4507-9d41-957089275d41",
+      "call": "KCCI",
+      "file_name": "4447819 Nate Willems-Attorney General - 09.15-09.21.26",
+      "local_path": "data/pdfs/33710/2026/562942f7-2529-4507-9d41-957089275d41.pdf",
+      "order_no": "4447819",
+      "stations": [
+       6863,
+       33710
+      ]
+     },
+     {
+      "file_id": "56d9f2ee-90f0-4a82-9cfc-19e756b194c8",
+      "call": "KCCI",
+      "file_name": "4447819 Nate Willems-D-IA Attorney General 9.15-9.21.26 rev1",
+      "local_path": "data/pdfs/33710/2026/56d9f2ee-90f0-4a82-9cfc-19e756b194c8.pdf",
+      "order_no": "4447819",
+      "stations": [
+       6863,
+       33710
+      ]
+     },
+     {
+      "file_id": "ea5d3d66-7361-43fe-95ef-677b17ee830a",
+      "call": "KCCI",
+      "file_name": "4447819 Nate Willems-D-IA Attorney General 9.15-9.21.26 rev2",
+      "local_path": "data/pdfs/33710/2026/ea5d3d66-7361-43fe-95ef-677b17ee830a.pdf",
+      "order_no": "4447819",
+      "stations": [
+       6863,
+       33710
+      ]
+     }
+    ]
+   },
+   "gross_over_2M": {
+    "n": 101,
+    "fail": 101,
+    "rate": 1.0,
+    "examples": [
+     {
+      "file_id": "42141b1a-8699-433a-ac5c-b259e92a388a",
+      "call": "KCCI",
+      "file_name": "4482401 State of Israel via Clock Tower X, LLC 10.24-10.31.26 NCCI",
+      "local_path": "data/pdfs/33710/2026/42141b1a-8699-433a-ac5c-b259e92a388a.pdf",
+      "gross": 6000007.44,
+      "advertiser": "Clock Tower X LLC"
+     },
+     {
+      "file_id": "2993524c-b4b9-4040-bf0a-e06e2686431d",
+      "call": "KCCI",
+      "file_name": "4416865 RGA Right Direction PAC 5.09-5.14.26",
+      "local_path": "data/pdfs/33710/2026/2993524c-b4b9-4040-bf0a-e06e2686431d.pdf",
+      "gross": 2600004.4,
+      "advertiser": "RGA Right Direction PAC"
+     },
+     {
+      "file_id": "f6e41329-48e3-44ae-85c2-d5ccd4b0deda",
+      "call": "KCCI",
+      "file_name": "4416866 RGA Right Direction PAC 5.15-5.21.26",
+      "local_path": "data/pdfs/33710/2026/f6e41329-48e3-44ae-85c2-d5ccd4b0deda.pdf",
+      "gross": 4600007.0,
+      "advertiser": "RGA Right Direction PAC"
+     }
+    ]
+   }
+  },
+  "nab-acroform": {
+   "form_fields": {
+    "n": 4093,
+    "fail": 43,
+    "rate": 0.0105,
+    "examples": [
+     {
+      "file_id": "221e072a-f8a1-48a7-abb0-ae7bcce1e30c",
+      "call": "WRAL-TV",
+      "file_name": "COMPLETE SHEKITA FOR WAKE DISTRICT ATTORNEY WRAL 022326-030326",
+      "local_path": "data/pdfs/8688/2026/221e072a-f8a1-48a7-abb0-ae7bcce1e30c.pdf",
+      "form": {}
+     },
+     {
+      "file_id": "7f6a2c6c-1e6b-456c-99dd-41ad9ee04c49",
+      "call": "WRBL",
+      "file_name": "Georgia Values Leadership Fund NAB_GALDSP060926H_6.12.26 to be signed - signed",
+      "local_path": "data/pdfs/3359/2026/7f6a2c6c-1e6b-456c-99dd-41ad9ee04c49.pdf",
+      "form": {}
+     },
+     {
+      "file_id": "b276fe47-36d0-4bee-9674-5e558be6dd25",
+      "call": "WRAZ",
+      "file_name": "COMPLETE SHEKITA FOR WAKE DISTRICT ATTORNEY WRAZ 022626-030326",
+      "local_path": "data/pdfs/64611/2026/b276fe47-36d0-4bee-9674-5e558be6dd25.pdf",
+      "form": {}
+     }
+    ]
+   },
+   "flight_range": {
+    "n": 3076,
+    "fail": 1,
+    "rate": 0.0003,
+    "examples": [
+     {
+      "file_id": "af3b0781-66b3-4249-a20b-3e31118aa3d4",
+      "call": "WMAZ-TV",
+      "file_name": "Amy Morton_3278910",
+      "local_path": "data/pdfs/46991/2026/af3b0781-66b3-4249-a20b-3e31118aa3d4.pdf",
+      "election_date": "2025-05-19"
+     }
+    ]
+   }
+  },
+  "katz": {
+   "order_no_filename": {
+    "n": 974,
+    "fail": 18,
+    "rate": 0.0185,
+    "examples": [
+     {
+      "file_id": "fdf9b135-8bf9-459d-80ce-90409c8dbf99",
+      "call": "KDSM-TV",
+      "file_name": "KDSM 28691675 ZACH LAHN EST. 19283",
+      "local_path": "data/pdfs/56527/2026/fdf9b135-8bf9-459d-80ce-90409c8dbf99.pdf",
+      "order_no": "28691875",
+      "in_name": [
+       "28691675"
+      ]
+     },
+     {
+      "file_id": "bf4f9ec7-3052-4105-9614-1cd24cf96ee3",
+      "call": "KDSM-TV",
+      "file_name": "KDSM 28675914 RANDY FEENSTRA EST. 7506",
+      "local_path": "data/pdfs/56527/2026/bf4f9ec7-3052-4105-9614-1cd24cf96ee3.pdf",
+      "order_no": "28675814",
+      "in_name": [
+       "28675914"
+      ]
+     },
+     {
+      "file_id": "9de0c6bf-d71c-4e07-bd5d-ffeb4778ef22",
+      "call": "KDSM-TV",
+      "file_name": "KDSM 29712096 DAVID BLOM EST. 9364",
+      "local_path": "data/pdfs/56527/2026/9de0c6bf-d71c-4e07-bd5d-ffeb4778ef22.pdf",
+      "order_no": "28712096",
+      "in_name": [
+       "29712096"
+      ]
+     }
+    ]
+   },
+   "flight_range": {
+    "n": 3646,
+    "fail": 0,
+    "rate": 0.0,
+    "examples": []
+   },
+   "gross_range": {
+    "n": 3643,
     "fail": 0,
     "rate": 0.0,
     "examples": []
    },
    "dup_order_cross": {
-    "n": 229,
-    "fail": 85,
-    "rate": 0.3712,
+    "n": 974,
+    "fail": 0,
+    "rate": 0.0,
+    "examples": []
+   }
+  },
+  "nab-text": {
+   "form_fields": {
+    "n": 17044,
+    "fail": 1145,
+    "rate": 0.0672,
     "examples": [
      {
-      "file_id": "aa569060-b60c-44bb-9514-a9eb4badf3e8",
-      "call": "KCCI",
-      "file_name": "4482568 Nate Willems-D-IA Attorney General 10.20-10.26.26",
-      "local_path": "data/pdfs/33710/2026/aa569060-b60c-44bb-9514-a9eb4badf3e8.pdf",
-      "order_no": "4482568",
-      "stations": [
-       33710,
-       41223
-      ]
+      "file_id": "76903dfa-699e-4be5-ae9a-3fd757713eb9",
+      "call": "WOI-DT",
+      "file_name": "state of israel disclosure1 WOI",
+      "local_path": "data/pdfs/8661/2026/76903dfa-699e-4be5-ae9a-3fd757713eb9.pdf",
+      "form": {
+       "agency": "Red Eagle Media Group"
+      }
      },
      {
-      "file_id": "ed31f87f-b38f-4235-b5ae-8fc52e440dee",
-      "call": "KCCI",
-      "file_name": "4467490 WinSenate 9.22-9.28.26 NCCI",
-      "local_path": "data/pdfs/33710/2026/ed31f87f-b38f-4235-b5ae-8fc52e440dee.pdf",
-      "order_no": "4467490",
-      "stations": [
-       33710,
-       40993
-      ]
+      "file_id": "3dc289f8-aef2-4873-a32f-514e72e0125c",
+      "call": "WOI-DT",
+      "file_name": "RGA Right Direction PAC NAB WOI",
+      "local_path": "data/pdfs/8661/2026/3dc289f8-aef2-4873-a32f-514e72e0125c.pdf",
+      "form": {
+       "agency": "Red Eagle Media Group"
+      }
      },
      {
-      "file_id": "a17e59fa-5d62-442e-8bcd-968c0277ae5e",
-      "call": "KCCI",
-      "file_name": "4392830 Vote Vets 4.01-4.07.26",
-      "local_path": "data/pdfs/33710/2026/a17e59fa-5d62-442e-8bcd-968c0277ae5e.pdf",
-      "order_no": "4392830",
-      "stations": [
-       33710,
-       41223
-      ]
+      "file_id": "16a93210-86d0-42ae-9192-08c62b8656bf",
+      "call": "KDSM-TV",
+      "file_name": "TAYLOR WETTACH NAB EST 18214 PAGE 2",
+      "local_path": "data/pdfs/56527/2026/16a93210-86d0-42ae-9192-08c62b8656bf.pdf",
+      "form": {}
+     }
+    ]
+   },
+   "flight_range": {
+    "n": 1797,
+    "fail": 6,
+    "rate": 0.0033,
+    "examples": [
+     {
+      "file_id": "76ac5d46-9796-41c0-86d6-ab813845cb75",
+      "call": "WSMH",
+      "file_name": "SLF PAC Contract 7093608 NAB",
+      "local_path": "data/pdfs/21737/2026/76ac5d46-9796-41c0-86d6-ab813845cb75.pdf",
+      "election_date": "2028-11-03"
+     },
+     {
+      "file_id": "d9329d5e-868d-47e1-b923-bbf8f59920bd",
+      "call": "WSMH",
+      "file_name": "SFL PAC Contract 7093592 NAB",
+      "local_path": "data/pdfs/21737/2026/d9329d5e-868d-47e1-b923-bbf8f59920bd.pdf",
+      "election_date": "2028-11-03"
+     },
+     {
+      "file_id": "60d2a53b-8c63-4f26-a3af-b30c336d8fe4",
+      "call": "WBSF",
+      "file_name": "House Majority PAC Contract 6960236 NAB",
+      "local_path": "data/pdfs/82627/2026/60d2a53b-8c63-4f26-a3af-b30c336d8fe4.pdf",
+      "election_date": "2028-11-03"
      }
     ]
    }
   },
-  "invoice/-": {
+  "wideorbit-invoice": {
    "invoice_linked": {
-    "n": 11976,
-    "fail": 5034,
-    "rate": 0.4203,
+    "n": 12068,
+    "fail": 926,
+    "rate": 0.0767,
     "examples": [
      {
       "file_id": "03e4c52e-5414-4577-8584-a90c0559a177",
@@ -565,29 +600,823 @@
       "order_no": "4428532"
      },
      {
-      "file_id": "1cbdc91a-efa0-4984-ac73-5c7d52c499b7",
-      "call": "WDIV-TV",
-      "file_name": "POL-A Al-Sayed 741818-1",
-      "local_path": "data/pdfs/53114/2026/1cbdc91a-efa0-4984-ac73-5c7d52c499b7.pdf",
-      "order_no": "741818"
+      "file_id": "8c681c56-62f6-4bbb-a374-cf3493d49a9b",
+      "call": "KCCI",
+      "file_name": "4462651 Rob Sand-D-Governor 9.08-9.14.26 NCCI invoice",
+      "local_path": "data/pdfs/33710/2026/8c681c56-62f6-4bbb-a374-cf3493d49a9b.pdf",
+      "order_no": "4462651"
      },
      {
-      "file_id": "7c8272c6-29be-48fd-bfa4-31bea16f0b8d",
-      "call": "WDIV-TV",
-      "file_name": "POL-A Al-Sayed 741959-1",
-      "local_path": "data/pdfs/53114/2026/7c8272c6-29be-48fd-bfa4-31bea16f0b8d.pdf",
-      "order_no": "741959"
+      "file_id": "5e2678ab-0e26-4ded-b8ed-7216fed1f117",
+      "call": "KCCI",
+      "file_name": "4462659 Rob Sand-D-Governor 9.08-9.14.26 MCCI invoice",
+      "local_path": "data/pdfs/33710/2026/5e2678ab-0e26-4ded-b8ed-7216fed1f117.pdf",
+      "order_no": "4462659"
      }
     ]
    },
    "gross_range": {
-    "n": 12026,
+    "n": 12176,
     "fail": 0,
     "rate": 0.0,
     "examples": []
    },
    "flight_range": {
-    "n": 12173,
+    "n": 12295,
+    "fail": 0,
+    "rate": 0.0,
+    "examples": []
+   },
+   "invoice_spots": {
+    "n": 7644,
+    "fail": 6790,
+    "rate": 0.8883,
+    "examples": [
+     {
+      "file_id": "f49c4496-bfd3-447c-9c75-9d89983c0606",
+      "call": "KCCI",
+      "file_name": "4398586 Zach Lahn-R-Governor 4.07-4.12.26 invoice",
+      "local_path": "data/pdfs/33710/2026/f49c4496-bfd3-447c-9c75-9d89983c0606.pdf",
+      "total_spots": 71,
+      "aired_lines": 28
+     },
+     {
+      "file_id": "ba83f94e-844c-4547-96f2-2fcf40a5c9e3",
+      "call": "KCCI",
+      "file_name": "4399777 Zach Lahn-R-Governor 4.13-4.20.26 invoice",
+      "local_path": "data/pdfs/33710/2026/ba83f94e-844c-4547-96f2-2fcf40a5c9e3.pdf",
+      "total_spots": 76,
+      "aired_lines": 47
+     },
+     {
+      "file_id": "e979937e-0e79-49b5-96cb-1d6cd47da4e8",
+      "call": "KCCI",
+      "file_name": "4401341 Zach Lahn-R-Governor 4.21-4.27.26 invoice-1",
+      "local_path": "data/pdfs/33710/2026/e979937e-0e79-49b5-96cb-1d6cd47da4e8.pdf",
+      "total_spots": 82,
+      "aired_lines": 33
+     }
+    ]
+   }
+  },
+  "wideorbit-order": {
+   "lines_sum": {
+    "n": 17453,
+    "fail": 99,
+    "rate": 0.0057,
+    "examples": [
+     {
+      "file_id": "4e2de9ec-23f6-4806-8ec0-fd3df506799c",
+      "call": "WHTM-TV",
+      "file_name": "Scott Perry for Congress C5357105 9-28-26 to 11-8-26 REV 10-7-26",
+      "local_path": "data/pdfs/72326/2026/4e2de9ec-23f6-4806-8ec0-fd3df506799c.pdf",
+      "gross": 287525.0,
+      "lines_sum": 276725.0,
+      "diff": 10800.0,
+      "lines": 98
+     },
+     {
+      "file_id": "70d2f5ea-e9c1-4be3-974c-be126534a5e2",
+      "call": "WHTM-TV",
+      "file_name": "Janelle Stelson for Congress C5389236 9826 to 91426 rev 99",
+      "local_path": "data/pdfs/72326/2026/70d2f5ea-e9c1-4be3-974c-be126534a5e2.pdf",
+      "gross": 47700.0,
+      "lines_sum": 46300.0,
+      "diff": 1400.0,
+      "lines": 47
+     },
+     {
+      "file_id": "f5324d31-ecbd-4ea5-9502-31ad57f98032",
+      "call": "WHTM-TV",
+      "file_name": "DCCC Janelle Stelson for Congress C5418249 9-29-26. to 10-5-26 REV 10-1-26",
+      "local_path": "data/pdfs/72326/2026/f5324d31-ecbd-4ea5-9502-31ad57f98032.pdf",
+      "gross": 57400.0,
+      "lines_sum": 57000.0,
+      "diff": 400.0,
+      "lines": 52
+     }
+    ]
+   },
+   "net_ratio": {
+    "n": 17694,
+    "fail": 1,
+    "rate": 0.0001,
+    "examples": [
+     {
+      "file_id": "65f0dd54-f658-4102-acca-cfdd6f531a52",
+      "call": "WZZM",
+      "file_name": "Put Progress First 1.5.26-2.1.26 3211208",
+      "local_path": "data/pdfs/49713/2026/65f0dd54-f658-4102-acca-cfdd6f531a52.pdf",
+      "gross": 26000.0,
+      "net": 23400.0,
+      "ratio": 0.9
+     }
+    ]
+   },
+   "order_no_filename": {
+    "n": 14342,
+    "fail": 100,
+    "rate": 0.007,
+    "examples": [
+     {
+      "file_id": "9584e532-793b-462b-b8b6-27b997b4e14b",
+      "call": "WHTM-TV",
+      "file_name": "Tom Jones for State Senate C3833793 9-1-26 to 9-8-26",
+      "local_path": "data/pdfs/72326/2026/9584e532-793b-462b-b8b6-27b997b4e14b.pdf",
+      "order_no": "5383793",
+      "in_name": [
+       "3833793"
+      ]
+     },
+     {
+      "file_id": "efed9479-4f25-4675-a87d-154dcfd0aa15",
+      "call": "WDIV-TV",
+      "file_name": "POL-P Johnson 704203",
+      "local_path": "data/pdfs/53114/2026/efed9479-4f25-4675-a87d-154dcfd0aa15.pdf",
+      "order_no": "740203",
+      "in_name": [
+       "704203"
+      ]
+     },
+     {
+      "file_id": "cceb74f7-5dca-4619-ab9d-a41ee07438fe",
+      "call": "WDIV-TV",
+      "file_name": "POL-P Johnson 704203",
+      "local_path": "data/pdfs/53114/2026/cceb74f7-5dca-4619-ab9d-a41ee07438fe.pdf",
+      "order_no": "740203",
+      "in_name": [
+       "704203"
+      ]
+     }
+    ]
+   },
+   "flight_range": {
+    "n": 17076,
+    "fail": 0,
+    "rate": 0.0,
+    "examples": []
+   },
+   "gross_range": {
+    "n": 17745,
+    "fail": 0,
+    "rate": 0.0,
+    "examples": []
+   },
+   "dup_order_cross": {
+    "n": 1690,
+    "fail": 67,
+    "rate": 0.0396,
+    "examples": [
+     {
+      "file_id": "8c474f23-5b8b-4bbc-9af6-6678b029cbe6",
+      "call": "KOLO-TV",
+      "file_name": "Better Nv PAC 2026 4400477",
+      "local_path": "data/pdfs/63331/2026/8c474f23-5b8b-4bbc-9af6-6678b029cbe6.pdf",
+      "order_no": "4400477",
+      "stations": [
+       33710,
+       63331
+      ]
+     },
+     {
+      "file_id": "c4777d95-612e-486a-8fcc-035c366f80c4",
+      "call": "WNEM-TV",
+      "file_name": "ORD_4463178_Jul28-Aug4",
+      "local_path": "data/pdfs/41221/2026/c4777d95-612e-486a-8fcc-035c366f80c4.pdf",
+      "order_no": "4463178",
+      "stations": [
+       41221,
+       65680
+      ]
+     },
+     {
+      "file_id": "a91910a1-31b1-4503-b91f-e1d110792e22",
+      "call": "WILX-TV",
+      "file_name": "4447819-Abdul El-Sayed-Est 1544-order",
+      "local_path": "data/pdfs/6863/2026/a91910a1-31b1-4503-b91f-e1d110792e22.pdf",
+      "order_no": "4447819",
+      "stations": [
+       6863,
+       33710
+      ]
+     }
+    ]
+   }
+  },
+  "sinclair-invoice": {
+   "invoice_linked": {
+    "n": 488,
+    "fail": 174,
+    "rate": 0.3566,
+    "examples": [
+     {
+      "file_id": "b6bf10c8-7ce8-4561-bf8a-ce2933d67fe1",
+      "call": "WCTI-TV",
+      "file_name": "WITH HONOR FUND III WCTI.2 FOX ECTI INV11856080 EST340 7115044 9.7-9.13",
+      "local_path": "data/pdfs/18334/2026/b6bf10c8-7ce8-4561-bf8a-ce2933d67fe1.pdf",
+      "order_no": "7115044"
+     },
+     {
+      "file_id": "224b1900-05eb-432c-9946-16dd52fa42e9",
+      "call": "WSMH",
+      "file_name": "Chief Justice Megan Kavanagh - Noah Hood Contract 7102094 Invoice 11914834",
+      "local_path": "data/pdfs/21737/2026/224b1900-05eb-432c-9946-16dd52fa42e9.pdf",
+      "order_no": "7102004"
+     },
+     {
+      "file_id": "78b0bb81-5295-4ecf-8d4b-0b0677980910",
+      "call": "WSMH",
+      "file_name": "Chief Justice Megan Kavanagh - Noah Hood 77101998 Invoice 11912625",
+      "local_path": "data/pdfs/21737/2026/78b0bb81-5295-4ecf-8d4b-0b0677980910.pdf",
+      "order_no": "7401998"
+     }
+    ]
+   },
+   "gross_range": {
+    "n": 2317,
+    "fail": 0,
+    "rate": 0.0,
+    "examples": []
+   },
+   "flight_range": {
+    "n": 429,
+    "fail": 43,
+    "rate": 0.1002,
+    "examples": [
+     {
+      "file_id": "2bea1f5d-2091-48cb-9681-bc0fa92ca214",
+      "call": "WSMH",
+      "file_name": "Perry Johnson for Governor Contract 7079021 Invoice 11789857",
+      "local_path": "data/pdfs/21737/2026/2bea1f5d-2091-48cb-9681-bc0fa92ca214.pdf",
+      "flight_start": "2026-08-03",
+      "flight_end": "2028-08-09"
+     },
+     {
+      "file_id": "21fe30f9-5adb-4e1e-86d7-757cbe362a47",
+      "call": "WSMH",
+      "file_name": "Perry Johnson contract 6862218 invoice 11493657",
+      "local_path": "data/pdfs/21737/2026/21fe30f9-5adb-4e1e-86d7-757cbe362a47.pdf",
+      "flight_start": "2026-03-02",
+      "flight_end": "2028-03-08"
+     },
+     {
+      "file_id": "9d6dcfb9-5256-4560-8818-856cac991fd9",
+      "call": "WSMH",
+      "file_name": "Mike Cox for Governor Contract 6980078 Invoice 11676094",
+      "local_path": "data/pdfs/21737/2026/9d6dcfb9-5256-4560-8818-856cac991fd9.pdf",
+      "flight_start": "2026-05-25",
+      "flight_end": "2028-05-31"
+     }
+    ]
+   }
+  },
+  "katz-ecr": {
+   "net_ratio": {
+    "n": 1156,
+    "fail": 44,
+    "rate": 0.0381,
+    "examples": [
+     {
+      "file_id": "f6ff534c-f57d-4673-8000-9deb85691fec",
+      "call": "KRXI-TV",
+      "file_name": "NRXI 20133818 LOMBARDO STAITON CONTRACT",
+      "local_path": "data/pdfs/48360/2026/f6ff534c-f57d-4673-8000-9deb85691fec.pdf",
+      "gross": 2960.0,
+      "net": 3536.0,
+      "ratio": 1.1946
+     },
+     {
+      "file_id": "7f0e4d3b-b86c-4886-a861-7fbf0abf6bb2",
+      "call": "WPGH-TV",
+      "file_name": "GARRITY FOR GOV #28739786 confirmation contract",
+      "local_path": "data/pdfs/73875/2026/7f0e4d3b-b86c-4886-a861-7fbf0abf6bb2.pdf",
+      "gross": 9150.0,
+      "net": 10837.5,
+      "ratio": 1.1844
+     },
+     {
+      "file_id": "9a721406-75de-4cf8-9521-bd0249f6714c",
+      "call": "WPGH-TV",
+      "file_name": "GARRITY FOR GOV #28739786 confirmation contract rev 1",
+      "local_path": "data/pdfs/73875/2026/9a721406-75de-4cf8-9521-bd0249f6714c.pdf",
+      "gross": 9150.0,
+      "net": 10837.5,
+      "ratio": 1.1844
+     }
+    ]
+   },
+   "flight_range": {
+    "n": 1818,
+    "fail": 3,
+    "rate": 0.0017,
+    "examples": [
+     {
+      "file_id": "d2e82ff2-665f-442c-aa2d-4ad751c9dbfa",
+      "call": "WSMH",
+      "file_name": "Michigan New Leadership Coalition contract 6813706",
+      "local_path": "data/pdfs/21737/2026/d2e82ff2-665f-442c-aa2d-4ad751c9dbfa.pdf",
+      "flight_start": "2026-04-14",
+      "flight_end": "2026-01-19"
+     },
+     {
+      "file_id": "171d01a2-15ce-4eac-8a92-b6efebfe4e0b",
+      "call": "WSMH",
+      "file_name": "Kristen McDonald Rivet Contract 7062609 Rev 8-7",
+      "local_path": "data/pdfs/21737/2026/171d01a2-15ce-4eac-8a92-b6efebfe4e0b.pdf",
+      "flight_start": "2026-10-27",
+      "flight_end": "2028-11-02"
+     },
+     {
+      "file_id": "f8e628d4-8cdd-4154-83e4-556296d3453f",
+      "call": "WSMH",
+      "file_name": "Kristen McDonald Rivet Contract 7062222 Rev 9-17",
+      "local_path": "data/pdfs/21737/2026/f8e628d4-8cdd-4154-83e4-556296d3453f.pdf",
+      "flight_start": "2028-09-22",
+      "flight_end": "2026-09-28"
+     }
+    ]
+   },
+   "gross_range": {
+    "n": 1176,
+    "fail": 0,
+    "rate": 0.0,
+    "examples": []
+   },
+   "order_no_filename": {
+    "n": 1469,
+    "fail": 7,
+    "rate": 0.0048,
+    "examples": [
+     {
+      "file_id": "42fa00b1-4b3a-4f94-b31a-056b77f68ebb",
+      "call": "WSMH",
+      "file_name": "House Majority PAC Contract 9690458 Rev 8-27",
+      "local_path": "data/pdfs/21737/2026/42fa00b1-4b3a-4f94-b31a-056b77f68ebb.pdf",
+      "order_no": "6960458",
+      "in_name": [
+       "9690458"
+      ]
+     },
+     {
+      "file_id": "2565c639-1245-436a-83d6-7690dc43cdf2",
+      "call": "KSNV",
+      "file_name": "KSNV FORD 7174910 ORD",
+      "local_path": "data/pdfs/10179/2026/2565c639-1245-436a-83d6-7690dc43cdf2.pdf",
+      "order_no": "7179410",
+      "in_name": [
+       "7174910"
+      ]
+     },
+     {
+      "file_id": "0ae70e5e-2790-4feb-8c46-8f06138ca53a",
+      "call": "KSNV",
+      "file_name": "KSNV BUCK 7079388 ORD",
+      "local_path": "data/pdfs/10179/2026/0ae70e5e-2790-4feb-8c46-8f06138ca53a.pdf",
+      "order_no": "7079338",
+      "in_name": [
+       "7079388"
+      ]
+     }
+    ]
+   },
+   "dup_order_cross": {
+    "n": 120,
+    "fail": 0,
+    "rate": 0.0,
+    "examples": []
+   },
+   "order_no_from_filename": {
+    "n": 2,
+    "fail": 2,
+    "rate": 1.0,
+    "examples": [
+     {
+      "file_id": "ced5880d-26cc-449b-8bd8-4f27c74f47b4",
+      "call": "WGTQ",
+      "file_name": "WGTU Abdul ElSayed 7132293 9.22.26-9.28.26",
+      "local_path": "data/pdfs/59279/2026/ced5880d-26cc-449b-8bd8-4f27c74f47b4.pdf",
+      "order_no": "7132293"
+     },
+     {
+      "file_id": "3ed6b2e1-640d-4bd9-befb-f91951985900",
+      "call": "WBSF",
+      "file_name": "WinSenate Contract 7095513",
+      "local_path": "data/pdfs/82627/2026/3ed6b2e1-640d-4bd9-befb-f91951985900.pdf",
+      "order_no": "7095513"
+     }
+    ]
+   }
+  },
+  "wideorbit-contract-ocr": {
+   "net_ratio": {
+    "n": 3980,
+    "fail": 7,
+    "rate": 0.0018,
+    "examples": [
+     {
+      "file_id": "6b4226b3-cd8d-4e43-8b3b-7bfd50183106",
+      "call": "WJRT-TV",
+      "file_name": "182645PutProgressFirstJan5-Jan30Orig",
+      "local_path": "data/pdfs/21735/2026/6b4226b3-cd8d-4e43-8b3b-7bfd50183106.pdf",
+      "gross": 11350.0,
+      "net": 10215.0,
+      "ratio": 0.9
+     },
+     {
+      "file_id": "7d1229f8-59c4-483f-8cf7-7d52786e3577",
+      "call": "WFQX-TV",
+      "file_name": "PERRY JOHNSON - WFQX 58416 REV1",
+      "local_path": "data/pdfs/25396/2026/7d1229f8-59c4-483f-8cf7-7d52786e3577.pdf",
+      "gross": 4540.0,
+      "net": 3.85,
+      "ratio": 0.0008
+     },
+     {
+      "file_id": "9e20c7fb-1ee5-4403-9589-d3b2fd01c56c",
+      "call": "WFQX-TV",
+      "file_name": "PPF - WFQX 59324",
+      "local_path": "data/pdfs/25396/2026/9e20c7fb-1ee5-4403-9589-d3b2fd01c56c.pdf",
+      "gross": 1380.0,
+      "net": 4.17,
+      "ratio": 0.003
+     }
+    ]
+   },
+   "flight_range": {
+    "n": 3921,
+    "fail": 2,
+    "rate": 0.0005,
+    "examples": [
+     {
+      "file_id": "b3c5adc0-1b21-4227-9872-4ea0a23205a8",
+      "call": "WHO-DT",
+      "file_name": "Bohannan Starts 090126 Rev 3",
+      "local_path": "data/pdfs/66221/2026/b3c5adc0-1b21-4227-9872-4ea0a23205a8.pdf",
+      "flight_start": "2026-09-01",
+      "flight_end": "2026-08-07"
+     },
+     {
+      "file_id": "eeaf4bfa-2979-4e18-9cee-4fc486695e0c",
+      "call": "WWTV",
+      "file_name": "PERRY JOHNSON - WWTV 58219",
+      "local_path": "data/pdfs/26994/2026/eeaf4bfa-2979-4e18-9cee-4fc486695e0c.pdf",
+      "flight_start": "2026-04-29",
+      "flight_end": "2026-02-02"
+     }
+    ]
+   },
+   "gross_range": {
+    "n": 4150,
+    "fail": 0,
+    "rate": 0.0,
+    "examples": []
+   },
+   "order_no_filename": {
+    "n": 1335,
+    "fail": 79,
+    "rate": 0.0592,
+    "examples": [
+     {
+      "file_id": "b8fde4e3-d74b-4a99-83fb-82e491b88f12",
+      "call": "WHO-DT",
+      "file_name": "Naig Starts 1021226",
+      "local_path": "data/pdfs/66221/2026/b8fde4e3-d74b-4a99-83fb-82e491b88f12.pdf",
+      "order_no": "8419672",
+      "in_name": [
+       "1021226"
+      ]
+     },
+     {
+      "file_id": "238ca3af-4700-4c35-9038-3a616eed5084",
+      "call": "WHO-DT",
+      "file_name": "DCCC-Trone Starts 0922926",
+      "local_path": "data/pdfs/66221/2026/238ca3af-4700-4c35-9038-3a616eed5084.pdf",
+      "order_no": "5417429",
+      "in_name": [
+       "0922926"
+      ]
+     },
+     {
+      "file_id": "3b04c004-805d-4a3a-a165-666b610964d5",
+      "call": "WHO-DT",
+      "file_name": "DCCC-Trone Starts 0922926 Rev 1",
+      "local_path": "data/pdfs/66221/2026/3b04c004-805d-4a3a-a165-666b610964d5.pdf",
+      "order_no": "5417429",
+      "in_name": [
+       "0922926"
+      ]
+     }
+    ]
+   },
+   "order_no_from_filename": {
+    "n": 152,
+    "fail": 152,
+    "rate": 1.0,
+    "examples": [
+     {
+      "file_id": "37618b89-4565-45b4-a531-0437e14b554d",
+      "call": "WHO-DT",
+      "file_name": "Naig Starts 1021226 Rev 1(Deleted)",
+      "local_path": "data/pdfs/66221/2026/37618b89-4565-45b4-a531-0437e14b554d.pdf",
+      "order_no": "1021226"
+     },
+     {
+      "file_id": "fc9f8d09-ecb2-4253-8271-c2ce453145e1",
+      "call": "WBRE-TV",
+      "file_name": "Tyler Meyers 5275604 Rev 2",
+      "local_path": "data/pdfs/71225/2026/fc9f8d09-ecb2-4253-8271-c2ce453145e1.pdf",
+      "order_no": "5275604"
+     },
+     {
+      "file_id": "2af10446-3895-4f50-b495-abf0301f22ef",
+      "call": "WBRE-TV",
+      "file_name": "Rosemary Brown 5364168 Rev 0",
+      "local_path": "data/pdfs/71225/2026/2af10446-3895-4f50-b495-abf0301f22ef.pdf",
+      "order_no": "5364168"
+     }
+    ]
+   },
+   "dup_order_cross": {
+    "n": 14,
+    "fail": 13,
+    "rate": 0.9286,
+    "examples": [
+     {
+      "file_id": "150981c2-fe0a-49b1-bd34-ff10fbd3f1ea",
+      "call": "WHO-DT",
+      "file_name": "WinSenate Starts 092926 Rev 2",
+      "local_path": "data/pdfs/66221/2026/150981c2-fe0a-49b1-bd34-ff10fbd3f1ea.pdf",
+      "order_no": "9914573",
+      "stations": [
+       12033,
+       43847,
+       66221
+      ]
+     },
+     {
+      "file_id": "e475b373-d642-40bb-ab0a-dc0770328d1f",
+      "call": "WHO-DT",
+      "file_name": "VoteVets Starts 052026",
+      "local_path": "data/pdfs/66221/2026/e475b373-d642-40bb-ab0a-dc0770328d1f.pdf",
+      "order_no": "9914573",
+      "stations": [
+       12033,
+       43847,
+       66221
+      ]
+     },
+     {
+      "file_id": "c3b1453d-3b3b-4890-873b-5518722724ca",
+      "call": "WHO-DT",
+      "file_name": "SLF PAC Starts 092326 Rev 2",
+      "local_path": "data/pdfs/66221/2026/c3b1453d-3b3b-4890-873b-5518722724ca.pdf",
+      "order_no": "9920140",
+      "stations": [
+       12033,
+       66221
+      ]
+     }
+    ]
+   }
+  },
+  "locality-worksheet": {
+   "order_no_filename": {
+    "n": 71,
+    "fail": 0,
+    "rate": 0.0,
+    "examples": []
+   },
+   "flight_range": {
+    "n": 450,
+    "fail": 0,
+    "rate": 0.0,
+    "examples": []
+   },
+   "gross_range": {
+    "n": 556,
+    "fail": 0,
+    "rate": 0.0,
+    "examples": []
+   },
+   "order_no_from_filename": {
+    "n": 4,
+    "fail": 4,
+    "rate": 1.0,
+    "examples": [
+     {
+      "file_id": "727dc64e-12b5-43e2-ab75-643f65f49cf9",
+      "call": "KRXI-TV",
+      "file_name": "KRXI 20143286 LOMBARDO STATION CONTRACT",
+      "local_path": "data/pdfs/48360/2026/727dc64e-12b5-43e2-ab75-643f65f49cf9.pdf",
+      "order_no": "20143286"
+     },
+     {
+      "file_id": "b2a06051-fbe7-456b-812d-7b42d7864dde",
+      "call": "KRXI-TV",
+      "file_name": "KRXI 20143276  SERVICE FIRST STATION CONTRACT",
+      "local_path": "data/pdfs/48360/2026/b2a06051-fbe7-456b-812d-7b42d7864dde.pdf",
+      "order_no": "20143276"
+     },
+     {
+      "file_id": "d0a9ec1d-2bca-46c7-abbf-8d2aa371f129",
+      "call": "KRXI-TV",
+      "file_name": "NRXI 20143274 SERVICE FIRST STATION CONTRACT",
+      "local_path": "data/pdfs/48360/2026/d0a9ec1d-2bca-46c7-abbf-8d2aa371f129.pdf",
+      "order_no": "20143274"
+     }
+    ]
+   }
+  },
+  "eport": {
+   "order_no_filename": {
+    "n": 10,
+    "fail": 0,
+    "rate": 0.0,
+    "examples": []
+   },
+   "flight_range": {
+    "n": 18,
+    "fail": 0,
+    "rate": 0.0,
+    "examples": []
+   },
+   "gross_range": {
+    "n": 18,
+    "fail": 0,
+    "rate": 0.0,
+    "examples": []
+   }
+  },
+  "wideorbit-order-ocr": {
+   "net_ratio": {
+    "n": 1091,
+    "fail": 7,
+    "rate": 0.0064,
+    "examples": [
+     {
+      "file_id": "f482e0d3-09d9-4a8a-adb0-447445abdffb",
+      "call": "WFRV-TV",
+      "file_name": "Build American Ai 5393457 09.15-09.21",
+      "local_path": "data/pdfs/9635/2026/f482e0d3-09d9-4a8a-adb0-447445abdffb.pdf",
+      "gross": 27225.0,
+      "net": 18041.25,
+      "ratio": 0.6627
+     },
+     {
+      "file_id": "2f379c20-5e41-4d8f-be7a-85b566131391",
+      "call": "WFRV-TV",
+      "file_name": "Build American Ai 5393457 9.15-9.21.26",
+      "local_path": "data/pdfs/9635/2026/2f379c20-5e41-4d8f-be7a-85b566131391.pdf",
+      "gross": 27225.0,
+      "net": 18041.25,
+      "ratio": 0.6627
+     },
+     {
+      "file_id": "ecc2810c-b707-455a-afc9-744a7562bd1f",
+      "call": "WJBF",
+      "file_name": "5360527 Jon Ossoff 8.10.26",
+      "local_path": "data/pdfs/27140/2026/ecc2810c-b707-455a-afc9-744a7562bd1f.pdf",
+      "gross": 17310.0,
+      "net": 144713.5,
+      "ratio": 8.3601
+     }
+    ]
+   },
+   "order_no_filename": {
+    "n": 561,
+    "fail": 24,
+    "rate": 0.0428,
+    "examples": [
+     {
+      "file_id": "b886cf20-9ce0-4998-a4ba-23f90caec33e",
+      "call": "WJET-TV",
+      "file_name": "Ryan Bizzarro WJET Order 5441743 October 27 thru November 2 2026, NABPB",
+      "local_path": "data/pdfs/65749/2026/b886cf20-9ce0-4998-a4ba-23f90caec33e.pdf",
+      "order_no": "8441743",
+      "in_name": [
+       "5441743"
+      ]
+     },
+     {
+      "file_id": "010949e5-593a-4142-afd6-ccb25df03302",
+      "call": "WDIV-TV",
+      "file_name": "POL-A Al-Sayed 738516R3",
+      "local_path": "data/pdfs/53114/2026/010949e5-593a-4142-afd6-ccb25df03302.pdf",
+      "order_no": "739316",
+      "in_name": [
+       "738516"
+      ]
+     },
+     {
+      "file_id": "ae996aaa-ba68-4baf-b456-85c3e93911ee",
+      "call": "WNEM-TV",
+      "file_name": "ORD_4472925_Jul14-Jul20",
+      "local_path": "data/pdfs/41221/2026/ae996aaa-ba68-4baf-b456-85c3e93911ee.pdf",
+      "order_no": "4472926",
+      "in_name": [
+       "4472925"
+      ]
+     }
+    ]
+   },
+   "flight_range": {
+    "n": 1129,
+    "fail": 4,
+    "rate": 0.0035,
+    "examples": [
+     {
+      "file_id": "0f341c97-055b-4f83-b2f8-3211f2f3c3c2",
+      "call": "WDIV-TV",
+      "file_name": "POL-ISS-Congressional Leadership Fund 736037R3",
+      "local_path": "data/pdfs/53114/2026/0f341c97-055b-4f83-b2f8-3211f2f3c3c2.pdf",
+      "flight_start": "2026-09-23",
+      "flight_end": "2026-09-20"
+     },
+     {
+      "file_id": "921d5e77-4fc5-4c60-9920-0b4bdac309f4",
+      "call": "WDIV-TV",
+      "file_name": "POL-ISS-Congressional Leadership Fund 736037R4",
+      "local_path": "data/pdfs/53114/2026/921d5e77-4fc5-4c60-9920-0b4bdac309f4.pdf",
+      "flight_start": "2026-09-23",
+      "flight_end": "2026-09-20"
+     },
+     {
+      "file_id": "21ac74a3-8dc0-4a53-8c07-f87a9cfb93cd",
+      "call": "WALB",
+      "file_name": "Order 1 Est. #527602 (revised)",
+      "local_path": "data/pdfs/70713/2026/21ac74a3-8dc0-4a53-8c07-f87a9cfb93cd.pdf",
+      "flight_start": "2026-08-27",
+      "flight_end": "2026-06-02"
+     }
+    ]
+   },
+   "gross_range": {
+    "n": 1132,
+    "fail": 0,
+    "rate": 0.0,
+    "examples": []
+   },
+   "order_no_from_filename": {
+    "n": 98,
+    "fail": 98,
+    "rate": 1.0,
+    "examples": [
+     {
+      "file_id": "e98f9fa9-3ce1-4ced-b6c1-6886a4cc1728",
+      "call": "WJBF",
+      "file_name": "5292257 Patriots for South Carolina PAC 6.5.26",
+      "local_path": "data/pdfs/27140/2026/e98f9fa9-3ce1-4ced-b6c1-6886a4cc1728.pdf",
+      "order_no": "5292257"
+     },
+     {
+      "file_id": "958d7fd8-0e2e-4ff9-ae27-9f3242433f1f",
+      "call": "WJBF",
+      "file_name": "5385985 Annie Andrews 9.1.26",
+      "local_path": "data/pdfs/27140/2026/958d7fd8-0e2e-4ff9-ae27-9f3242433f1f.pdf",
+      "order_no": "5385985"
+     },
+     {
+      "file_id": "82385659-08e5-4f54-96ef-0e7df7370af0",
+      "call": "WJCL",
+      "file_name": "Warren for Supreme Court Invoice 4417899.1 5.29.26",
+      "local_path": "data/pdfs/37174/2026/82385659-08e5-4f54-96ef-0e7df7370af0.pdf",
+      "order_no": "4417899"
+     }
+    ]
+   }
+  },
+  "sinclair-contract": {
+   "order_no_filename": {
+    "n": 87,
+    "fail": 1,
+    "rate": 0.0115,
+    "examples": [
+     {
+      "file_id": "31efb4b7-7a30-4170-a9a2-3cf0e99ac65f",
+      "call": "WCWF",
+      "file_name": "Chris Taylor for WI Supreme Court-D 6845475 2-10-26",
+      "local_path": "data/pdfs/73042/2026/31efb4b7-7a30-4170-a9a2-3cf0e99ac65f.pdf",
+      "order_no": "6845490",
+      "in_name": [
+       "6845475"
+      ]
+     }
+    ]
+   },
+   "flight_range": {
+    "n": 84,
+    "fail": 0,
+    "rate": 0.0,
+    "examples": []
+   },
+   "gross_range": {
+    "n": 87,
+    "fail": 0,
+    "rate": 0.0,
+    "examples": []
+   },
+   "dup_order_cross": {
+    "n": 10,
     "fail": 0,
     "rate": 0.0,
     "examples": []

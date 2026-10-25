@@ -1,9 +1,10 @@
 <script>
   import { creativesHere } from '../here.js';
   import { num, CATS, catShort, slugOf } from '../data.js';
-  let { found } = $props();
+  let { found, idx = null } = $props();
+  import Coverage from '../Coverage.svelte';
   let list = $state.raw([]), mode = $state('cloud'), loading = $state(true);
-  $effect(() => { loading = true; const f = found; creativesHere(f).then(c => { list = c; loading = false; }); });
+  $effect(() => { loading = true; const f = found; creativesHere(f).then(c => { list = c; loading = false; }).catch(() => { list = []; loading = false; }); });
   const byBuyer = $derived.by(() => {
     const m = new Map();
     for (const c of list) { const k = c.buyer || `(${c.prefix}…)`; const e = m.get(k) || { buyer: k, category: c.category, airings: 0, creatives: 0, slug: c.buyer ? slugOf(c.category, c.buyer) : null, top: c.ad_id }; e.airings += c.airings; e.creatives += 1; m.set(k, e); }
@@ -18,6 +19,7 @@
   <span class="muted small" style="align-self:center">{num(list.length)} creatives · {num(list.reduce((t, c) => t + c.airings, 0))} airings</span>
 </div>
 {#if loading}<div class="muted small">Loading…</div>
+{:else if !list.length}<Coverage {found} {idx} what="aired ads on record" />
 {:else if mode === 'cloud'}
   <div class="cloud">{#each byBuyer.slice(0, 80) as b (b.buyer)}<a href={b.slug ? `/buyers/${b.slug}` : `/ads/${b.top}`} style="font-size:{size(b.airings, maxB).toFixed(0)}px;color:{CATS[b.category] || CATS.Other};text-decoration:none" title="{b.buyer} · {num(b.airings)} airings · {b.creatives} creatives">{b.buyer}</a>{/each}</div>
 {:else}

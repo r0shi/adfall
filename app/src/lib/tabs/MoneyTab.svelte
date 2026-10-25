@@ -1,9 +1,10 @@
 <script>
   import { buyersHere, pivot } from '../here.js';
   import { usd, num, CATS, catShort } from '../data.js';
+  import Coverage from '../Coverage.svelte';
   let { found, all, idx = null } = $props();
   let buyers = $state.raw([]), by = $state('buyer'), cat = $state('All'), loading = $state(true);
-  $effect(() => { loading = true; const f = found; buyersHere(f, all, idx).then(b => { buyers = b; loading = false; }); });
+  $effect(() => { loading = true; const f = found; buyersHere(f, all, idx).then(b => { buyers = b; loading = false; }).catch(() => { buyers = []; loading = false; }); });
   const filtered = $derived(cat === 'All' ? buyers : buyers.filter(b => b.category === cat));
   const rows = $derived(pivot(filtered, by));
   const total = $derived(filtered.reduce((t, b) => t + b.booked, 0));
@@ -16,6 +17,7 @@
 </div>
 <div class="chips" style="margin:0 0 8px">{#each ['All', ...Object.keys(CATS).filter(c => c !== 'Other')] as c}<span class="chip" class:on={cat === c} onclick={() => cat = c} role="button" tabindex="0">{catShort(c)}</span>{/each}</div>
 {#if loading}<div class="muted small">Loading…</div>
+{:else if !buyers.length}<Coverage {found} {idx} />
 {:else}
   <div class="muted small" style="margin-bottom:6px"><b>{usd(total)}</b> booked by {filtered.length} buyers on {found.length} stations · {rows.length} {by === 'buyer' ? 'buyers' : by === 'party' ? 'parties' : by === 'agency' ? 'agencies' : 'categories'}</div>
   {#each rows.slice(0, 40) as r (r.key)}

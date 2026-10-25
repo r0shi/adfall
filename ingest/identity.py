@@ -97,11 +97,11 @@ def match_candidate(label, states, cands_by_state):
 
 
 def main():
-    with Stage('identity') as st:
-        build(st)
+    with Stage('identity') as stage:
+        build(stage)
 
 
-def build(st):
+def build(stage):
     if not os.path.exists(os.path.join(FEC, 'cn.txt')):
         raise FileNotFoundError('data/fec/cn.txt missing: run `make fec` first')
     cands, cmtes = load_fec()
@@ -245,9 +245,9 @@ def build(st):
     merged = sum(1 for b in buyers.values() if len(b["labels"]) > 1)
     log.info(f"methods: {dict(stats)}")
     log.info(f"{len(rows)} labels -> {len(buyers)} buyers ({merged} merged from 2+ labels)")
-    st.count("labels", len(rows)); st.count("buyers", len(buyers)); st.count("merged", merged)
+    stage.count("labels", len(rows)); stage.count("buyers", len(buyers)); stage.count("merged", merged)
     for k, v in stats.items():
-        st.count("method_" + k, v)
+        stage.count("method_" + k, v)
     for b in sorted(buyers.values(), key=lambda b: -len(b["labels"]))[:12]:
         log.info(f"  {len(b['labels']):3d}  {b['category']:8s} {b['method']:14s} {b['name'][:40]:40s} <- {' | '.join(b['labels'][:4])[:110]}")
 

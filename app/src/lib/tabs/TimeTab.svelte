@@ -2,7 +2,8 @@
   import Chart from '../Chart.svelte';
   import { tl } from '../time.svelte.js';
   import { stationDaily, usd, num } from '../data.js';
-  let { found } = $props();
+  let { found, idx = null } = $props();
+  import Coverage from '../Coverage.svelte';
   let daily = $state.raw(null);
   stationDaily().then(d => daily = d);
   const today = new Date().toISOString().slice(0, 10);
@@ -20,6 +21,7 @@
   const totals = $derived({ booked: weekly.reduce((t, w) => t + w.booked, 0), invoiced: weekly.reduce((t, w) => t + w.invoiced, 0), ahead: weekly.filter(w => w.future).reduce((t, w) => t + w.booked, 0) });
 </script>
 {#if !daily}<div class="muted small">Loading…</div>
+{:else if !weekly.length}<Coverage {found} {idx} what="spending over time" />
 {:else}
   <div class="muted small" style="margin-bottom:6px"><b>{usd(totals.booked)}</b> booked on these stations · {usd(totals.invoiced)} invoiced so far{totals.ahead ? ` · ${usd(totals.ahead)} scheduled ahead` : ''}</div>
   <Chart height={200} make={(Plot, width, height) => Plot.plot({

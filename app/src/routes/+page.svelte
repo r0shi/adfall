@@ -54,12 +54,12 @@
     {:else if layer === 'animate'}<div class="muted small" style="margin-top:6px">Booked $ reaching each cell, by the window on the bar below.{hover ? ' ' + fmtHover(hover) : ''}</div>{/if}
   </div>
   {#if loc.p}
-    <Popover {api} anchor={loc.p} title={loc.label} sub="{loc.found.length} stations reach here{covered.length ? ` · ${usd(total)} booked ${idx.year}` : ''}" tabs={TABS} bind:active={tab} bind:collapsed onclose={() => { loc.p = null; loc.found = []; history.replaceState(null, '', location.pathname); }}>
+    <Popover {api} anchor={loc.p} title={loc.label} sub="{loc.found.length} stations reach here{covered.length ? ` · ${covered.length} with filings · ${usd(total)} booked ${idx.year}` : ' · none crawled yet'}" tabs={TABS} bind:active={tab} bind:collapsed onclose={() => { loc.p = null; loc.found = []; history.replaceState(null, '', location.pathname); }}>
       {#if covered.length}<div class="catbar" style="margin:0 0 10px">{#each Object.entries(byCat).sort((a, b) => b[1] - a[1]) as [c, v]}<i style="width:{(100 * v / total).toFixed(1)}%;background:{CATS[c] || CATS.Other}" title="{c}: {usd(v)}"></i>{/each}</div>{/if}
       {#if tab === 'stations'}<StationsTab found={loc.found} p={loc.p} {idx} {api} />
       {:else if tab === 'money'}<MoneyTab found={loc.found} all={loc.all} {idx} />
-      {:else if tab === 'ads'}<AdsTab found={loc.found} />
-      {:else}<TimeTab found={loc.found} />{/if}
+      {:else if tab === 'ads'}<AdsTab found={loc.found} {idx} />
+      {:else}<TimeTab found={loc.found} {idx} />{/if}
     </Popover>
   {/if}
   {#if layer === 'animate' && framer}<Timeline {series} label={loc.p ? `${loc.found.length} stations here` : `${framer.byStation.size} stations`} />{/if}

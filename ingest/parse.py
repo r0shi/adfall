@@ -41,8 +41,9 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OCR_DIR = os.path.join(ROOT, "data", "ocr")
 TEXT_DIR = os.path.join(ROOT, "data", "text")
 MIN_TEXT = 200                     # fewer chars than this in the text layer: image-only, needs OCR
-NUM = r"(?:\d{1,3}(?:[,.]\d{3})*|\d{4,})[.:;]\d\d"     # 22,525.00 | OCR 22.525.00 / 22,525:00 | 8820.00; stops before a glued rating (80,500.00118.70)
-MONEY = r"\$?\(?-?" + NUM + r"\)?"
+NUM_TEXT = r"\d{1,3}(?:,\d{3})*\.\d\d"                      # text layer: always comma-grouped; stops before a glued rating ("$6,000.007.44")
+NUM = r"(?:\d{1,3}(?:[,.]\d{3})*|\d{4,})[.:;]\d\d"     # OCR: 22.525.00 / 22,525:00 / 8820.00 also occur. Only for OCR templates.
+MONEY = r"\$?\(?-?" + NUM_TEXT + r"\)?"
 DATE = r"\d\d?/\d\d?/\d\d(?:\d\d)?"
 
 
@@ -222,13 +223,13 @@ def parse_order(text):
     m = re.search(r"Demographic\s*\n[^\n]*\n([^\n]+)", text)
     if m and not re.match(r"Ch\*|Attention", m.group(1)):
         d["agency"] = clean(m.group(1))
-    m = re.search(r"^Totals\s+(\d+)\s+(" + MONEY + ")", text, re.M)
+    m = re.search(r"^(" + MONEY + r")(" + MONEY + r")(\d+)Totals", text, re.M)   # "$28,177.50$33,150.0087Totals ($4,972.50)" -> net, gross, spots (the order summary)
     if m:
-        d["spots"], d["gross"] = int(m.group(1)), money(m.group(2))
-    m = re.search(r"^(" + MONEY + r")(" + MONEY + r")\d+Totals", text, re.M)       # "$28,177.50$33,150.0087Totals ($4,972.50)" -> net, gross
-    if m:
-        d["net"] = money(m.group(1))
-        d.setdefault("gross", money(m.group(2)))
+        d["net"], d["gross"], d["spots"] = money(m.group(1)), money(m.group(2)), int(m.group(3))
+    else:
+        tots = re.findall(r"^Totals\s+(\d+)\s+(" + MONEY + ")", text, re.M)        # page/period totals; the last one is the order total
+        if tots:
+            d["spots"], d["gross"] = int(tots[-1][0]), money(tots[-1][1])
     lines = []
     for lm in LINE_RX.finditer(text):
         lines.append({"line": int(lm.group(1)), "start": iso(lm.group(2)), "end": iso(lm.group(3)),
@@ -542,7 +543,7 @@ def parse_invoice(text):
     m = re.search(r"Total Spots\s+(\d+)", text)
     if m:
         d["spots"] = int(m.group(1))
-    spots = re.findall(r"(\d\d/\d\d/\d\d) (\d{1,2}:\d\d [AP]M) ([A-Z0-9]{6,16})\b", text)
+    spots = re.findall(r"(\d\d/\d\d/\d\d) (\d{1,2}:\d\d [AP]M) ([A-Za-z0-9]{6,16})\b", text)
     d["ad_ids"] = sorted({s[2] for s in spots})
     d["fields"] = {"aired": [{"date": iso(a), "time": t, "ad_id": c} for a, t, c in spots]}
     return d

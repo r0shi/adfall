@@ -88,6 +88,7 @@ def main(argv=None):
     ap.add_argument("--ocr-workers", type=int, default=4)
     ap.add_argument("--parse-workers", type=int, default=6)
     ap.add_argument("--no-pg", action="store_true", help="skip the Postgres refresh chain")
+    ap.add_argument("--redo-legacy-at-end", action="store_true", help="after all states: re-OCR the old tesseract text with Vision, re-parse, refresh Postgres")
     ap.add_argument("--db", default=db.DEFAULT_DB)
     a = ap.parse_args(argv)
     states = []
@@ -131,6 +132,16 @@ def main(argv=None):
                     break
             el = time.time() - t_start
             log.info("=== %s %s in %s; %d/%d states, elapsed %s, eta %s", state, "done" if ok else "FAILED", hms(time.time() - t0), i, len(todo), hms(el), hms(el / i * (len(todo) - i)))
+        if a.redo_legacy_at_end and consecutive_fail < 3:
+            log.info("=== legacy OCR redo (tesseract text from the first crawl -> Vision)")
+            for name, cmd in (("ocr", stage_cmd("ocr", "--redo-legacy", "--workers", str(a.ocr_workers))), ("parse", stage_cmd("parse", "--only-failed", "--workers", str(a.parse_workers)))):
+                rc, secs, summ = run_stage(cmd, batch="legacy")
+                log.info("  %-6s exit=%d %s  %s", name, rc, hms(secs), summ[-200:])
+                if rc != 0:
+                    st.fail("legacy/" + name, f"exit {rc}: {summ[-200:]}"); break
+            else:
+                if not a.no_pg:
+                    pgr.request("legacy")
         log.info("waiting for the Postgres refresh to finish")
         pgr.wait()
         st.count("pg_refresh_failures", pgr.failures)
