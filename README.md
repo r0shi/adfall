@@ -234,3 +234,19 @@ This product uses the FCC Data API but is not endorsed or certified by the FCC.
   breaks with a slate, so the political ads are not visible on them.
 - Buyer identity is alias-table matching with FEC confirmation; mistakes are
   corrected in `data/buyer_overrides.yaml`.
+
+## License
+
+The code is released under the [MIT License](LICENSE).
+
+Dependencies are MIT, BSD, ISC, Apache-2.0 or Unlicense, with one exception:
+`psycopg` is LGPL-3.0. It is imported unmodified and installed from PyPI by
+whoever runs the pipeline, which the LGPL permits without affecting this
+project's license. PostGIS (GPL) and tippecanoe (BSD) run as separate programs
+and are not distributed here.
+
+The data files under `web/data` and `data/` are not covered by the MIT license.
+They derive from FCC, Census and FEC public records, which are in the public
+domain, and from NewsON's station list and the campaigns' public channels, which
+remain their owners'. Map tiles come from OpenFreeMap and carry OpenStreetMap's
+ODbL attribution in the app.
