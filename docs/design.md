@@ -370,7 +370,8 @@ app reaches parity on hosting.
 | Station `/stations/[fac]` | `src/routes/stations/[fac]/+page.svelte` | per-station page: links, totals, weekly series, buyers, most-aired creatives |
 | Creative `/ads/[ad_id]` | `src/routes/ads/[ad_id]/+page.svelte` | per-creative page: buyer, airings by day and by hour, by station |
 | Explore `/explore` | `src/routes/explore/+page.svelte`, `src/lib/duck.js` | DuckDB-WASM over the Parquet marts served under `data/marts/`; small marts load eagerly, big ones when a query names them; presets, results table, auto chart (line for date columns, bars for category columns), CSV download |
-| Over time `/time` | `src/routes/time/+page.svelte` | deck.gl `H3HexagonLayer` over weekly res-5 frames with a scrubber and play; weekly booked/invoiced chart for the place's stations |
+| Timeline bar | `src/lib/Timeline.svelte`, `src/lib/time.svelte.js`, `src/lib/frames.js` | global time state (day, window day/week/cumulative, play, speed, trails) and a translucent bar with the date and a scrubline sparkline; frames are composed in the client from `station_daily.json` × `hex/weights_r5.json` (per-station population shares over cells), so any day, week or cumulative window costs ~20k multiplies, with slow decay ("trails") for previous frames and an accumulate mode |
+| Over time `/time` | `src/routes/time/+page.svelte` | full-bleed map, floating metric/scope card, deck.gl `H3HexagonLayer` over client-composed frames driven by the global timeline bar (design pass step 1); the bar is a component and will mount on the other map views next |
 
 Run: `npm --prefix app run dev` (port 5173) or `npm --prefix app run build`.
 Layout is a map-plus-panel grid that stacks at phone width.

@@ -11,6 +11,7 @@ export const buyers = () => get('buyers.json').then(d => d.buyers);
 export const creatives = () => get('creatives/all.json').then(d => d.creatives);
 export const stationDaily = () => get('station_daily.json');
 export const weeklyHex = () => get('hex/weekly_r5.json');
+export const hexWeights = (res = 5) => get(`hex/weights_r${res}.json`);
 export const hexTotal = (res = 5) => get(`hex/total_r${res}.json`);
 export const build = () => get('build.json').catch(() => ({}));
 

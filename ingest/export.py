@@ -237,6 +237,29 @@ def export_methods(con):
     print("  methods.json", file=sys.stderr)
 
 
+def export_weights(con, res=5):
+    """web/data/hex/weights_r<res>.json: each active station's population-share weights over cells, so the
+    client can compose a frame for any day/week/cumulative window from station_daily (value_cell = sum_s v_s * w_s,cell)."""
+    cells, idx = [], {}
+    stations = {}
+    rows = con.execute("""SELECT sh.facility_id, sh.h3, COALESCE(h.pop,0)*sh.coverage_share AS w
+                          FROM station_hex sh JOIN hex h USING (h3)
+                          WHERE h.res = %s AND sh.facility_id IN (SELECT DISTINCT facility_id FROM station_daily)""", (res,)).fetchall()
+    sums = collections.Counter()
+    for fac, h, w in rows:
+        sums[fac] += float(w or 0)
+    for fac, h, w in rows:
+        w = float(w or 0)
+        if w <= 0 or sums[fac] <= 0:
+            continue
+        if h not in idx:
+            idx[h] = len(cells); cells.append(h)
+        stations.setdefault(fac, []).append([idx[h], round(w / sums[fac], 5)])
+    out = {"res": res, "cells": cells, "stations": stations}
+    json.dump(out, open(os.path.join(WEB, "hex", f"weights_r{res}.json"), "w"), separators=(",", ":"))
+    print(f"  hex/weights_r{res}.json: {len(cells)} cells, {len(stations)} stations, {sum(len(v) for v in stations.values())} weights", file=sys.stderr)
+
+
 def export_time(con):
     rows = con.execute("SELECT facility_id, day, booked, invoiced, spots_aired FROM station_daily ORDER BY 1,2").fetchall()
     json.dump({"columns": ["fac", "day", "booked", "invoiced", "spots_aired"],
@@ -269,7 +292,9 @@ def main():
     with pg.connect() as con:
         if want("methods"):
             export_methods(con)
-        if only is not None and not (only - {"methods"}):
+        if want("weights"):
+            export_weights(con)
+        if only is not None and not (only - {"methods", "weights"}):
             return
         export_stations(con, year, build)
         export_hex(con)

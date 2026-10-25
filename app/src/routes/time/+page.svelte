@@ -1,72 +1,62 @@
 <script>
+  // "Watch the money move": full-bleed map, frames composed in the client, the global timeline bar below.
   import MapView from '$lib/Map.svelte';
-  import Chart from '$lib/Chart.svelte';
+  import Timeline from '$lib/Timeline.svelte';
   import { loc, setLocation } from '$lib/location.svelte.js';
-  import { weeklyHex, stationDaily, usd, num } from '$lib/data.js';
+  import { tl, setRange } from '$lib/time.svelte.js';
+  import { stationDaily, hexWeights, usd, num } from '$lib/data.js';
+  import { Framer } from '$lib/frames.js';
   import { toGeoJSON } from '$lib/geo.js';
-  let api = $state(null), weekly = $state(null), daily = $state(null), wi = $state(0), playing = $state(false), metric = $state('booked');
-  weeklyHex().then(w => { weekly = w; wi = Object.keys(w.weeks).length - 1; });
-  stationDaily().then(d => daily = d);
-  const weeks = $derived(weekly ? Object.keys(weekly.weeks).sort() : []);
-  const week = $derived(weeks[wi]);
-  const METRICS = { booked: ['Booked $ reaching each cell', (r) => r[1]], perperson: ['Booked $ per person', (r) => r[4] ? r[1] / r[4] : 0], spots: ['Spots aired', (r) => r[3]], invoiced: ['Invoiced $', (r) => r[2]] };
-  const valueOf = $derived(METRICS[metric][1]);
-  const maxV = $derived.by(() => { let m = 0; if (weekly) for (const rows of Object.values(weekly.weeks)) for (const r of rows) m = Math.max(m, valueOf(r)); return m || 1; });
-  const facsHere = $derived(new Set(loc.found.map(s => s.fac)));
-  const series = $derived.by(() => {
-    if (!daily) return [];
-    const by = new Map();
-    for (const [fac, day, booked, invoiced, spots] of daily.rows) {
-      if (loc.p && !facsHere.has(fac)) continue;
-      const wk = weekOf(day); const e = by.get(wk) || { week: new Date(wk), booked: 0, invoiced: 0, spots: 0 };
-      e.booked += booked; e.invoiced += invoiced; e.spots += spots; by.set(wk, e);
-    }
-    return [...by.values()].sort((a, b) => a.week - b.week);
+  let api = $state(null), framer = $state(null), daily = $state(null), weights = $state(null), scope = $state('all'), hover = $state(null);
+  Promise.all([stationDaily(), hexWeights(5)]).then(([d, w]) => { daily = d; weights = w; });
+  const METRICS = { booked: ['Booked $', 2], invoiced: ['Invoiced $', 3], spots: ['Spots aired', 4] };
+  $effect(() => { if (daily && weights) { framer = new Framer(daily, weights, METRICS[tl.metric][1]); const days = framer.dayList; setRange(days[0], days[days.length - 1]); } });
+  const facsHere = $derived(scope === 'here' && loc.p ? new Set(loc.found.map(s => s.fac)) : null);
+  const series = $derived(framer ? framer.series(tl.window === 'cumulative' ? 'cumulative' : 'day', facsHere) : []);
+  // stable color scale per window/metric: 98th percentile of cell values over all frames (sampled every 7th day)
+  const scaleMax = $derived.by(() => {
+    if (!framer) return 1; const vals = []; const f = new Framer(daily, weights, METRICS[tl.metric][1]);
+    for (let i = 0; i < f.dayList.length; i += 7) for (const [, v] of f.frame(f.dayList[i], tl.window)) vals.push(v);
+    vals.sort((a, b) => a - b); return vals[Math.floor(vals.length * 0.98)] || 1;
   });
-  function weekOf(day) { const d = new Date(day + 'T00:00:00Z'); const dow = (d.getUTCDay() + 6) % 7; d.setUTCDate(d.getUTCDate() - dow); return d.toISOString().slice(0, 10); }
-  let timer;
-  $effect(() => { clearInterval(timer); if (playing) timer = setInterval(() => { wi = (wi + 1) % weeks.length; if (wi === weeks.length - 1) playing = false; }, 450); return () => clearInterval(timer); });
-  $effect(() => { if (api && loc.p) { api.setContours(toGeoJSON(loc.found)); api.setMarker(loc.p); } });
+  let lastDay = null;
   $effect(() => {
-    if (!api || !weekly || !week) return;
-    const rows = weekly.weeks[week]; const v = valueOf; const mx = maxV; const m = metric; const wk = week;
+    if (!api || !framer || !tl.day) return;
+    const forward = lastDay && tl.day > lastDay; lastDay = tl.day;
+    const decay = tl.trails && forward ? (tl.window === 'day' ? 0.9 : 0.78) : 0;
+    if (!decay) framer.reset();
+    const rows = framer.frame(tl.day, tl.window, { decay, facs: facsHere });
+    const mx = scaleMax;
     import('@deck.gl/geo-layers').then(({ H3HexagonLayer }) => api.setDeckLayers([new H3HexagonLayer({
-      id: 'hex', data: rows, getHexagon: r => r[0], filled: true, extruded: false, stroked: false, pickable: true, opacity: 0.75,
-      getFillColor: r => { const t = Math.sqrt(v(r) / mx); return t <= 0 ? [0, 0, 0, 0] : [200, 16 + 120 * (1 - t), 46 + 150 * (1 - t), 40 + 200 * t]; },
-      updateTriggers: { getFillColor: [m, wk] }
+      id: 'frame', data: rows, getHexagon: r => r[0], filled: true, extruded: false, stroked: false, pickable: true, opacity: 0.8,
+      getFillColor: r => { const t = Math.sqrt(Math.min(1, r[1] / mx)); return t <= 0.02 ? [0, 0, 0, 0] : [200, 16 + 120 * (1 - t), 46 + 150 * (1 - t), 40 + 215 * t]; },
+      onHover: ({ object }) => { hover = object || null; },
+      onClick: ({ object }) => { if (object) import('h3-js').then(h3 => { const [lat, lng] = h3.cellToLatLng(object[0]); setLocation([lat, lng]); }); },
+      transitions: { getFillColor: 250 },
+      updateTriggers: { getFillColor: [tl.day, tl.window, tl.metric, mx] }
     })]));
   });
+  $effect(() => { if (api && loc.p) { api.setContours(toGeoJSON(loc.found)); api.setMarker(loc.p); } });
+  const fmt = (v) => tl.metric === 'spots' ? num(v) : usd(v);
 </script>
 <svelte:head><title>Over time · TV Wormhole</title></svelte:head>
-<div class="shell">
-  <aside class="panel">
-    <header>
-      <h1>Watch the money move</h1>
-      <p class="tag">Booked dollars placed on the days they were scheduled to air, spread over each station's coverage by population. One frame per week.</p>
-      <div class="scrub">
-        <button class="ghost" onclick={() => playing = !playing} disabled={!weeks.length}>{playing ? '❚❚' : '▶'}</button>
-        <input type="range" min="0" max={Math.max(0, weeks.length - 1)} bind:value={wi} />
-        <b style="min-width:92px;text-align:right">{week ? `wk of ${week.slice(5)}` : '…'}</b>
-      </div>
-      <div class="chips">{#each Object.entries(METRICS) as [k, [label]]}<span class="chip" class:on={metric === k} onclick={() => metric = k} role="button" tabindex="0">{label}</span>{/each}</div>
-    </header>
-    <section>
-      <h2>{loc.p ? `Stations reaching ${loc.label}` : 'All crawled stations'} · by week</h2>
-      {#if series.length}
-        <Chart height={200} make={(Plot, width, height) => Plot.plot({
-          width, height, marginLeft: 48, x: { label: null }, y: { label: '$ booked (week)', tickFormat: 's', grid: true },
-          marks: [
-            Plot.areaY(series, { x: 'week', y: 'booked', fill: 'var(--accent)', fillOpacity: 0.15 }),
-            Plot.lineY(series, { x: 'week', y: 'booked', stroke: 'var(--accent)' }),
-            Plot.lineY(series, { x: 'week', y: 'invoiced', stroke: 'var(--muted)', strokeDasharray: '3,3' }),
-            week ? Plot.ruleX([new Date(week)], { stroke: 'var(--fg)', strokeOpacity: 0.5 }) : null,
-            Plot.tip(series, Plot.pointerX({ x: 'week', y: 'booked', title: d => `week of ${d.week.toISOString().slice(0, 10)}\n${usd(d.booked)} booked · ${usd(d.invoiced)} invoiced · ${num(d.spots)} spots aired` }))
-          ]
-        })} />
-        <div class="legend"><span><span class="dot" style="background:var(--accent)"></span>booked</span><span><span class="dot" style="background:var(--muted)"></span>invoiced (lags a billing cycle)</span></div>
-      {:else}<div class="muted small">Loading…</div>{/if}
-      <p class="muted small">Cells are H3 resolution 5 (~250 km²). Color scales with the square root of the week's value so the early weeks stay visible. Click the map to change place.</p>
-    </section>
-  </aside>
-  <div class="mapwrap"><MapView onready={a => api = a} onclick={p => setLocation(p)} zoom={4} /></div>
-</div>
+<div class="shell wide"><div class="mapwrap" style="height:100%">
+  <MapView onready={a => api = a} onclick={p => setLocation(p)} zoom={4} />
+  <div class="float">
+    <b>Watch the money move</b>
+    <div class="muted small">{METRICS[tl.metric][0]} reaching each cell, {tl.window === 'cumulative' ? 'accumulated through' : tl.window === 'week' ? 'in the week ending' : 'on'} the date below. Click a cell or the map to pick a place.</div>
+    <div class="chips" style="margin:8px 0 0">{#each Object.entries(METRICS) as [k, [l]]}<span class="chip" class:on={tl.metric === k} onclick={() => tl.metric = k} role="button" tabindex="0">{l}</span>{/each}</div>
+    <div class="chips" style="margin:4px 0 0"><span class="muted small">Scrubline:</span>
+      <span class="chip" class:on={scope === 'all'} onclick={() => scope = 'all'} role="button" tabindex="0">All crawled</span>
+      <span class="chip" class:on={scope === 'here'} onclick={() => scope = 'here'} role="button" tabindex="0" title={loc.p ? '' : 'Pick a place first'}>{loc.p ? `Reaching ${loc.label}` : 'Reaching a place'}</span></div>
+    {#if hover}<div class="small" style="margin-top:8px"><b>{fmt(hover[2])}</b> this {tl.window === 'cumulative' ? 'cumulative' : tl.window}{tl.trails && hover[1] > hover[2] * 1.01 ? ` · shown ${fmt(hover[1])} with trail` : ''}</div>{/if}
+    <div class="legend" style="display:block;margin-top:8px"><div style="height:8px;border-radius:4px;background:linear-gradient(90deg, rgba(200,136,196,.25), rgb(200,16,46))"></div>
+      <div class="row" style="font-size:11px"><span>0</span><span style="margin-left:auto">{fmt(scaleMax)}+</span></div></div>
+  </div>
+  {#if framer}<Timeline {series} label={facsHere ? `${facsHere.size} stations` : `${framer.byStation.size} stations`} />{/if}
+</div></div>
+<style>
+  .float { position: absolute; top: 12px; left: 12px; z-index: 4; width: 300px; padding: 10px 12px; border-radius: 12px;
+    background: color-mix(in srgb, var(--bg) 78%, transparent); backdrop-filter: blur(10px); border: 1px solid var(--line); }
+  @media (max-width: 800px) { .float { width: calc(100% - 24px); } }
+</style>
