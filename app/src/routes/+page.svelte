@@ -40,7 +40,7 @@
       </section>
     {/if}
     <footer class="muted" style="padding:10px 18px;font-size:12px;border-top:1px solid var(--line);margin-top:auto">
-      {loc.all.length ? `${loc.all.length} licensed stations` : 'Loading stations…'}{meta.date ? ` · data build ${meta.date}` : ''} · Contours: FCC. Streams: NewsON. Money: FCC public political files.
+      {loc.all.length ? `${loc.all.length} licensed stations` : 'Loading stations…'}{meta.date ? ` · data build ${meta.date}` : ''} · Contours: FCC. Streams: NewsON. Money: FCC public political files. <a href="/about">About the data</a>. This product uses the FCC Data API but is not endorsed or certified by the FCC.
     </footer>
   </aside>
   <div class="mapwrap"><MapView onready={a => api = a} onclick={p => setLocation(p)} /></div>

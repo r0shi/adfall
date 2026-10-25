@@ -184,6 +184,59 @@ def export_creative_pages(con):
     print(f"  creatives/id/: {len(by)} files", file=sys.stderr)
 
 
+SOURCES = [
+    {"name": "FCC Online Public Inspection File (OPIF) API", "url": "https://publicfiles.fcc.gov/developer/", "what": "every political-file document each station uploads: folder listing, change feed, and the PDFs",
+     "terms": "https://www.fcc.gov/developer/api-terms-of-service"},
+    {"name": "FCC TV Query", "url": "https://www.fcc.gov/media/radio/tvq-tv-query", "what": "licensed full-power and Class A stations: call sign, community, transmitter, licensee, application IDs"},
+    {"name": "FCC TV service contour data", "url": "https://www.fcc.gov/media/television/tv-service-contour-data-points", "what": "predicted F(50,90) service contours, 360 points per station, updated daily"},
+    {"name": "NewsON", "url": "https://www.newson.us/", "what": "free live and on-demand local newscast streams; station IDs collected from its public search"},
+    {"name": "FEC bulk candidate and committee master files", "url": "https://www.fec.gov/data/browse-data/?tab=bulk-data", "what": "federal candidates and committees for the cycle, used to resolve buyer identity"},
+    {"name": "Census cartographic boundary files (counties)", "url": "https://www.census.gov/geographies/mapping-files/time-series/geo/cartographic-boundary.html", "what": "county polygons"},
+    {"name": "Census county population estimates (2024 vintage)", "url": "https://www.census.gov/programs-surveys/popest.html", "what": "county population, spread into H3 cells by area share"},
+    {"name": "Census Gazetteer ZCTA and place files", "url": "https://www.census.gov/geographies/reference-files/time-series/geo/gazetteer-files.html", "what": "ZIP and city search without an external geocoder"},
+    {"name": "H3", "url": "https://h3geo.org/", "what": "hexagonal cells used for density layers"},
+    {"name": "OpenFreeMap / OpenMapTiles / OpenStreetMap", "url": "https://openfreemap.org/", "what": "basemap tiles"},
+    {"name": "Nominatim (OpenStreetMap)", "url": "https://nominatim.org/", "what": "fallback geocoder for street addresses only"},
+]
+
+
+def export_methods(con):
+    """web/data/methods.json: everything the About page states as fact, computed from the live database."""
+    import importlib
+    q = lambda sql, *p: con.execute(sql, p).fetchall()
+    kinds = {f"{k}/{st}": n for k, st, n in q("SELECT kind, parse_status, COUNT(*) FROM document GROUP BY 1,2")}
+    templates = {t or "unknown": n for t, n in q("SELECT template, COUNT(*) FROM document WHERE kind IN ('order','invoice') GROUP BY 1")}
+    groups = [{"group": g or "other", "stations": n, "docs": d} for g, n, d in q("""SELECT s.station_group, COUNT(DISTINCT s.facility_id), COUNT(f.file_id) FROM station s JOIN opif_file f USING (facility_id)
+                                                                                 WHERE f.deleted_at IS NULL GROUP BY 1 ORDER BY 3 DESC""")]
+    identity = {m or "raw": [n, int(l or 0)] for m, n, l in q("SELECT identity_method, COUNT(*), SUM(raw_labels) FROM buyer WHERE EXISTS (SELECT 1 FROM buyer_station bs WHERE bs.buyer_id=buyer.buyer_id) GROUP BY 1")}
+    hexes = {str(r): n for r, n in q("SELECT res, COUNT(*) FROM hex GROUP BY 1 ORDER BY 1")}
+    modules = {}
+    for m in ("crawl", "update", "ocr", "parse", "entities", "identity", "geo", "aggregate", "export", "tiles", "places"):
+        try:
+            modules[m] = (importlib.import_module(f"ingest.{m}").__doc__ or "").strip()
+        except Exception as e:
+            modules[m] = f"(no description: {e})"
+    out = {
+        "generated": datetime.date.today().isoformat(),
+        "stations": {"licensed": q("SELECT COUNT(*) FROM station")[0][0], "with_documents": q("SELECT COUNT(DISTINCT facility_id) FROM opif_file WHERE deleted_at IS NULL")[0][0],
+                     "states": sorted(x for (x,) in q("SELECT DISTINCT s.state FROM station s JOIN opif_file f USING (facility_id) WHERE f.deleted_at IS NULL") if x),
+                     "with_streams": q("SELECT COUNT(*) FROM station WHERE newson_id IS NOT NULL")[0][0], "by_group": groups},
+        "documents": {"total": q("SELECT COUNT(*) FROM opif_file WHERE deleted_at IS NULL")[0][0], "parsed": q("SELECT COUNT(*) FROM document")[0][0], "by_kind_status": kinds,
+                      "templates": templates, "ocr": q("SELECT COUNT(*) FROM document WHERE source='ocr'")[0][0],
+                      "first_upload": str(q("SELECT MIN(fcc_created_at)::date FROM opif_file")[0][0]), "last_upload": str(q("SELECT MAX(fcc_created_at)::date FROM opif_file")[0][0])},
+        "entities": {"orders": q("SELECT COUNT(*) FROM order_")[0][0], "orders_with_lines": q("SELECT COUNT(DISTINCT order_id) FROM order_line")[0][0], "invoices": q("SELECT COUNT(*) FROM invoice")[0][0],
+                     "invoices_linked": q("SELECT COUNT(*) FROM invoice WHERE order_id IS NOT NULL")[0][0], "spots": q("SELECT COUNT(*) FROM spot")[0][0], "creatives": q("SELECT COUNT(*) FROM creative")[0][0],
+                     "buyers": sum(v[0] for v in identity.values()), "identity": identity, "manual_overrides": sum(1 for l in open(os.path.join(ROOT, "data", "buyer_overrides.yaml")) if ":" in l and not l.startswith("#")) if os.path.exists(os.path.join(ROOT, "data", "buyer_overrides.yaml")) else 0},
+        "money": {"booked": float(q("SELECT COALESCE(SUM(gross),0) FROM order_ WHERE status='booked'")[0][0]), "invoiced": float(q("SELECT COALESCE(SUM(gross),0) FROM invoice")[0][0]),
+                  "first_day": str(q("SELECT MIN(day) FROM spend_daily")[0][0]), "last_day": str(q("SELECT MAX(day) FROM spend_daily")[0][0])},
+        "geography": {"counties": q("SELECT COUNT(*) FROM county")[0][0], "hex_cells": hexes, "coverage_rows": q("SELECT COUNT(*) FROM station_hex")[0][0]},
+        "sources": SOURCES, "modules": modules,
+        "fcc_notice": "This product uses the FCC Data API but is not endorsed or certified by the FCC.",
+    }
+    json.dump(out, open(os.path.join(WEB, "methods.json"), "w"), indent=1)
+    print("  methods.json", file=sys.stderr)
+
+
 def export_time(con):
     rows = con.execute("SELECT facility_id, day, booked, invoiced, spots_aired FROM station_daily ORDER BY 1,2").fetchall()
     json.dump({"columns": ["fac", "day", "booked", "invoiced", "spots_aired"],
@@ -206,9 +259,18 @@ def export_time(con):
 
 
 def main():
+    import argparse
+    ap = argparse.ArgumentParser(); ap.add_argument("--only", help="comma-separated subset: methods,stations,hex,buyers,creatives,time,details,pages,parquet")
+    a = ap.parse_args()
+    only = set(a.only.split(",")) if a.only else None
+    want = lambda k: only is None or k in only
     year = 2026
     build = {"id": datetime.datetime.now(datetime.timezone.utc).strftime("%Y%m%dT%H%M%SZ"), "date": datetime.date.today().isoformat()}
     with pg.connect() as con:
+        if want("methods"):
+            export_methods(con)
+        if only is not None and not (only - {"methods"}):
+            return
         export_stations(con, year, build)
         export_hex(con)
         export_buyers(con)

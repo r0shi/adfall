@@ -1,0 +1,249 @@
+{
+ "generated": "2026-10-24",
+ "stations": {
+  "licensed": 2147,
+  "with_documents": 198,
+  "states": [
+   "AZ",
+   "GA",
+   "IA",
+   "MI",
+   "NC",
+   "NV",
+   "PA",
+   "WI"
+  ],
+  "with_streams": 217,
+  "by_group": [
+   {
+    "group": "other",
+    "stations": 86,
+    "docs": 41138
+   },
+   {
+    "group": "Gray",
+    "stations": 31,
+    "docs": 13816
+   },
+   {
+    "group": "Nexstar",
+    "stations": 24,
+    "docs": 13060
+   },
+   {
+    "group": "Hearst",
+    "stations": 7,
+    "docs": 4713
+   },
+   {
+    "group": "Tegna",
+    "stations": 8,
+    "docs": 4678
+   },
+   {
+    "group": "Scripps",
+    "stations": 10,
+    "docs": 4537
+   },
+   {
+    "group": "CBS",
+    "stations": 3,
+    "docs": 3268
+   },
+   {
+    "group": "Fox",
+    "stations": 5,
+    "docs": 2786
+   },
+   {
+    "group": "Graham",
+    "stations": 1,
+    "docs": 2148
+   },
+   {
+    "group": "Sinclair",
+    "stations": 1,
+    "docs": 998
+   },
+   {
+    "group": "Cox",
+    "stations": 1,
+    "docs": 931
+   },
+   {
+    "group": "NBCUniversal",
+    "stations": 4,
+    "docs": 876
+   },
+   {
+    "group": "Univision",
+    "stations": 2,
+    "docs": 572
+   },
+   {
+    "group": "Entravision",
+    "stations": 2,
+    "docs": 201
+   },
+   {
+    "group": "Ion",
+    "stations": 1,
+    "docs": 70
+   },
+   {
+    "group": "Public",
+    "stations": 11,
+    "docs": 11
+   },
+   {
+    "group": "Religious",
+    "stations": 1,
+    "docs": 1
+   }
+  ]
+ },
+ "documents": {
+  "total": 93804,
+  "parsed": 93750,
+  "by_kind_status": {
+   "other/failed": 244,
+   "order/ok": 24878,
+   "form/ok": 4914,
+   "invoice/ok": 12096,
+   "form/failed": 14401,
+   "other/ok": 32017,
+   "order/failed": 35,
+   "invoice/partial": 1029,
+   "order/partial": 1702,
+   "invoice/failed": 2434
+  },
+  "templates": {
+   "sinclair": 3343,
+   "unknown": 31272,
+   "katz": 3573,
+   "eport": 21,
+   "wideorbit-ocr": 3965
+  },
+  "ocr": 24799,
+  "first_upload": "2025-12-19",
+  "last_upload": "2026-10-24"
+ },
+ "entities": {
+  "orders": 14640,
+  "orders_with_lines": 10084,
+  "invoices": 12939,
+  "invoices_linked": 6787,
+  "spots": 275610,
+  "creatives": 24746,
+  "buyers": 890,
+  "identity": {
+   "fec-committee": [
+    115,
+    300
+   ],
+   "manual": [
+    2,
+    15
+   ],
+   "fec-candidate": [
+    95,
+    531
+   ],
+   "raw": [
+    2,
+    0
+   ],
+   "name-rule": [
+    676,
+    1411
+   ]
+  },
+  "manual_overrides": 17
+ },
+ "money": {
+  "booked": 826411383.92,
+  "invoiced": 447845960.39,
+  "first_day": "2025-10-13",
+  "last_day": "2026-11-15"
+ },
+ "geography": {
+  "counties": 3235,
+  "hex_cells": {
+   "5": 29196,
+   "7": 268952
+  },
+  "coverage_rows": 1514897
+ },
+ "sources": [
+  {
+   "name": "FCC Online Public Inspection File (OPIF) API",
+   "url": "https://publicfiles.fcc.gov/developer/",
+   "what": "every political-file document each station uploads: folder listing, change feed, and the PDFs",
+   "terms": "https://www.fcc.gov/developer/api-terms-of-service"
+  },
+  {
+   "name": "FCC TV Query",
+   "url": "https://www.fcc.gov/media/radio/tvq-tv-query",
+   "what": "licensed full-power and Class A stations: call sign, community, transmitter, licensee, application IDs"
+  },
+  {
+   "name": "FCC TV service contour data",
+   "url": "https://www.fcc.gov/media/television/tv-service-contour-data-points",
+   "what": "predicted F(50,90) service contours, 360 points per station, updated daily"
+  },
+  {
+   "name": "NewsON",
+   "url": "https://www.newson.us/",
+   "what": "free live and on-demand local newscast streams; station IDs collected from its public search"
+  },
+  {
+   "name": "FEC bulk candidate and committee master files",
+   "url": "https://www.fec.gov/data/browse-data/?tab=bulk-data",
+   "what": "federal candidates and committees for the cycle, used to resolve buyer identity"
+  },
+  {
+   "name": "Census cartographic boundary files (counties)",
+   "url": "https://www.census.gov/geographies/mapping-files/time-series/geo/cartographic-boundary.html",
+   "what": "county polygons"
+  },
+  {
+   "name": "Census county population estimates (2024 vintage)",
+   "url": "https://www.census.gov/programs-surveys/popest.html",
+   "what": "county population, spread into H3 cells by area share"
+  },
+  {
+   "name": "Census Gazetteer ZCTA and place files",
+   "url": "https://www.census.gov/geographies/reference-files/time-series/geo/gazetteer-files.html",
+   "what": "ZIP and city search without an external geocoder"
+  },
+  {
+   "name": "H3",
+   "url": "https://h3geo.org/",
+   "what": "hexagonal cells used for density layers"
+  },
+  {
+   "name": "OpenFreeMap / OpenMapTiles / OpenStreetMap",
+   "url": "https://openfreemap.org/",
+   "what": "basemap tiles"
+  },
+  {
+   "name": "Nominatim (OpenStreetMap)",
+   "url": "https://nominatim.org/",
+   "what": "fallback geocoder for street addresses only"
+  }
+ ],
+ "modules": {
+  "crawl": "Crawl FCC political files for stations into SQLite, optionally downloading PDFs.\n\n  python3 -m ingest.crawl --stations 33710,66221 --years 2026 --download --workers 4\n\nResumable: files already listed are skipped on re-list only if --relist is absent;\ndownloads already on disk are never repeated.",
+  "update": "Incremental updater: apply the FCC file-history change feed to the local store.\n\nThe feed (`/api/manager/file/history.json`) lists every file added, deleted,\nmoved, renamed or purged across all stations for a date range, with the folder\npath, size and timestamps. One call per 500 rows; a peak day is ~30 pages.\n\n  python3 -m ingest.update                       # from last sync (or yesterday) to today\n  python3 -m ingest.update --since 2026-10-20    # explicit window\n  python3 -m ingest.update --download --parse --aggregate   # and run the rest of the pipeline\n\nOnly tracked stations (those already in `files`) are applied unless --stations\nadds more. Re-running a window is idempotent.",
+  "ocr": "OCR image-only PDFs (Nexstar, Sinclair and some others file scans/prints with no text layer).\n\nRenders pages with pypdfium2 and runs the tesseract CLI; text is cached at\ndata/ocr/<file_manager_id>.txt and picked up by ingest.parse.\n\n  python3 -m ingest.ocr --workers 6          # all downloaded docs that parsed as kind=other without text",
+  "parse": "Parse downloaded political-file PDFs into structured rows.\n\nHandles the three document kinds that make up nearly all of a station's\npolitical file when the station runs WideOrbit traffic (most do):\n  * order / contract  (\"CONTRACT\", \"Contract / Revision\")\n  * invoice           (\"INVOICE\", \"Invoice #\", per-spot lines with Ad-ID)\n  * NAB PB-19 forms   (fillable AcroForm fields: candidate, committee, agency...)\nAnything else is stored as kind=other so the gap is visible.\n\n  python3 -m ingest.parse            # parse everything downloaded and unparsed\n  python3 -m ingest.parse --file x.pdf   # print the parse of one file",
+  "entities": "Rebuild domain entities from `document.raw` + `opif_file.folder_path`.\n\nDeterministic and total: it truncates the entity tables and rebuilds them, so a parser\nimprovement or an alias change only needs `load_pg` + `entities`, never a recrawl.\nManual buyer merges live in data/buyer_overrides.yaml (alias -> canonical name) and are\napplied on top of the automatic folder-based identity.\n  python3 -m ingest.entities",
+  "identity": "Buyer identity: merge the stations' own folder labels into canonical buyers and match them\nto FEC candidates and committees.\n\nInputs: buyer_alias rows of source 'folder' (one per station label) with the station's state,\nFEC bulk master files in data/fec (cn.txt candidates, cm.txt committees, ccl.txt linkage),\nand data/buyer_overrides.yaml (manual: `raw label: Canonical Name`, or `category|raw label: ...`).\nOutput: data/buyer_identity.json, read by ingest.entities on its next run.\n\n  python3 -m ingest.identity          # then: python3 -m ingest.entities",
+  "geo": "Geography: counties with population, H3 cells with population, and station coverage shares.\n\n  python3 -m ingest.geo            # everything (downloads Census files to data/geo on first run)\n\nResolutions come from HEX_RES. Coarse resolutions are built nationwide; fine ones only inside\nthe contours of stations that have political files loaded (\"active\"), so the fine layers grow\nwith the crawl. Adding a resolution is a one-line change here plus a rerun.",
+  "aggregate": "Roll parsed documents up to spend per station per buyer and export JSON for the web app.\n\nSpend rule, per order number within a station-year:\n  * if invoices exist, spend = sum of gross over distinct invoice numbers (what actually aired)\n  * else spend = gross on the latest order revision (latest print date, then latest upload)\nBuyer = the leaf folder the station filed the documents under (candidate, committee or\nissue sponsor), which is how station staff label buys. Category = the second folder level\n(Federal / State / Local / Non-Candidate Issue Ads).\n\n  python3 -m ingest.aggregate            # writes web/data/spend/<facility>.json and index.json",
+  "export": "Export serving artifacts from the marts.\n\nweb/data/spend/<facility>.json, index.json   per-station buyers (what the map reads today)\nweb/data/hex/total_r<res>.json                money/ads reaching each cell (for the hex layers)\ndata/marts/*.parquet                          every mart, for DuckDB / the next UI / analysis\nweb/data/build.json                           build id + timestamp (cache busting)\n\npython3 -m ingest.export",
+  "tiles": "Vector tiles (PMTiles) for the map: hex money layers and station contours, via tippecanoe.\n\npython3 -m ingest.tiles        -> web/data/tiles/hex5.pmtiles, hex7.pmtiles, contours.pmtiles, meta.json",
+  "places": "Static place index for search: ZIP centroids and populated places from the Census Gazetteer files.\nWrites web/data/places.json so the app can resolve \"50309\", \"Des Moines\" or \"Des Moines, IA\" with no\nexternal geocoder. Street addresses still fall back to Nominatim in the app.\n\n  python3 -m ingest.places"
+ },
+ "fcc_notice": "This product uses the FCC Data API but is not endorsed or certified by the FCC."
+}

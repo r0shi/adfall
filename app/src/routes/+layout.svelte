@@ -5,7 +5,7 @@
   import { loc, fromHash } from '$lib/location.svelte.js';
   let { children } = $props();
   onMount(fromHash);
-  const tabs = [['/', 'Stations'], ['/map', 'Map'], ['/buyers', 'Buyers'], ['/ads', 'Ads'], ['/time', 'Over time'], ['/explore', 'Explore']];
+  const tabs = [['/', 'Stations'], ['/map', 'Map'], ['/buyers', 'Buyers'], ['/ads', 'Ads'], ['/time', 'Over time'], ['/explore', 'Explore'], ['/about', 'About']];
   const hash = $derived(loc.p ? `#${loc.p[0].toFixed(4)},${loc.p[1].toFixed(4)}` : '');
 </script>
 <nav class="top">
