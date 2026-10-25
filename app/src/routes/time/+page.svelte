@@ -7,16 +7,24 @@
   import { stationDaily, hexWeights, usd, num } from '$lib/data.js';
   import { Framer } from '$lib/frames.js';
   import { toGeoJSON } from '$lib/geo.js';
-  let api = $state(null), framer = $state(null), daily = $state(null), weights = $state(null), scope = $state('all'), hover = $state(null);
+  let api = $state(null), framer = $state.raw(null), daily = $state.raw(null), weights = $state.raw(null), scope = $state('all'), hover = $state.raw(null);  // big data stays non-reactive
   Promise.all([stationDaily(), hexWeights(5)]).then(([d, w]) => { daily = d; weights = w; });
   const METRICS = { booked: ['Booked $', 2], invoiced: ['Invoiced $', 3], spots: ['Spots aired', 4] };
-  $effect(() => { if (daily && weights) { framer = new Framer(daily, weights, METRICS[tl.metric][1]); const days = framer.dayList; setRange(days[0], days[days.length - 1]); } });
+  $effect(() => {
+    if (!daily || !weights) return;
+    const f = new Framer(daily, weights, METRICS[tl.metric][1]);   // local: reading `framer` here would make this effect depend on its own write
+    const days = f.dayList;
+    framer = f;
+    setRange(days[0], days[days.length - 1]);
+  });
   const facsHere = $derived(scope === 'here' && loc.p ? new Set(loc.found.map(s => s.fac)) : null);
   const series = $derived(framer ? framer.series(tl.window === 'cumulative' ? 'cumulative' : 'day', facsHere) : []);
   // stable color scale per window/metric: 98th percentile of cell values over all frames (sampled every 7th day)
   const scaleMax = $derived.by(() => {
-    if (!framer) return 1; const vals = []; const f = new Framer(daily, weights, METRICS[tl.metric][1]);
-    for (let i = 0; i < f.dayList.length; i += 7) for (const [, v] of f.frame(f.dayList[i], tl.window)) vals.push(v);
+    if (!framer) return 1; const vals = []; const win = tl.window;
+    const keep = framer.shown.slice();
+    for (let i = 0; i < framer.dayList.length; i += 7) { framer.reset(); for (const [, v] of framer.frame(framer.dayList[i], win)) vals.push(v); }
+    framer.shown.set(keep);
     vals.sort((a, b) => a - b); return vals[Math.floor(vals.length * 0.98)] || 1;
   });
   let lastDay = null;

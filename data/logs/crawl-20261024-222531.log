@@ -1,0 +1,8 @@
+2026-10-24 22:25:31 INFO == crawl start  run_id=3 pid=72582 batch=None args={"stations": "72307", "stations_file": null, "state": null, "years": "2026", "download": true, "relist": false, "verify": false, "retry_given_up": false, "workers": 3, "max_fail_rate": 0.02, "db": "/Users/alex/tv_wormhole/data/political.sqlite"} log=data/logs/crawl-20261024-222531.log
+2026-10-24 22:25:31 INFO stations: 1  years: [2026]
+2026-10-24 22:25:31 INFO   72307/2026: listing complete (162 files), skipping
+2026-10-24 22:25:31 INFO   adopted 11 files already on disk
+2026-10-24 22:25:31 INFO   downloading 101 files with 3 workers
+2026-10-24 22:25:41 INFO   download 101/101  10.1/s  elapsed 9s  eta 0s
+2026-10-24 22:25:41 INFO   downloads: 101 ok, 0 failed, 77.0 MB
+2026-10-24 22:25:41 INFO == SUMMARY stage=crawl status=OK run_id=3 elapsed=9s failures=0 warnings=0 stations_skipped=1 downloads_adopted=11 downloads_pending=101 downloads_ok=101 downloads_failed=0 download_mb=77.0 still_pending=0 seconds=10.0 log=data/logs/crawl-20261024-222531.log

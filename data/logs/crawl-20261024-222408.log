@@ -1,0 +1,8 @@
+2026-10-24 22:24:08 INFO == crawl start  run_id=1 pid=72177 batch=None args={"stations": "86534", "stations_file": null, "state": null, "years": "2026", "download": true, "relist": false, "verify": false, "retry_given_up": false, "workers": 2, "max_fail_rate": 0.02, "db": "/Users/alex/tv_wormhole/data/political.sqlite"} log=data/logs/crawl-20261024-222408.log
+2026-10-24 22:24:08 INFO stations: 1  years: [2026]
+2026-10-24 22:24:10 WARNING   86534/2026: walked 11 files but the API reports file_count=11
+2026-10-24 22:24:10 INFO   86534/2026: listed 11 files (API count 11)
+2026-10-24 22:24:10 INFO   downloading 11 files with 2 workers
+2026-10-24 22:24:12 INFO   download 11/11  2.7/s  elapsed 4s  eta 0s
+2026-10-24 22:24:12 INFO   downloads: 11 ok, 0 failed, 10.8 MB
+2026-10-24 22:24:12 INFO == SUMMARY stage=crawl status=OK run_id=1 elapsed=4s failures=0 warnings=1 stations_listed=1 files_listed=11 downloads_pending=11 downloads_ok=11 downloads_failed=0 download_mb=10.8 still_pending=0 seconds=4.0 log=data/logs/crawl-20261024-222408.log

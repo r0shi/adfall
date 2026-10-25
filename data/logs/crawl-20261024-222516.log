@@ -1,0 +1,4 @@
+2026-10-24 22:25:16 INFO == crawl start  run_id=2 pid=72408 batch=None args={"stations": "72307", "stations_file": null, "state": null, "years": "2026", "download": true, "relist": false, "verify": false, "retry_given_up": false, "workers": 3, "max_fail_rate": 0.02, "db": "/Users/alex/tv_wormhole/data/political.sqlite"} log=data/logs/crawl-20261024-222516.log
+2026-10-24 22:25:16 INFO stations: 1  years: [2026]
+2026-10-24 22:25:23 INFO   72307/2026: listed 162 files (API count 162)
+2026-10-24 22:25:23 INFO   downloading 162 files with 3 workers

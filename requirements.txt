@@ -7,3 +7,5 @@ shapely>=2
 pyshp
 pyarrow
 rapidfuzz
+cryptography          # AES-encrypted PDFs (244 of the first 94k documents failed without it)
+ocrmac                # Apple Vision OCR (macOS); ingest.ocr falls back to the tesseract CLI elsewhere

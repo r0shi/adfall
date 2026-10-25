@@ -3,9 +3,11 @@
 
   python3 -m ingest.tiles        -> web/data/tiles/hex5.pmtiles, hex7.pmtiles, contours.pmtiles, meta.json
 """
-import json, os, subprocess, sys, tempfile
+import json, logging, os, subprocess, sys, tempfile
 import h3
 from . import pg
+from .runlog import Stage
+log = logging.getLogger('ingest.tiles')
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OUT = os.path.join(ROOT, "web", "data", "tiles")
@@ -48,6 +50,11 @@ def tippecanoe(src, dest, layer, zmin, zmax, extra=()):
 
 
 def main():
+    with Stage('tiles') as st:
+        build(st)
+
+
+def build(st):
     os.makedirs(OUT, exist_ok=True)
     meta = {"hex": {}}
     with pg.connect() as con, tempfile.TemporaryDirectory() as td:
@@ -56,13 +63,14 @@ def main():
             with open(src, "w") as fh:
                 n, maxima = hex_features(con, res, fh)
             tippecanoe(src, os.path.join(OUT, f"hex{res}.pmtiles"), f"hex{res}", zmin, zmax)
+            st.count(f"hex{res}_cells", n)
             meta["hex"][str(res)] = {"cells": n, "max": maxima, "minzoom": int(zmin), "maxzoom": int(zmax)}
-            print(f"  hex{res}.pmtiles: {n} cells, {os.path.getsize(os.path.join(OUT, f'hex{res}.pmtiles'))/1e6:.1f} MB", file=sys.stderr)
+            log.info(f"  hex{res}.pmtiles: {n} cells, {os.path.getsize(os.path.join(OUT, f'hex{res}.pmtiles'))/1e6:.1f} MB")
         src = os.path.join(td, "contours.json")
         with open(src, "w") as fh:
             n = contour_features(fh)
         tippecanoe(src, os.path.join(OUT, "contours.pmtiles"), "contours", "3", "10", ("--coalesce-densest-as-needed",))
-        print(f"  contours.pmtiles: {n} stations, {os.path.getsize(os.path.join(OUT, 'contours.pmtiles'))/1e6:.1f} MB", file=sys.stderr)
+        log.info(f"  contours.pmtiles: {n} stations, {os.path.getsize(os.path.join(OUT, 'contours.pmtiles'))/1e6:.1f} MB")
     json.dump(meta, open(os.path.join(OUT, "meta.json"), "w"))
 
 

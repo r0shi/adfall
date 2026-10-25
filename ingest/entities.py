@@ -7,8 +7,10 @@ Manual buyer merges live in data/buyer_overrides.yaml (alias -> canonical name) 
 applied on top of the automatic folder-based identity.
   python3 -m ingest.entities
 """
-import collections, datetime, json, os, re, sys
+import collections, datetime, json, logging, os, re, sys
 from . import pg
+from .runlog import Stage
+log = logging.getLogger('ingest.entities')
 from .aggregate import split_path
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -38,13 +40,18 @@ def load_identity():
 
 
 def main():
+    with Stage('entities') as st:
+        build(st)
+
+
+def build(st):
     overrides = load_overrides()
     identity = load_identity()
     with pg.connect() as con, con.cursor() as cur:
         cur.execute("TRUNCATE spot, invoice, order_line, order_revision, order_, form, buyer_alias, buyer, agency, creative RESTART IDENTITY CASCADE")
         rows = cur.execute("""SELECT f.file_id, f.facility_id, f.folder_path, f.fcc_created_at, d.kind, d.template, d.raw
                               FROM opif_file f JOIN document d USING (file_id) WHERE f.deleted_at IS NULL""").fetchall()
-        print(f"documents: {len(rows)}", file=sys.stderr)
+        log.info(f"documents: {len(rows)}")
 
         # ---- buyers: identity = (category, station's folder label), with overrides
         buyer_ids, alias_rows = {}, {}
@@ -104,7 +111,7 @@ def main():
                 cur.executemany("INSERT INTO order_line(order_id,line_no,program,start_date,end_date,spots,length_sec,amount) VALUES (%s,%s,%s,%s,%s,%s,%s,%s) ON CONFLICT DO NOTHING",
                                 [(oid, l["line"], l.get("program"), l.get("start"), l.get("end"), l.get("spots"), l.get("len"), l.get("amount")) for l in lines])
                 n_lines += len(lines)
-        print(f"orders: {len(order_ids)}  lines: {n_lines}", file=sys.stderr)
+        log.info(f"orders: {len(order_ids)}  lines: {n_lines}")
 
         # ---- invoices and spots
         n_spots = 0
@@ -121,7 +128,7 @@ def main():
             cur.executemany("INSERT INTO spot(invoice_id,facility_id,buyer_id,aired_on,aired_time,ad_id) VALUES (%s,%s,%s,%s,%s,%s)",
                             [(got[0], fac, bid, a["date"], a.get("time"), a.get("ad_id")) for a in aired if a.get("date")])
             n_spots += len(aired)
-        print(f"invoices: {len(invoices)}  spots: {n_spots}", file=sys.stderr)
+        log.info(f"invoices: {len(invoices)}  spots: {n_spots}")
 
         # ---- forms
         for file_id, fac, path, raw in forms:
@@ -138,7 +145,7 @@ def main():
                          (raw.get("fields") or {}).get("level"), fm.get("issue"), fm.get("sponsor"), json.dumps(fm)))
             if fm.get("committee"):
                 alias_rows.setdefault((norm(fm["committee"]).lower(), fac), (norm(fm["committee"]), fac, bid, "form"))
-        print(f"forms: {len(forms)}", file=sys.stderr)
+        log.info(f"forms: {len(forms)}")
 
         cur.executemany("INSERT INTO buyer_alias(alias,facility_id,buyer_id,source) VALUES (%s,%s,%s,%s) ON CONFLICT DO NOTHING", list(alias_rows.values()))
         # buyer enrichment from forms: party/office/kind where a form exists
@@ -155,7 +162,7 @@ def main():
                         (info.get("kind"), info.get("party"), info.get("office"), info.get("district"), info.get("state"), info.get("fec_candidate_id"),
                          info.get("fec_committee_id"), info.get("fec_committee_name"), info.get("method"), len(info.get("labels", [])), info["name"].lower(), info["category"]))
             n_id += cur.rowcount
-        print(f"identity applied to {n_id} buyers", file=sys.stderr)
+        log.info(f"identity applied to {n_id} buyers")
         # creatives
         cur.execute("""INSERT INTO creative(ad_id,prefix,buyer_id,first_aired,last_aired,airings)
                        SELECT ad_id, left(ad_id,4), (array_agg(buyer_id ORDER BY aired_on DESC))[1], MIN(aired_on), MAX(aired_on), COUNT(*)
@@ -163,7 +170,12 @@ def main():
         cur.execute("INSERT INTO meta(key,value) VALUES ('entities_built_at', now()::text) ON CONFLICT (key) DO UPDATE SET value=EXCLUDED.value")
         con.commit()
         for t in ("buyer", "buyer_alias", "agency", "order_", "order_revision", "order_line", "invoice", "spot", "creative", "form"):
-            print(f"  {t:15s} {cur.execute(f'SELECT COUNT(*) FROM {t}').fetchone()[0]:>8}", file=sys.stderr)
+            n = cur.execute(f'SELECT COUNT(*) FROM {t}').fetchone()[0]
+            st.count(t, n)
+            log.info(f"  {t:15s} {n:>8}")
+        st.count("documents", len(rows))
+        if len(rows) and not order_ids:
+            raise RuntimeError("no orders were built from %d documents: parser output or load_pg is broken" % len(rows))
 
 
 if __name__ == "__main__":

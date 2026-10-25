@@ -7,14 +7,18 @@ path, size and timestamps. One call per 500 rows; a peak day is ~30 pages.
 
   python3 -m ingest.update                       # from last sync (or yesterday) to today
   python3 -m ingest.update --since 2026-10-20    # explicit window
-  python3 -m ingest.update --download --parse --aggregate   # and run the rest of the pipeline
+  python3 -m ingest.update --download            # and fetch the new files
 
 Only tracked stations (those already in `files`) are applied unless --stations
-adds more. Re-running a window is idempotent.
+adds more. Re-running a window is idempotent. A day whose feed could not be read
+is recorded as a failure and the sync marker is not advanced past it, so the next
+run picks it up again.
 """
-import argparse, datetime, os, re, sys, time
+import argparse, datetime, logging, os, re, sys, time
 from . import fcc, db
+from .runlog import Stage
 
+log = logging.getLogger("ingest.update")
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
@@ -31,7 +35,7 @@ def fetch_day(day):
         try:
             page = fcc.file_history(day.isoformat(), day.isoformat(), count=500, offset=off)
         except fcc.FccError as e:
-            print(f"  {day}: page at offset {off} failed ({e}); retrying smaller", file=sys.stderr)
+            log.warning("  %s: page at offset %d failed (%s); retrying in 100-row pages", day, off, e)
             time.sleep(5)
             page = []
             for sub in range(0, 500, 100):
@@ -60,6 +64,9 @@ def apply(con, rows, tracked):
         st = r.get("history_status"); fid = r.get("file_manager_id")
         counts[st] = counts.get(st, 0) + 1
         if st == "new":
+            if year is None:
+                counts["new_without_year"] = counts.get("new_without_year", 0) + 1
+                continue
             con.execute("""INSERT INTO files(file_manager_id,facility_id,year,folder_path,file_name,file_size,create_ts,deleted)
                            VALUES(?,?,?,?,?,?,?,0) ON CONFLICT(file_manager_id) DO UPDATE SET
                            folder_path=excluded.folder_path, file_name=excluded.file_name, file_size=excluded.file_size, deleted=0""",
@@ -73,48 +80,49 @@ def apply(con, rows, tracked):
     return counts
 
 
-def main():
+def main(argv=None):
     ap = argparse.ArgumentParser()
     ap.add_argument("--since", help="YYYY-MM-DD; default: last sync date, else yesterday")
     ap.add_argument("--until", help="YYYY-MM-DD; default today")
     ap.add_argument("--stations", help="extra facility IDs to track, comma-separated")
     ap.add_argument("--download", action="store_true")
-    ap.add_argument("--parse", action="store_true")
-    ap.add_argument("--aggregate", action="store_true")
     ap.add_argument("--workers", type=int, default=4)
     ap.add_argument("--db", default=db.DEFAULT_DB)
-    a = ap.parse_args()
-    con = db.connect(a.db)
-    today = datetime.date.today()
-    last = con.execute("SELECT value FROM meta WHERE key='last_history_sync'").fetchone()
-    since = datetime.date.fromisoformat(a.since) if a.since else (datetime.date.fromisoformat(last[0]) if last else today - datetime.timedelta(days=1))
-    until = datetime.date.fromisoformat(a.until) if a.until else today
-    tracked = {r[0] for r in con.execute("SELECT DISTINCT facility_id FROM files")}
-    if a.stations:
-        tracked |= {int(x) for x in a.stations.split(",")}
-    print(f"syncing {since}..{until} for {len(tracked)} stations", file=sys.stderr)
-    total = {}
-    for day in days(since, until):
-        rows = fetch_day(day)
-        c = apply(con, rows, tracked)
-        print(f"  {day}: {len(rows)} feed rows -> {c or 'no changes for tracked stations'}", file=sys.stderr)
-        for k, v in c.items():
-            total[k] = total.get(k, 0) + v
-    con.execute("INSERT OR REPLACE INTO meta(key,value) VALUES('last_history_sync',?)", (until.isoformat(),))
-    con.commit()
-    print(f"applied: {total}", file=sys.stderr)
-    if a.download:
-        from .crawl import download_pending
-        years = [r[0] for r in con.execute("SELECT DISTINCT year FROM files WHERE downloaded=0 AND deleted=0")]
-        if years:
-            download_pending(con, sorted(tracked), years, a.workers)
-    con.close()
-    if a.parse:
-        from . import parse
-        sys.argv = ["parse", "--db", a.db]; parse.main()
-    if a.aggregate:
-        from . import aggregate
-        sys.argv = ["aggregate", "--db", a.db]; aggregate.main()
+    a = ap.parse_args(argv)
+    with Stage("update", args=vars(a), db_path=a.db) as st:
+        con = db.connect(a.db)
+        today = datetime.date.today()
+        last = con.execute("SELECT value FROM meta WHERE key='last_history_sync'").fetchone()
+        since = datetime.date.fromisoformat(a.since) if a.since else (datetime.date.fromisoformat(last[0]) if last else today - datetime.timedelta(days=1))
+        until = datetime.date.fromisoformat(a.until) if a.until else today
+        tracked = {r[0] for r in con.execute("SELECT DISTINCT facility_id FROM files")}
+        if a.stations:
+            tracked |= {int(x) for x in a.stations.split(",")}
+        log.info("syncing %s..%s for %d stations", since, until, len(tracked))
+        synced_through = None
+        for day in days(since, until):
+            st.attempt()
+            try:
+                rows = fetch_day(day)
+            except fcc.FccError as e:
+                st.fail(str(day), f"feed unreadable: {e}")
+                break                                   # do not advance past a day we could not read
+            c = apply(con, rows, tracked)
+            log.info("  %s: %d feed rows -> %s", day, len(rows), c or "no changes for tracked stations")
+            st.count("feed_rows", len(rows))
+            for k, v in c.items():
+                st.count("applied_" + k, v)
+            synced_through = day
+        if synced_through:
+            con.execute("INSERT OR REPLACE INTO meta(key,value) VALUES('last_history_sync',?)", (synced_through.isoformat(),))
+            con.commit()
+            log.info("last_history_sync = %s", synced_through)
+        if a.download:
+            from .crawl import download_pending
+            years = [r[0] for r in con.execute("SELECT DISTINCT year FROM files WHERE downloaded=0 AND deleted=0")]
+            if years:
+                download_pending(con, st, sorted(tracked), years, a.workers)
+        con.close()
 
 
 if __name__ == "__main__":

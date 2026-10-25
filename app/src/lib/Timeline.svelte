@@ -1,9 +1,9 @@
 <script>
   // The global timeline bar: date, scrubline (a sparkline of the series), play, window and trails.
   import { tl, setRange, step } from './time.svelte.js';
-  let { series = [], label = '' } = $props();   // series: [[day, value], ...]
+  let { series = [], label = '' } = $props();   // series is a plain array from the page (not deep state)   // series: [[day, value], ...]
   let el, width = $state(600), dragging = $state(false), timer;
-  $effect(() => { const ro = new ResizeObserver(([e]) => width = e.contentRect.width); ro.observe(el); return () => ro.disconnect(); });
+  $effect(() => { const ro = new ResizeObserver(([e]) => { width = e.contentRect.width; }); ro.observe(el); return () => ro.disconnect(); });
   $effect(() => { if (series.length && !tl.first) setRange(series[0][0], series[series.length - 1][0]); });
   $effect(() => { clearInterval(timer); if (tl.playing) timer = setInterval(() => { step(1); if (tl.day === tl.last) tl.playing = false; }, 700 / tl.speed); return () => clearInterval(timer); });
   const H = 44, PAD = 8;

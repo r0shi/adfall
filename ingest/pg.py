@@ -42,10 +42,13 @@ MARTS = ["spend_daily", "station_daily", "station_total", "buyer_station", "hex_
 
 
 def refresh_marts():
-    with connect(autocommit=True) as con:
+    from .runlog import Stage
+    import logging
+    with Stage('marts') as st, connect(autocommit=True) as con:
         for m in MARTS:
-            print(f"refresh {m}", file=sys.stderr)
+            logging.getLogger('ingest.pg').info(f"refresh {m}")
             con.execute(f"REFRESH MATERIALIZED VIEW {m}")
+            st.count(m, con.execute(f"SELECT COUNT(*) FROM {m}").fetchone()[0])
 
 
 if __name__ == "__main__":

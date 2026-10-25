@@ -1,0 +1,12 @@
+2026-10-24 22:37:13 INFO == parse start  run_id=6 pid=74537 batch=None args={"file": null, "ids": null, "db": "/Users/alex/tv_wormhole/data/political.sqlite", "reparse": true, "only_failed": false, "stations": null, "workers": 8, "no_cache": false, "max_fail_rate": 0.01} log=data/logs/parse-20261024-223713.log
+2026-10-24 22:37:13 INFO parsing 93923 files with 8 workers (cache on)
+2026-10-24 22:38:32 INFO   parse 2000/93923  25.1/s  elapsed 1m19s  eta 1h00m56s
+2026-10-24 22:39:11 INFO   parse 4000/93923  33.8/s  elapsed 1m58s  eta 44m19s
+2026-10-24 22:40:09 INFO   parse 6000/93923  34.1/s  elapsed 2m56s  eta 43m01s
+2026-10-24 22:40:59 INFO   parse 8000/93923  35.4/s  elapsed 3m46s  eta 40m29s
+2026-10-24 22:42:28 INFO   parse 10000/93923  31.7/s  elapsed 5m15s  eta 44m08s
+2026-10-24 22:44:20 INFO   parse 12000/93923  28.1/s  elapsed 7m07s  eta 48m37s
+2026-10-24 22:45:19 INFO   parse 14000/93923  28.8/s  elapsed 8m06s  eta 46m16s
+2026-10-24 22:46:17 INFO   parse 16000/93923  29.4/s  elapsed 9m03s  eta 44m08s
+2026-10-24 22:46:22 INFO   parse 18000/93923  32.8/s  elapsed 9m09s  eta 38m37s
+2026-10-24 22:48:11 INFO   parse 20000/93923  30.4/s  elapsed 10m58s  eta 40m32s

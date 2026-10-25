@@ -9,9 +9,11 @@ Output: data/buyer_identity.json, read by ingest.entities on its next run.
 
   python3 -m ingest.identity          # then: python3 -m ingest.entities
 """
-import collections, csv, json, os, re, sys
+import collections, csv, json, logging, os, re, sys
 from rapidfuzz import fuzz, process
 from . import pg
+from .runlog import Stage
+log = logging.getLogger('ingest.identity')
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 FEC = os.path.join(ROOT, "data", "fec")
@@ -95,12 +97,19 @@ def match_candidate(label, states, cands_by_state):
 
 
 def main():
+    with Stage('identity') as st:
+        build(st)
+
+
+def build(st):
+    if not os.path.exists(os.path.join(FEC, 'cn.txt')):
+        raise FileNotFoundError('data/fec/cn.txt missing: run `make fec` first')
     cands, cmtes = load_fec()
     cands_by_state = collections.defaultdict(list)
     for c in cands:
         cands_by_state[c["state"]].append(c)
     cm_names = {k: org_key(v["name"]) for k, v in cmtes.items() if v["norm"]}
-    print(f"FEC: {len(cands)} 2026 candidates, {len(cmtes)} committees", file=sys.stderr)
+    log.info(f"FEC: {len(cands)} 2026 candidates, {len(cmtes)} committees")
 
     overrides, fec_display = {}, {}
     path = os.path.join(ROOT, "data", "buyer_overrides.yaml")
@@ -122,7 +131,7 @@ def main():
         rows = con.execute("""SELECT b.category, a.alias, array_agg(DISTINCT s.state), COUNT(*) FROM buyer_alias a
                               JOIN buyer b USING (buyer_id) JOIN station s ON s.facility_id = a.facility_id
                               WHERE a.source = 'folder' GROUP BY 1,2""").fetchall()
-    print(f"raw labels: {len(rows)}", file=sys.stderr)
+    log.info(f"raw labels: {len(rows)}")
 
     aliases, buyers, stats = {}, {}, collections.Counter()
     for cat, label, states, n in rows:
@@ -206,7 +215,7 @@ def main():
     for gk in merged_into:
         buyers.pop(gk)
     aliases = {k: merged_into.get(gk, gk) for k, gk in aliases.items()}
-    print(f"surname clustering merged {len(merged_into)} buyers", file=sys.stderr)
+    log.info(f"surname clustering merged {len(merged_into)} buyers")
 
     # display name: for FEC candidates, the most common station rendering that contains the FEC surname-ish token
     # (so "Ashley Hinson" beats "Ashley Arenholz", "Jon Ossoff" beats "Jonathan Ossoff"); else the FEC/name-rule name
@@ -234,10 +243,13 @@ def main():
     buyers = out_buyers
     json.dump({"aliases": aliases, "buyers": buyers}, open(OUT, "w"), indent=0)
     merged = sum(1 for b in buyers.values() if len(b["labels"]) > 1)
-    print(f"methods: {dict(stats)}", file=sys.stderr)
-    print(f"{len(rows)} labels -> {len(buyers)} buyers ({merged} merged from 2+ labels)", file=sys.stderr)
+    log.info(f"methods: {dict(stats)}")
+    log.info(f"{len(rows)} labels -> {len(buyers)} buyers ({merged} merged from 2+ labels)")
+    st.count("labels", len(rows)); st.count("buyers", len(buyers)); st.count("merged", merged)
+    for k, v in stats.items():
+        st.count("method_" + k, v)
     for b in sorted(buyers.values(), key=lambda b: -len(b["labels"]))[:12]:
-        print(f"  {len(b['labels']):3d}  {b['category']:8s} {b['method']:14s} {b['name'][:40]:40s} <- {' | '.join(b['labels'][:4])[:110]}", file=sys.stderr)
+        log.info(f"  {len(b['labels']):3d}  {b['category']:8s} {b['method']:14s} {b['name'][:40]:40s} <- {' | '.join(b['labels'][:4])[:110]}")
 
 
 if __name__ == "__main__":

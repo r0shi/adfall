@@ -7,10 +7,12 @@ Resolutions come from HEX_RES. Coarse resolutions are built nationwide; fine one
 the contours of stations that have political files loaded ("active"), so the fine layers grow
 with the crawl. Adding a resolution is a one-line change here plus a rerun.
 """
-import io, json, os, sys, time, urllib.request, zipfile
+import io, json, logging, os, sys, time, urllib.request, zipfile
 import h3, shapefile
 from shapely.geometry import shape
 from . import pg
+from .runlog import Stage
+log = logging.getLogger('ingest.geo')
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 GEO = os.path.join(ROOT, "data", "geo")
@@ -51,7 +53,7 @@ def load_counties(con):
         cur.execute("TRUNCATE county")
         cur.executemany("INSERT INTO county(geoid,name,state,pop,geom) VALUES (%s,%s,%s,%s,ST_Multi(ST_MakeValid(ST_GeomFromText(%s,4326))))", rows)
     con.commit()
-    print(f"counties: {len(rows)} (with population: {sum(1 for r in rows if r[3])})", file=sys.stderr)
+    log.info(f"counties: {len(rows)} (with population: {sum(1 for r in rows if r[3])})")
 
 
 def contour_cells(polys, res):
@@ -60,7 +62,7 @@ def contour_cells(polys, res):
         try:
             cells |= set(h3.geo_to_cells(h3.LatLngPoly([(la, lo) for la, lo in poly]), res))
         except Exception as e:
-            print(f"  skip polygon: {e}", file=sys.stderr)
+            log.info(f"  skip polygon: {e}")
     return cells
 
 
@@ -74,7 +76,7 @@ def build_hexes(con):
                 continue
             for c in contour_cells(s["polys"], res):
                 cells[c] = res
-        print(f"res {res} ({scope}): {sum(1 for r in cells.values() if r == res)} cells", file=sys.stderr)
+        log.info(f"res {res} ({scope}): {sum(1 for r in cells.values() if r == res)} cells")
     with con.cursor() as cur:
         cur.execute("TRUNCATE hex, station_hex")
         cur.execute("CREATE TEMP TABLE t_hex (h3 text, res smallint, wkt text) ON COMMIT DROP")
@@ -89,7 +91,7 @@ def build_hexes(con):
                          SELECT h.h3, SUM(c.pop * ST_Area(ST_Intersection(h.geom, c.geom)) / NULLIF(ST_Area(c.geom), 0)) AS pop
                          FROM hex h JOIN county c ON ST_Intersects(h.geom, c.geom) WHERE c.pop IS NOT NULL GROUP BY h.h3) x
                        WHERE x.h3 = h.h3""")
-        print(f"hex population allocated in {time.time()-t0:.0f}s", file=sys.stderr)
+        log.info(f"hex population allocated in {time.time()-t0:.0f}s")
         t0 = time.time()
         cur.execute("""INSERT INTO station_hex(facility_id,h3,res,coverage_share)
                        SELECT s.facility_id, h.h3, h.res,
@@ -97,17 +99,19 @@ def build_hexes(con):
                        FROM station s JOIN hex h ON ST_Intersects(h.geom, s.contour)
                        WHERE h.res = ANY(%s) OR s.facility_id = ANY(%s)""",
                     ([r for r, sc in HEX_RES.items() if sc == "national"], list(active)))
-        print(f"station_hex built in {time.time()-t0:.0f}s", file=sys.stderr)
+        log.info(f"station_hex built in {time.time()-t0:.0f}s")
     con.commit()
     with con.cursor() as cur:
         for t in ("hex", "station_hex"):
-            print(f"  {t}: {cur.execute(f'SELECT COUNT(*) FROM {t}').fetchone()[0]}", file=sys.stderr)
+            log.info(f"  {t}: {cur.execute(f'SELECT COUNT(*) FROM {t}').fetchone()[0]}")
 
 
 def main():
-    with pg.connect() as con:
+    with Stage('geo') as st, pg.connect() as con:
         load_counties(con)
         build_hexes(con)
+        for t in ('county', 'hex', 'station_hex'):
+            st.count(t, con.execute(f'SELECT COUNT(*) FROM {t}').fetchone()[0])
 
 
 if __name__ == "__main__":

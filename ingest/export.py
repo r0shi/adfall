@@ -8,9 +8,10 @@
 
   python3 -m ingest.export
 """
-import collections, datetime, json, os, re, sys
+import collections, datetime, json, logging, os, re, sys
 import pyarrow as pa, pyarrow.parquet as pq
 from . import pg
+log = logging.getLogger('ingest.export')
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 WEB = os.path.join(ROOT, "web", "data")
@@ -30,7 +31,7 @@ def parquet(con, name, sql, params=None):
     table = pa.Table.from_pylist([dict(zip(cols, r)) for r in rows]) if rows else pa.table({c: [] for c in cols})
     os.makedirs(MARTS, exist_ok=True)
     pq.write_table(table, os.path.join(MARTS, f"{name}.parquet"))
-    print(f"  {name}.parquet: {len(rows)} rows", file=sys.stderr)
+    log.info(f"  {name}.parquet: {len(rows)} rows")
 
 
 def export_stations(con, year, build):
@@ -59,7 +60,7 @@ def export_stations(con, year, build):
                            "by_category": out["by_category"], "top": [b["name"] for b in buyers[:3]]}
     json.dump({"year": year, "generated": build["date"], "build": build["id"], "stations": index},
               open(os.path.join(WEB, "spend", "index.json"), "w"), separators=(",", ":"))
-    print(f"  spend/: {len(index)} stations", file=sys.stderr)
+    log.info(f"  spend/: {len(index)} stations")
 
 
 def export_hex(con):
@@ -69,7 +70,7 @@ def export_hex(con):
         cells = [[r[0], round(float(r[1] or 0)), round(float(r[2] or 0)), round(float(r[3] or 0)), round(float(r[4] or 0)), r[5]] for r in rows]
         json.dump({"res": res, "columns": ["h3", "booked", "invoiced", "spots_aired", "pop", "stations"], "cells": cells},
                   open(os.path.join(WEB, "hex", f"total_r{res}.json"), "w"), separators=(",", ":"))
-        print(f"  hex/total_r{res}.json: {len(cells)} cells", file=sys.stderr)
+        log.info(f"  hex/total_r{res}.json: {len(cells)} cells")
 
 
 def export_buyers(con):
@@ -84,7 +85,7 @@ def export_buyers(con):
             "states": sorted(x for x in r[11] if x), "facs": r[12],
             "fec_candidate_id": r[13], "fec_committee_id": r[14], "fec_committee_name": r[15], "method": r[16], "labels": r[17], "district": r[18]} for r in rows]
     json.dump({"buyers": out}, open(os.path.join(WEB, "buyers.json"), "w"), separators=(",", ":"))
-    print(f"  buyers.json: {len(out)} buyers", file=sys.stderr)
+    log.info(f"  buyers.json: {len(out)} buyers")
 
 
 def export_creatives(con):
@@ -97,7 +98,7 @@ def export_creatives(con):
     out = [{"ad_id": r[0], "prefix": r[1], "airings": r[2], "first": str(r[3]), "last": str(r[4]), "buyer": r[5], "category": CAT_LABEL.get(r[6], r[6]),
             "buyer_id": r[7], "facs": r[8]} for r in rows]       # facs: {facility_id: airings}
     json.dump({"creatives": out}, open(os.path.join(WEB, "creatives", "all.json"), "w"), separators=(",", ":"))
-    print(f"  creatives/all.json: {len(out)} creatives", file=sys.stderr)
+    log.info(f"  creatives/all.json: {len(out)} creatives")
 
 
 def export_details(con):
@@ -143,7 +144,7 @@ def export_details(con):
                "creatives": sorted(({"ad_id": k, "airings": v["airings"], "stations": sorted(v["stations"]), "first": v["first"], "last": v["last"]} for k, v in cr.items()), key=lambda x: -x["airings"])[:60],
                "agencies": sorted({a for s_ in stations for a in s_["agencies"]})}
         json.dump(out, open(os.path.join(WEB, "buyers", out["slug"] + ".json"), "w"), separators=(",", ":")); n += 1
-    print(f"  buyers/: {n} detail files", file=sys.stderr)
+    log.info(f"  buyers/: {n} detail files")
     bname = {b[0]: (b[1], b[2]) for b in buyers}
     m = 0
     for fac, info in st.items():
@@ -158,7 +159,7 @@ def export_details(con):
         out = {**info, "weekly": series([(fac, r[0]) for r in rows]),
                "creatives": sorted(({"ad_id": k, **v} for k, v in cr.items()), key=lambda x: -x["airings"])[:80]}
         json.dump(out, open(os.path.join(WEB, "stations", f"{fac}.json"), "w"), separators=(",", ":")); m += 1
-    print(f"  stations/: {m} detail files", file=sys.stderr)
+    log.info(f"  stations/: {m} detail files")
 
 
 def export_creative_pages(con):
@@ -181,7 +182,7 @@ def export_creative_pages(con):
                "by_station": sorted(({"fac": f, "call": st[f][0], "state": st[f][1], "airings": n} for f, n in e["by_station"].items()), key=lambda x: -x["airings"]),
                "by_day": sorted(e["by_day"].items()), "by_hour": e["by_hour"]}
         json.dump(out, open(os.path.join(WEB, "creatives", "id", f"{ad}.json"), "w"), separators=(",", ":"))
-    print(f"  creatives/id/: {len(by)} files", file=sys.stderr)
+    log.info(f"  creatives/id/: {len(by)} files")
 
 
 SOURCES = [
@@ -211,13 +212,37 @@ def export_methods(con):
     identity = {m or "raw": [n, int(l or 0)] for m, n, l in q("SELECT identity_method, COUNT(*), SUM(raw_labels) FROM buyer WHERE EXISTS (SELECT 1 FROM buyer_station bs WHERE bs.buyer_id=buyer.buyer_id) GROUP BY 1")}
     hexes = {str(r): n for r, n in q("SELECT res, COUNT(*) FROM hex GROUP BY 1 ORDER BY 1")}
     modules = {}
-    for m in ("crawl", "update", "ocr", "parse", "entities", "identity", "geo", "aggregate", "export", "tiles", "places"):
+    for m in ("crawl", "update", "ocr", "parse", "validate", "load_pg", "entities", "identity", "geo", "export", "tiles", "places", "status", "coverage", "batch", "runlog"):
         try:
             modules[m] = (importlib.import_module(f"ingest.{m}").__doc__ or "").strip()
         except Exception as e:
             modules[m] = f"(no description: {e})"
+    runs = {}
+    for stage, status, started, ended, counts, failures, error, log_path in q("""SELECT DISTINCT ON (stage) stage, status, started, ended, counts, failures, error, log_path
+                                                                              FROM pipeline_run WHERE stage NOT IN ('batch_state') ORDER BY stage, started DESC"""):
+        runs[stage] = {"status": status, "started": str(started), "ended": str(ended) if ended else None, "counts": counts, "failures": failures, "error": error, "log": log_path}
+    batches = [{"state": b, "status": st_, "started": str(s0), "ended": str(e0) if e0 else None} for b, st_, s0, e0 in
+               q("SELECT DISTINCT ON (batch) batch, status, started, ended FROM pipeline_run WHERE stage='batch_state' ORDER BY batch, started DESC")]
+    templates_by_kind = {f"{k}/{t or 'unrecognized'}": n for k, t, n in q("SELECT kind, template, COUNT(*) FROM document GROUP BY 1,2 ORDER BY 3 DESC")}
+    ocr_engines = {e or "legacy-tesseract": n for e, n in q("SELECT ocr_engine, COUNT(*) FROM document WHERE source='ocr' GROUP BY 1")}
+    listing = {st_: n for st_, n in q("SELECT status, COUNT(*) FROM opif_listing GROUP BY 1")}
+    coverage = None
+    try:
+        from .coverage import report as coverage_report
+        from . import db as _db
+        cov = coverage_report(_db.connect())
+        coverage = {"national_counts_as_of": cov["national_counts_as_of"], "total": cov["total"],
+                    "by_state": {st_: {y: {k: v for k, v in d.items() if k in ("stations", "stations_with_docs", "stations_crawled", "docs_national", "docs_downloaded", "docs_ok")} for y, d in yrs.items()} for st_, yrs in cov["by_state"].items()},
+                    "stations_not_yet_crawled_2026": len([m for m in cov["missing"] if m[1] == "2026"])}
+    except Exception as e:
+        coverage = {"error": str(e)[:200]}
     out = {
         "generated": datetime.date.today().isoformat(),
+        "pipeline": {"last_runs": runs, "batches": batches, "listing": listing, "ocr_engines": ocr_engines, "templates": templates_by_kind,
+                     "parser_version": __import__("ingest.parse", fromlist=["PARSER_VERSION"]).PARSER_VERSION,
+                     "stages": "crawl -> parse -> ocr -> parse --only-failed -> load_pg -> entities -> identity -> entities -> marts -> geo -> export -> tiles",
+                     "logs": "data/logs/<stage>-<timestamp>.log; `make status` summarises; every stage records a pipeline_run row"},
+        "coverage": coverage,
         "stations": {"licensed": q("SELECT COUNT(*) FROM station")[0][0], "with_documents": q("SELECT COUNT(DISTINCT facility_id) FROM opif_file WHERE deleted_at IS NULL")[0][0],
                      "states": sorted(x for (x,) in q("SELECT DISTINCT s.state FROM station s JOIN opif_file f USING (facility_id) WHERE f.deleted_at IS NULL") if x),
                      "with_streams": q("SELECT COUNT(*) FROM station WHERE newson_id IS NOT NULL")[0][0], "by_group": groups},
@@ -234,7 +259,7 @@ def export_methods(con):
         "fcc_notice": "This product uses the FCC Data API but is not endorsed or certified by the FCC.",
     }
     json.dump(out, open(os.path.join(WEB, "methods.json"), "w"), indent=1)
-    print("  methods.json", file=sys.stderr)
+    log.info("  methods.json")
 
 
 def export_weights(con, res=5):
@@ -257,7 +282,7 @@ def export_weights(con, res=5):
         stations.setdefault(fac, []).append([idx[h], round(w / sums[fac], 5)])
     out = {"res": res, "cells": cells, "stations": stations}
     json.dump(out, open(os.path.join(WEB, "hex", f"weights_r{res}.json"), "w"), separators=(",", ":"))
-    print(f"  hex/weights_r{res}.json: {len(cells)} cells, {len(stations)} stations, {sum(len(v) for v in stations.values())} weights", file=sys.stderr)
+    log.info(f"  hex/weights_r{res}.json: {len(cells)} cells, {len(stations)} stations, {sum(len(v) for v in stations.values())} weights")
 
 
 def export_time(con):
@@ -265,7 +290,7 @@ def export_time(con):
     json.dump({"columns": ["fac", "day", "booked", "invoiced", "spots_aired"],
                "rows": [[r[0], str(r[1]), round(float(r[2])), round(float(r[3])), int(r[4])] for r in rows]},
               open(os.path.join(WEB, "station_daily.json"), "w"), separators=(",", ":"))
-    print(f"  station_daily.json: {len(rows)} rows", file=sys.stderr)
+    log.info(f"  station_daily.json: {len(rows)} rows")
     rows = con.execute("""
         WITH w AS (SELECT sh.facility_id, sh.h3, COALESCE(h.pop,0)*sh.coverage_share AS w, SUM(COALESCE(h.pop,0)*sh.coverage_share) OVER (PARTITION BY sh.facility_id) wsum
                    FROM station_hex sh JOIN hex h USING (h3) WHERE h.res = 5),
@@ -278,7 +303,7 @@ def export_time(con):
         weeks.setdefault(str(week), []).append([h3, round(float(b or 0)), round(float(i or 0)), round(float(sp or 0), 1), round(float(pop or 0))])
     json.dump({"res": 5, "columns": ["h3", "booked", "invoiced", "spots_aired", "pop"], "weeks": weeks},
               open(os.path.join(WEB, "hex", "weekly_r5.json"), "w"), separators=(",", ":"))
-    print(f"  hex/weekly_r5.json: {len(weeks)} weeks, {len(rows)} rows", file=sys.stderr)
+    log.info(f"  hex/weekly_r5.json: {len(weeks)} weeks, {len(rows)} rows")
 
 
 def main():
@@ -289,7 +314,8 @@ def main():
     want = lambda k: only is None or k in only
     year = 2026
     build = {"id": datetime.datetime.now(datetime.timezone.utc).strftime("%Y%m%dT%H%M%SZ"), "date": datetime.date.today().isoformat()}
-    with pg.connect() as con:
+    from .runlog import Stage
+    with Stage("export", args=vars(a)) as st, pg.connect() as con:
         if want("methods"):
             export_methods(con)
         if want("weights"):
@@ -326,7 +352,7 @@ def main():
                    SUM(sd.spots_aired*w.w/NULLIF(w.wsum,0)) spots_aired
             FROM sd JOIN w USING (facility_id) GROUP BY 1,2""")
         json.dump(build, open(os.path.join(WEB, "build.json"), "w"))
-    print(f"build {build['id']}", file=sys.stderr)
+    log.info(f"build {build['id']}")
 
 
 if __name__ == "__main__":
