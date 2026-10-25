@@ -32,6 +32,7 @@ CONSECUTIVE_FAIL_ABORT = 150     # this many in a row: stop the stage, it is not
 def known_stations(con, st, facs):
     """facility ids present in `station`; the others are failures of this run (they need `make stations`)."""
     known = {r[0] for r in con.execute("SELECT facility_id FROM station WHERE facility_id = ANY(%s)", (facs,))}
+    con.commit()                         # read-only so far; do not hold a transaction over the network walks that follow
     for fac in facs:
         if fac not in known:
             st.fail(fac, "not in the station table (web/data/stations.json + `make stations`); skipped")

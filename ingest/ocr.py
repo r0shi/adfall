@@ -102,8 +102,8 @@ def candidates(con, st, ids=None, max_attempts=OCR_MAX_ATTEMPTS):
             given_up += 1
             continue
         jobs.append((fid, path))
+    con.commit()                         # the OCR loop that follows commits every 20 documents; start it without an open transaction
     if adopted:
-        con.commit()
         st.warn("%d documents had OCR text on disk but no ledger row; recorded as engine=cached so parse --only-failed picks them up", adopted)
         st.count("adopted", adopted)
     return jobs, given_up, cached

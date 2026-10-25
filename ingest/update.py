@@ -103,6 +103,7 @@ def main(argv=None):
         if a.stations:
             tracked |= {int(x) for x in a.stations.split(",")}
         known = {r[0] for r in con.execute("SELECT facility_id FROM station")}
+        con.commit()                     # no transaction stays open while the feed is fetched (minutes; it would block DDL and mart refreshes)
         unknown = sorted(tracked - known)
         if unknown:
             st.warn("%d tracked stations are not in the station table and their new files cannot be stored: %s (make stations)", len(unknown), unknown[:20])
