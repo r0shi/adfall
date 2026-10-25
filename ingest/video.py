@@ -63,6 +63,15 @@ def slug(category, name):
     return f"{category}-" + re.sub(r"[^a-z0-9]+", "-", name.lower()).strip("-")[:60]
 
 
+SLUG_SQL = "b.category || '-' || left(trim(both '-' from regexp_replace(lower(b.canonical_name), '[^a-z0-9]+', '-', 'g')), 60)"
+
+
+def relink(con):
+    """buyer_id is reassigned by every entity rebuild; the slug is the stable key. Refresh the convenience column."""
+    con.execute(f"UPDATE buyer_channel bc SET buyer_id = b.buyer_id FROM buyer b WHERE {SLUG_SQL} = bc.buyer_slug AND bc.buyer_id IS DISTINCT FROM b.buyer_id")
+    con.commit()
+
+
 # ------------------------------------------------------------------ small HTTP / cache helpers
 def _cache_path(kind, key):
     os.makedirs(os.path.join(CACHE_DIR, kind), exist_ok=True)
@@ -180,16 +189,34 @@ def ytdlp_uploads(channel_id):
     return {"title": info.get("channel") or info.get("title"), "handle": info.get("uploader_id"), "followers": info.get("channel_follower_count"), "uploads": ups}
 
 
+_backoff = {"until": 0.0}
+
+
 def exact_upload_date(video_id):
-    """uploadDate from the public watch page (itemprop meta); one GET, no player, cached forever."""
-    def fetch():
+    """uploadDate from the public watch page (itemprop meta); one GET, no player; successes cached forever,
+    failures never. YouTube answers 429 to bursts: one request per second, and a 90 s pause after a 429."""
+    p = _cache_path("dates", video_id)
+    if os.path.exists(p):
+        return json.load(open(p)).get("upload_date")
+    if time.time() < _backoff["until"]:
+        return None
+    for attempt in range(2):
         try:
             html = http_get(f"https://www.youtube.com/watch?v={video_id}")
         except Exception as e:
-            log.warning("watch page %s: %s", video_id, e); return {"upload_date": None}
+            if "429" in str(e):
+                log.warning("watch page %s: 429, pausing 90 s", video_id); time.sleep(90 if attempt == 0 else 0)
+                if attempt == 1:
+                    _backoff["until"] = time.time() + 300; return None
+                continue
+            log.warning("watch page %s: %s", video_id, e); return None
         m = re.search(r'itemprop="uploadDate" content="([^"]+)"', html) or re.search(r'"uploadDate":"([^"]+)"', html)
-        return {"upload_date": m.group(1)[:10] if m else None}
-    return cached("dates", video_id, fetch)["upload_date"]
+        if not m:
+            return None
+        json.dump({"upload_date": m.group(1)[:10]}, open(p, "w"))
+        time.sleep(1.0)
+        return m.group(1)[:10]
+    return None
 
 
 # ------------------------------------------------------------------ buyers and their creatives
@@ -203,7 +230,10 @@ def load_buyers(con, top=None, ids=None):
     elif top:
         rows = rows[:top]
     keys = ("buyer_id", "name", "category", "kind", "party", "office", "state", "fec_committee_id", "fec_committee_name", "airings", "n")
-    return [dict(zip(keys, r)) for r in rows]
+    out = [dict(zip(keys, r)) for r in rows]
+    for b in out:
+        b["slug"] = slug(b["category"], b["name"])
+    return out
 
 
 def load_families(con, buyer_id):
@@ -324,12 +354,14 @@ def find_channel(b, refresh=False):
     return {"channel_id": cid, "title": title, "channel_url": f"https://www.youtube.com/channel/{cid}", "confidence": conf, "matched_by": f"{method}: {ev}"}, method
 
 
-def upsert_channel(con, buyer_id, ch, source="youtube", uploads=None):
-    con.execute("""INSERT INTO buyer_channel (buyer_id, source, channel_id, channel_url, title, matched_by, confidence, uploads, updated_at)
-                   VALUES (%s,%s,%s,%s,%s,%s,%s,%s,now())
-                   ON CONFLICT (buyer_id, source) DO UPDATE SET channel_id=EXCLUDED.channel_id, channel_url=EXCLUDED.channel_url, title=EXCLUDED.title,
+def upsert_channel(con, b, ch, source="youtube", uploads=None):
+    """b: a buyer dict with slug and buyer_id, or (slug, buyer_id)."""
+    sl, bid = (b["slug"], b["buyer_id"]) if isinstance(b, dict) else b
+    con.execute("""INSERT INTO buyer_channel (buyer_slug, buyer_id, source, channel_id, channel_url, title, matched_by, confidence, uploads, updated_at)
+                   VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,now())
+                   ON CONFLICT (buyer_slug, source) DO UPDATE SET buyer_id=EXCLUDED.buyer_id, channel_id=EXCLUDED.channel_id, channel_url=EXCLUDED.channel_url, title=EXCLUDED.title,
                      matched_by=EXCLUDED.matched_by, confidence=EXCLUDED.confidence, uploads=COALESCE(EXCLUDED.uploads, buyer_channel.uploads), updated_at=now()""",
-                (buyer_id, source, ch["channel_id"], ch["channel_url"], ch.get("title"), ch.get("matched_by"), ch.get("confidence"), uploads))
+                (sl, bid, source, ch["channel_id"], ch["channel_url"], ch.get("title"), ch.get("matched_by"), ch.get("confidence"), uploads))
 
 
 def cmd_channels(con, st, buyers, refresh=False, rescore=False):
@@ -340,16 +372,16 @@ def cmd_channels(con, st, buyers, refresh=False, rescore=False):
         sl = slug(b["category"], b["name"])
         if sl in overrides["channels"]:
             continue                                         # applied by cmd_overrides, which wins
-        existing = con.execute("SELECT confidence FROM buyer_channel WHERE buyer_id=%s AND source='youtube'", (b["buyer_id"],)).fetchone()
+        existing = con.execute("SELECT confidence FROM buyer_channel WHERE buyer_slug=%s AND source='youtube'", (b["slug"],)).fetchone()
         if existing and not (refresh or rescore):
             found += 1; continue
         ch, method = find_channel(b, refresh=refresh)
         if ch:
-            upsert_channel(con, b["buyer_id"], ch); con.commit(); found += 1
+            upsert_channel(con, b, ch); con.commit(); found += 1
             log.info("channel  %-40s -> %s (%s) conf=%.2f", b["name"][:40], ch["title"], ch["channel_id"], ch["confidence"])
             st.count("channels_found")
         else:
-            con.execute("DELETE FROM buyer_channel WHERE buyer_id=%s AND source='youtube'", (b["buyer_id"],))
+            con.execute("DELETE FROM buyer_channel WHERE buyer_slug=%s AND source='youtube'", (b["slug"],))
             con.execute("DELETE FROM creative_video WHERE source='youtube' AND ad_id IN (SELECT ad_id FROM creative WHERE buyer_id=%s)", (b["buyer_id"],)); con.commit()
             log.info("channel  %-40s -> none (%s)", b["name"][:40], method)
             st.count("channels_none")
@@ -437,13 +469,10 @@ def channel_uploads(channel_id, refresh=False, detail_cap=80, since=None):
     ads = [u for u in ups if u.get("duration") and AD_MIN <= u["duration"] <= AD_MAX]
     if since:                                                  # approximate dates can be a month off; keep a margin
         ads = [u for u in ads if not u.get("upload_date") or datetime.date.fromisoformat(u["upload_date"]) >= since - datetime.timedelta(days=60)]
-    todo = [u for u in ads if not u.get("exact")][:detail_cap]
-    if todo:
-        from concurrent.futures import ThreadPoolExecutor
-        with ThreadPoolExecutor(max_workers=4) as ex:
-            for u, d in zip(todo, ex.map(lambda u: exact_upload_date(u["id"]), todo)):
-                if d:
-                    u["upload_date"], u["exact"] = d, True
+    for u in [u for u in ads if not u.get("exact")][:detail_cap]:
+        d = exact_upload_date(u["id"])
+        if d:
+            u["upload_date"], u["exact"] = d, True
     ads.sort(key=lambda u: u.get("upload_date") or "9")
     return ads, len(ups), data
 
@@ -470,7 +499,7 @@ def match_buyer(con, st, b, ch, refresh=False, detail_cap=80):
         return 0
     dom = dominant_length(con, b["buyer_id"])
     ups, total, data = channel_uploads(ch["channel_id"], refresh=refresh, detail_cap=detail_cap, since=fams[0]["first"])
-    con.execute("UPDATE buyer_channel SET uploads=%s, title=COALESCE(%s, title) WHERE buyer_id=%s AND source='youtube'", (len(ups), data.get("title"), b["buyer_id"]))
+    con.execute("UPDATE buyer_channel SET uploads=%s, title=COALESCE(%s, title) WHERE buyer_slug=%s AND source='youtube'", (len(ups), data.get("title"), b["slug"]))
     if not ups:
         for f in fams:
             con.execute("DELETE FROM creative_video WHERE source='youtube' AND ad_id = ANY(%s)", (f["ids"],))
@@ -519,7 +548,7 @@ def match_buyer(con, st, b, ch, refresh=False, detail_cap=80):
 def cmd_videos(con, st, buyers, refresh=False, detail_cap=80):
     for i, b in enumerate(buyers):
         st.attempt()
-        ch = con.execute("""SELECT channel_id, title, source FROM buyer_channel WHERE buyer_id=%s ORDER BY (source='override') DESC, confidence DESC NULLS LAST LIMIT 1""", (b["buyer_id"],)).fetchone()
+        ch = con.execute("""SELECT channel_id, title, source FROM buyer_channel WHERE buyer_slug=%s AND source IN ('youtube','override') ORDER BY (source='override') DESC, confidence DESC NULLS LAST LIMIT 1""", (b["slug"],)).fetchone()
         if not ch:
             st.count("buyers_without_channel"); continue
         try:
@@ -544,7 +573,7 @@ def load_overrides():
             continue
         k = str(k).strip()
         if re.match(r"^(federal|state|local|issue|other)-", k) or k in (doc.get("channels") or {}):
-            out["channels"][k] = str(v).strip()
+            out["channels"][k] = str(v).strip()                 # a channel url, or "none" to block an automatic pick
         else:
             out["creatives"][k.upper()] = str(v).strip()
     return out
@@ -583,10 +612,14 @@ def cmd_overrides(con, st):
         bid = bslug.get(sl)
         if not bid:
             st.warn("override channel for unknown buyer slug %s", sl); continue
+        if url.lower() in ("none", "null", "no", "-"):
+            con.execute("DELETE FROM buyer_channel WHERE buyer_slug=%s AND source IN ('youtube','override')", (sl,))
+            con.execute("DELETE FROM creative_video WHERE source='youtube' AND ad_id IN (SELECT ad_id FROM creative WHERE buyer_id=%s)", (bid,))
+            st.count("channel_blocked"); continue
         cid, title = resolve_channel_url(url)
         if not cid:
             st.fail(sl, "channel url did not resolve"); continue
-        upsert_channel(con, bid, {"channel_id": cid, "channel_url": f"https://www.youtube.com/channel/{cid}", "title": title, "confidence": 1.0, "matched_by": f"override: {url}"}, source="override")
+        upsert_channel(con, (sl, bid), {"channel_id": cid, "channel_url": f"https://www.youtube.com/channel/{cid}", "title": title, "confidence": 1.0, "matched_by": f"override: {url}"}, source="override")
         st.count("channel_overrides")
     fam_ids = collections.defaultdict(list)
     for (ad,) in con.execute("SELECT ad_id FROM creative"):
@@ -617,7 +650,7 @@ def cmd_google_ads(con, st):
     for b in load_buyers(con):
         best = max(((fuzz.token_set_ratio(b["name"], n), n, aid) for n, aid in names), default=(0, None, None))
         if best[0] >= 92:
-            upsert_channel(con, b["buyer_id"], {"channel_id": best[2], "channel_url": f"https://adstransparency.google.com/advertiser/{best[2]}?region=US&political",
+            upsert_channel(con, b, {"channel_id": best[2], "channel_url": f"https://adstransparency.google.com/advertiser/{best[2]}?region=US&political",
                                                 "title": best[1], "confidence": best[0] / 100, "matched_by": "name match to advertiser_stats"}, source="google-ads")
             st.count("google_advertisers")
     con.commit()
@@ -633,10 +666,10 @@ def cmd_report(con, places=(("Des Moines 50309", "50309"), ("Atlanta 30303", "30
     out = {}
     out["buyers_total"] = q("SELECT COUNT(DISTINCT buyer_id) FROM creative")[0][0]
     out["channels"] = q("SELECT source, COUNT(*) FROM buyer_channel GROUP BY 1")
-    out["channels_by_category"] = q("""SELECT b.category, COUNT(DISTINCT b.buyer_id) buyers, COUNT(DISTINCT bc.buyer_id) with_channel,
-                                              SUM(CASE WHEN bc.buyer_id IS NOT NULL THEN 1 ELSE 0 END) FILTER (WHERE bc.uploads > 0) with_ad_uploads
+    out["channels_by_category"] = q(f"""SELECT b.category, COUNT(DISTINCT b.buyer_id) buyers, COUNT(DISTINCT bc.buyer_slug) with_channel,
+                                              COUNT(DISTINCT bc.buyer_slug) FILTER (WHERE bc.uploads > 0) with_ad_uploads
                                        FROM buyer b JOIN (SELECT DISTINCT buyer_id FROM creative) c USING (buyer_id)
-                                       LEFT JOIN buyer_channel bc ON bc.buyer_id=b.buyer_id AND bc.source IN ('youtube','override') GROUP BY 1 ORDER BY 1""")
+                                       LEFT JOIN buyer_channel bc ON bc.buyer_slug={SLUG_SQL} AND bc.source IN ('youtube','override') GROUP BY 1 ORDER BY 1""")
     out["families_total"] = len({family(r[0]) for r in q("SELECT ad_id FROM creative")})
     out["creatives_total"], out["airings_total"] = q("SELECT COUNT(*), SUM(airings) FROM creative")[0]
     out["by_tier"] = q("""SELECT CASE WHEN confidence>=0.7 THEN 'high' WHEN confidence>=0.4 THEN 'medium' ELSE 'low' END t, COUNT(*) creatives, SUM(c.airings) airings
@@ -659,9 +692,9 @@ def cmd_report(con, places=(("Des Moines 50309", "50309"), ("Atlanta 30303", "30
                         COUNT(*) FILTER (WHERE v.embed_url IS NOT NULL AND v.confidence>=0.4) med_up, (SELECT COUNT(*) FROM facs)
                  FROM spot s JOIN facs USING (facility_id) LEFT JOIN creative_video v ON v.ad_id=s.ad_id AND v.rank=1 WHERE s.ad_id IS NOT NULL""", lon, lat)[0]
         out["places"].append((label, *r))
-    out["tail"] = q("""SELECT b.canonical_name, b.category, SUM(c.airings) a, COUNT(*) n, bool_or(bc.buyer_id IS NOT NULL) has_channel,
+    out["tail"] = q(f"""SELECT b.canonical_name, b.category, SUM(c.airings) a, COUNT(*) n, bool_or(bc.buyer_slug IS NOT NULL) has_channel,
                               COUNT(v.ad_id) matched
-                       FROM creative c JOIN buyer b USING (buyer_id) LEFT JOIN buyer_channel bc ON bc.buyer_id=b.buyer_id AND bc.source IN ('youtube','override')
+                       FROM creative c JOIN buyer b USING (buyer_id) LEFT JOIN buyer_channel bc ON bc.buyer_slug={SLUG_SQL} AND bc.source IN ('youtube','override')
                        LEFT JOIN creative_video v ON v.ad_id=c.ad_id AND v.rank=1
                        GROUP BY 1,2 ORDER BY a DESC""")
     return out
@@ -702,6 +735,7 @@ def main():
     with Stage("video", args=vars(a), max_fail_rate=0.5) as st, pg.connect() as con:
         if not api_key():
             log.info("no YOUTUBE_API_KEY configured: using yt-dlp metadata + watch-page dates (keyless)")
+        relink(con)
         buyers = load_buyers(con, top=a.top, ids=ids)
         if a.cmd in ("all", "channels"):
             cmd_channels(con, st, buyers, refresh=a.refresh, rescore=a.rescore)

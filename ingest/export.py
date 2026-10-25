@@ -69,10 +69,10 @@ def video_brief(v):
 
 
 def load_channels(con):
-    """buyer_id -> {source: {...}}: the buyer's own channel (youtube/override) and link-out sources (google-ads)."""
+    """buyer slug -> {source: {...}}: the buyer's own channel (youtube/override) and link-out sources (google-ads)."""
     out = collections.defaultdict(dict)
-    for bid, source, cid, url, title, conf, ups in con.execute("SELECT buyer_id, source, channel_id, channel_url, title, confidence, uploads FROM buyer_channel"):
-        out[bid][source] = {"id": cid, "url": url, "title": title, "confidence": round(conf, 2) if conf is not None else None, "uploads": ups}
+    for sl, source, cid, url, title, conf, ups in con.execute("SELECT buyer_slug, source, channel_id, channel_url, title, confidence, uploads FROM buyer_channel"):
+        out[sl][source] = {"id": cid, "url": url, "title": title, "confidence": round(conf, 2) if conf is not None else None, "uploads": ups}
     return out
 
 
@@ -205,8 +205,8 @@ def export_details(con):
                "stations": stations, "weekly": series([(r[1], bid) for r in rows]), "daypart": grid([(r[1], bid) for r in rows]),
                "creatives": sorted(({"ad_id": k, "family": spot_family(k), "airings": v["airings"], "stations": sorted(v["stations"]), "first": v["first"], "last": v["last"], **video_brief(videos.get(k))} for k, v in cr.items()), key=lambda x: -x["airings"])[:60],
                "agencies": sorted({a for s_ in stations for a in s_["agencies"]}),
-               "channel": channels.get(bid, {}).get("override") or channels.get(bid, {}).get("youtube"),
-               "links": {src: ch["url"] for src, ch in channels.get(bid, {}).items() if src not in ("youtube", "override")}}
+               "channel": channels.get(slug(b[2], b[1]), {}).get("override") or channels.get(slug(b[2], b[1]), {}).get("youtube"),
+               "links": {src: ch["url"] for src, ch in channels.get(slug(b[2], b[1]), {}).items() if src not in ("youtube", "override")}}
         json.dump(out, open(os.path.join(WEB, "buyers", out["slug"] + ".json"), "w"), separators=(",", ":")); n += 1
     log.info(f"  buyers/: {n} detail files")
     bname = {b[0]: (b[1], b[2]) for b in buyers}
@@ -409,7 +409,7 @@ def main():
         parquet(con, "hex_total", "SELECT * FROM hex_total")
         parquet(con, "creative", "SELECT * FROM creative")
         parquet(con, "creative_video", "SELECT ad_id, rank, source, video_url, embed_url, thumb_url, title, duration_sec, published_at, confidence, matched_by FROM creative_video")
-        parquet(con, "buyer_channel", "SELECT buyer_id, source, channel_id, channel_url, title, matched_by, confidence, uploads FROM buyer_channel")
+        parquet(con, "buyer_channel", "SELECT buyer_slug, buyer_id, source, channel_id, channel_url, title, matched_by, confidence, uploads FROM buyer_channel")
         parquet(con, "order_", "SELECT order_id, facility_id, order_no, buyer_id, agency_id, advertiser_text, product, flight_start, flight_end, status, gross, net, spots FROM order_")
         parquet(con, "agency", "SELECT * FROM agency")
         parquet(con, "spot", "SELECT spot_id, invoice_id, facility_id, buyer_id, aired_on, aired_time, ad_id FROM spot")

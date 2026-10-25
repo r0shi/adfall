@@ -4,3 +4,11 @@
 # A spot family key is the Ad-ID without the weekday/slot tail some invoices append (RSFI2615000HTu1 -> RSFI2615000H);
 # an override on the family applies to every variant. Buyer slugs are the ones in the app's URLs (/buyers/<slug>).
 # Non-YouTube urls (adstransparency.google.com, ispot.tv) are kept as link-outs without an embed.
+#   buyer slug: none                         block an automatic channel pick that is wrong
+
+# wrong automatic picks seen on 2026-10-25 (generic names): block them
+issue-michigan-victory-fund: none    # picked the LGBTQ Victory Fund
+issue-ia-victory-fund: none          # same
+issue-action-fund: none              # picked "Progress Action Fund"; the station label is too short to resolve
+state-brian-wrightson: none          # picked a jiu-jitsu channel
+local-reno: none                     # picked the City of Reno
