@@ -1,11 +1,1219 @@
 {
  "generated": "2026-10-24",
+ "pipeline": {
+  "last_runs": {
+   "crawl": {
+    "status": "ok",
+    "started": "2026-10-24 23:26:32+00:00",
+    "ended": "2026-10-24 23:26:42+00:00",
+    "counts": {
+     "seconds": 9.5,
+     "download_mb": 14.6,
+     "downloads_ok": 62,
+     "files_listed": 62,
+     "still_pending": 0,
+     "stations_listed": 2,
+     "downloads_failed": 0,
+     "downloads_pending": 62
+    },
+    "failures": 0,
+    "error": null,
+    "log": "data/logs/crawl-20261024-232632.log"
+   },
+   "entities": {
+    "status": "ok",
+    "started": "2026-10-24 23:35:17+00:00",
+    "ended": "2026-10-24 23:39:05+00:00",
+    "counts": {
+     "form": 21215,
+     "spot": 517362,
+     "buyer": 1531,
+     "agency": 574,
+     "order_": 28661,
+     "invoice": 14493,
+     "seconds": 228.2,
+     "creative": 49563,
+     "documents": 93985,
+     "order_line": 573460,
+     "buyer_alias": 12626,
+     "order_revision": 45926
+    },
+    "failures": 0,
+    "error": null,
+    "log": "data/logs/entities-20261024-233517.log"
+   },
+   "export": {
+    "status": "ok",
+    "started": "2026-10-24 23:40:08+00:00",
+    "ended": "2026-10-24 23:40:16+00:00",
+    "counts": {
+     "seconds": 8.7
+    },
+    "failures": 0,
+    "error": null,
+    "log": "data/logs/export-20261024-234008.log"
+   },
+   "identity": {
+    "status": "ok",
+    "started": "2026-10-24 23:35:09+00:00",
+    "ended": "2026-10-24 23:35:16+00:00",
+    "counts": {
+     "buyers": 1519,
+     "labels": 3197,
+     "merged": 601,
+     "seconds": 6.9,
+     "method_raw": 1,
+     "method_manual": 8,
+     "method_name-rule": 2221,
+     "method_fec-candidate": 604,
+     "method_fec-committee": 363
+    },
+    "failures": 0,
+    "error": null,
+    "log": "data/logs/identity-20261024-233509.log"
+   },
+   "load_pg": {
+    "status": "running",
+    "started": "2026-10-24 23:41:14+00:00",
+    "ended": null,
+    "counts": null,
+    "failures": 0,
+    "error": null,
+    "log": "data/logs/load_pg-20261024-234114.log"
+   },
+   "ocr": {
+    "status": "ok",
+    "started": "2026-10-24 23:26:44+00:00",
+    "ended": "2026-10-24 23:27:26+00:00",
+    "counts": {
+     "ok": 175,
+     "pages": 691,
+     "cached": 0,
+     "failed": 1,
+     "queued": 176,
+     "seconds": 42.2,
+     "given_up": 0
+    },
+    "failures": 1,
+    "error": null,
+    "log": "data/logs/ocr-20261024-232644.log"
+   },
+   "parse": {
+    "status": "ok",
+    "started": "2026-10-24 23:40:52+00:00",
+    "ended": "2026-10-24 23:41:13+00:00",
+    "counts": {
+     "ok": 79395,
+     "queued": 93985,
+     "crashes": 0,
+     "seconds": 21.1,
+     "needs_ocr": 1,
+     "order/katz/ok": 3648,
+     "order/eport/ok": 10,
+     "other/-/failed": 1,
+     "form/nab-text/ok": 15977,
+     "order/katz-ecr/ok": 1127,
+     "order/katz/partial": 13,
+     "order/eport/partial": 8,
+     "form/nab-acroform/ok": 4050,
+     "form/nab-text/failed": 1145,
+     "other/-/unrecognized": 6981,
+     "order/katz-ecr/partial": 754,
+     "other/nab-supplement/ok": 1058,
+     "form/nab-acroform/failed": 43,
+     "order/wideorbit-order/ok": 17742,
+     "order/sinclair-contract/ok": 87,
+     "invoice/sinclair-invoice/ok": 502,
+     "order/locality-worksheet/ok": 532,
+     "order/wideorbit-contract/ok": 19074,
+     "invoice/wideorbit-invoice/ok": 11882,
+     "order/wideorbit-order-ocr/ok": 1192,
+     "order/wideorbit-order/failed": 1,
+     "order/wideorbit-order/partial": 187,
+     "invoice/sinclair-invoice/failed": 502,
+     "order/wideorbit-contract-ocr/ok": 2514,
+     "invoice/sinclair-invoice/partial": 2340,
+     "invoice/wideorbit-invoice/failed": 10,
+     "order/locality-worksheet/partial": 28,
+     "order/wideorbit-contract/partial": 61,
+     "order/wideorbit-order-ocr/failed": 205,
+     "invoice/wideorbit-invoice/partial": 480,
+     "order/wideorbit-order-ocr/partial": 132,
+     "order/wideorbit-contract-ocr/failed": 27,
+     "order/wideorbit-contract-ocr/partial": 1672
+    },
+    "failures": 0,
+    "error": null,
+    "log": "data/logs/parse-20261024-234052.log"
+   },
+   "pipeline": {
+    "status": "ok",
+    "started": "2026-10-24 23:26:32+00:00",
+    "ended": "2026-10-24 23:27:27+00:00",
+    "counts": {
+     "seconds": 54.8,
+     "states_ok": 1,
+     "pg_refresh_failures": 0
+    },
+    "failures": 0,
+    "error": null,
+    "log": "data/logs/pipeline-20261024-232632.log"
+   },
+   "update": {
+    "status": "ok",
+    "started": "2026-10-24 22:53:59+00:00",
+    "ended": "2026-10-24 23:17:35+00:00",
+    "counts": {
+     "seconds": 1416.1
+    },
+    "failures": 1,
+    "error": null,
+    "log": "data/logs/update-20261024-225359.log"
+   }
+  },
+  "batches": [
+   {
+    "state": "GU",
+    "status": "ok",
+    "started": "2026-10-24 23:26:32+00:00",
+    "ended": "2026-10-24 23:27:27+00:00"
+   }
+  ],
+  "listing": {
+   "complete": 202
+  },
+  "ocr_engines": {
+   "legacy-tesseract": 24665,
+   "vision": 223
+  },
+  "templates": {
+   "order/wideorbit-contract": 19135,
+   "order/wideorbit-order": 17930,
+   "form/nab-text": 17122,
+   "invoice/wideorbit-invoice": 12372,
+   "other/unrecognized": 6982,
+   "order/wideorbit-contract-ocr": 4213,
+   "form/nab-acroform": 4093,
+   "order/katz": 3661,
+   "invoice/sinclair-invoice": 3344,
+   "order/katz-ecr": 1881,
+   "order/wideorbit-order-ocr": 1529,
+   "other/nab-supplement": 1058,
+   "order/locality-worksheet": 560,
+   "order/sinclair-contract": 87,
+   "order/eport": 18
+  },
+  "parser_version": 5,
+  "stages": "crawl -> parse -> ocr -> parse --only-failed -> load_pg -> entities -> identity -> entities -> marts -> geo -> export -> tiles",
+  "logs": "data/logs/<stage>-<timestamp>.log; `make status` summarises; every stage records a pipeline_run row"
+ },
+ "coverage": {
+  "national_counts_as_of": "2026-10-23",
+  "total": {
+   "2024": {
+    "stations": 1750,
+    "stations_crawled": 0,
+    "stations_with_docs": 1108,
+    "docs_national": 408081,
+    "docs_listed": 0,
+    "docs_downloaded": 0,
+    "docs_ok": 0
+   },
+   "2026": {
+    "stations": 1750,
+    "stations_crawled": 208,
+    "stations_with_docs": 1098,
+    "docs_national": 410345,
+    "docs_listed": 101317,
+    "docs_downloaded": 93985,
+    "docs_ok": 79395
+   }
+  },
+  "by_state": {
+   "AK": {
+    "2024": {
+     "stations": 15,
+     "stations_crawled": 0,
+     "stations_with_docs": 9,
+     "docs_national": 2598,
+     "docs_downloaded": 0,
+     "docs_ok": 0
+    },
+    "2026": {
+     "stations": 15,
+     "stations_crawled": 0,
+     "stations_with_docs": 7,
+     "docs_national": 6175,
+     "docs_downloaded": 0,
+     "docs_ok": 0
+    }
+   },
+   "AL": {
+    "2024": {
+     "stations": 42,
+     "stations_crawled": 0,
+     "stations_with_docs": 25,
+     "docs_national": 3308,
+     "docs_downloaded": 0,
+     "docs_ok": 0
+    },
+    "2026": {
+     "stations": 42,
+     "stations_crawled": 1,
+     "stations_with_docs": 25,
+     "docs_national": 10646,
+     "docs_downloaded": 162,
+     "docs_ok": 155
+    }
+   },
+   "AR": {
+    "2024": {
+     "stations": 27,
+     "stations_crawled": 0,
+     "stations_with_docs": 18,
+     "docs_national": 1291,
+     "docs_downloaded": 0,
+     "docs_ok": 0
+    },
+    "2026": {
+     "stations": 27,
+     "stations_crawled": 1,
+     "stations_with_docs": 18,
+     "docs_national": 3270,
+     "docs_downloaded": 11,
+     "docs_ok": 3
+    }
+   },
+   "AZ": {
+    "2024": {
+     "stations": 30,
+     "stations_crawled": 0,
+     "stations_with_docs": 23,
+     "docs_national": 15386,
+     "docs_downloaded": 0,
+     "docs_ok": 0
+    },
+    "2026": {
+     "stations": 30,
+     "stations_crawled": 19,
+     "stations_with_docs": 19,
+     "docs_national": 6926,
+     "docs_downloaded": 6925,
+     "docs_ok": 6149
+    }
+   },
+   "CA": {
+    "2024": {
+     "stations": 108,
+     "stations_crawled": 0,
+     "stations_with_docs": 78,
+     "docs_national": 18319,
+     "docs_downloaded": 0,
+     "docs_ok": 0
+    },
+    "2026": {
+     "stations": 108,
+     "stations_crawled": 0,
+     "stations_with_docs": 69,
+     "docs_national": 21960,
+     "docs_downloaded": 0,
+     "docs_ok": 0
+    }
+   },
+   "CO": {
+    "2024": {
+     "stations": 34,
+     "stations_crawled": 0,
+     "stations_with_docs": 25,
+     "docs_national": 5727,
+     "docs_downloaded": 0,
+     "docs_ok": 0
+    },
+    "2026": {
+     "stations": 34,
+     "stations_crawled": 0,
+     "stations_with_docs": 22,
+     "docs_national": 7295,
+     "docs_downloaded": 0,
+     "docs_ok": 0
+    }
+   },
+   "CT": {
+    "2024": {
+     "stations": 11,
+     "stations_crawled": 0,
+     "stations_with_docs": 5,
+     "docs_national": 657,
+     "docs_downloaded": 0,
+     "docs_ok": 0
+    },
+    "2026": {
+     "stations": 11,
+     "stations_crawled": 0,
+     "stations_with_docs": 7,
+     "docs_national": 1093,
+     "docs_downloaded": 0,
+     "docs_ok": 0
+    }
+   },
+   "DC": {
+    "2024": {
+     "stations": 8,
+     "stations_crawled": 0,
+     "stations_with_docs": 6,
+     "docs_national": 3437,
+     "docs_downloaded": 0,
+     "docs_ok": 0
+    },
+    "2026": {
+     "stations": 8,
+     "stations_crawled": 0,
+     "stations_with_docs": 6,
+     "docs_national": 2477,
+     "docs_downloaded": 0,
+     "docs_ok": 0
+    }
+   },
+   "DE": {
+    "2024": {
+     "stations": 5,
+     "stations_crawled": 0,
+     "stations_with_docs": 2,
+     "docs_national": 564,
+     "docs_downloaded": 0,
+     "docs_ok": 0
+    },
+    "2026": {
+     "stations": 5,
+     "stations_crawled": 0,
+     "stations_with_docs": 1,
+     "docs_national": 67,
+     "docs_downloaded": 0,
+     "docs_ok": 0
+    }
+   },
+   "FL": {
+    "2024": {
+     "stations": 95,
+     "stations_crawled": 0,
+     "stations_with_docs": 62,
+     "docs_national": 19682,
+     "docs_downloaded": 0,
+     "docs_ok": 0
+    },
+    "2026": {
+     "stations": 95,
+     "stations_crawled": 0,
+     "stations_with_docs": 59,
+     "docs_national": 18161,
+     "docs_downloaded": 0,
+     "docs_ok": 0
+    }
+   },
+   "GA": {
+    "2024": {
+     "stations": 46,
+     "stations_crawled": 0,
+     "stations_with_docs": 31,
+     "docs_national": 11153,
+     "docs_downloaded": 0,
+     "docs_ok": 0
+    },
+    "2026": {
+     "stations": 46,
+     "stations_crawled": 27,
+     "stations_with_docs": 27,
+     "docs_national": 17898,
+     "docs_downloaded": 17904,
+     "docs_ok": 15934
+    }
+   },
+   "GU": {
+    "2024": {
+     "stations": 3,
+     "stations_crawled": 0,
+     "stations_with_docs": 1,
+     "docs_national": 122,
+     "docs_downloaded": 0,
+     "docs_ok": 0
+    },
+    "2026": {
+     "stations": 3,
+     "stations_crawled": 2,
+     "stations_with_docs": 2,
+     "docs_national": 62,
+     "docs_downloaded": 62,
+     "docs_ok": 48
+    }
+   },
+   "HI": {
+    "2024": {
+     "stations": 25,
+     "stations_crawled": 0,
+     "stations_with_docs": 16,
+     "docs_national": 916,
+     "docs_downloaded": 0,
+     "docs_ok": 0
+    },
+    "2026": {
+     "stations": 25,
+     "stations_crawled": 0,
+     "stations_with_docs": 15,
+     "docs_national": 5370,
+     "docs_downloaded": 0,
+     "docs_ok": 0
+    }
+   },
+   "IA": {
+    "2024": {
+     "stations": 32,
+     "stations_crawled": 0,
+     "stations_with_docs": 18,
+     "docs_national": 6852,
+     "docs_downloaded": 0,
+     "docs_ok": 0
+    },
+    "2026": {
+     "stations": 32,
+     "stations_crawled": 5,
+     "stations_with_docs": 26,
+     "docs_national": 18523,
+     "docs_downloaded": 5882,
+     "docs_ok": 5468
+    }
+   },
+   "ID": {
+    "2024": {
+     "stations": 19,
+     "stations_crawled": 0,
+     "stations_with_docs": 9,
+     "docs_national": 556,
+     "docs_downloaded": 0,
+     "docs_ok": 0
+    },
+    "2026": {
+     "stations": 19,
+     "stations_crawled": 0,
+     "stations_with_docs": 9,
+     "docs_national": 1121,
+     "docs_downloaded": 0,
+     "docs_ok": 0
+    }
+   },
+   "IL": {
+    "2024": {
+     "stations": 46,
+     "stations_crawled": 0,
+     "stations_with_docs": 30,
+     "docs_national": 3699,
+     "docs_downloaded": 0,
+     "docs_ok": 0
+    },
+    "2026": {
+     "stations": 46,
+     "stations_crawled": 0,
+     "stations_with_docs": 29,
+     "docs_national": 9843,
+     "docs_downloaded": 0,
+     "docs_ok": 0
+    }
+   },
+   "IN": {
+    "2024": {
+     "stations": 40,
+     "stations_crawled": 0,
+     "stations_with_docs": 26,
+     "docs_national": 6938,
+     "docs_downloaded": 0,
+     "docs_ok": 0
+    },
+    "2026": {
+     "stations": 40,
+     "stations_crawled": 0,
+     "stations_with_docs": 22,
+     "docs_national": 3397,
+     "docs_downloaded": 0,
+     "docs_ok": 0
+    }
+   },
+   "KS": {
+    "2024": {
+     "stations": 29,
+     "stations_crawled": 0,
+     "stations_with_docs": 22,
+     "docs_national": 911,
+     "docs_downloaded": 0,
+     "docs_ok": 0
+    },
+    "2026": {
+     "stations": 29,
+     "stations_crawled": 0,
+     "stations_with_docs": 21,
+     "docs_national": 12388,
+     "docs_downloaded": 0,
+     "docs_ok": 0
+    }
+   },
+   "KY": {
+    "2024": {
+     "stations": 35,
+     "stations_crawled": 0,
+     "stations_with_docs": 15,
+     "docs_national": 4559,
+     "docs_downloaded": 0,
+     "docs_ok": 0
+    },
+    "2026": {
+     "stations": 35,
+     "stations_crawled": 0,
+     "stations_with_docs": 14,
+     "docs_national": 6669,
+     "docs_downloaded": 0,
+     "docs_ok": 0
+    }
+   },
+   "LA": {
+    "2024": {
+     "stations": 39,
+     "stations_crawled": 0,
+     "stations_with_docs": 24,
+     "docs_national": 1281,
+     "docs_downloaded": 0,
+     "docs_ok": 0
+    },
+    "2026": {
+     "stations": 39,
+     "stations_crawled": 0,
+     "stations_with_docs": 27,
+     "docs_national": 5648,
+     "docs_downloaded": 0,
+     "docs_ok": 0
+    }
+   },
+   "MA": {
+    "2024": {
+     "stations": 21,
+     "stations_crawled": 0,
+     "stations_with_docs": 11,
+     "docs_national": 2390,
+     "docs_downloaded": 0,
+     "docs_ok": 0
+    },
+    "2026": {
+     "stations": 21,
+     "stations_crawled": 0,
+     "stations_with_docs": 11,
+     "docs_national": 4462,
+     "docs_downloaded": 0,
+     "docs_ok": 0
+    }
+   },
+   "MD": {
+    "2024": {
+     "stations": 16,
+     "stations_crawled": 0,
+     "stations_with_docs": 9,
+     "docs_national": 2960,
+     "docs_downloaded": 0,
+     "docs_ok": 0
+    },
+    "2026": {
+     "stations": 16,
+     "stations_crawled": 0,
+     "stations_with_docs": 9,
+     "docs_national": 923,
+     "docs_downloaded": 0,
+     "docs_ok": 0
+    }
+   },
+   "ME": {
+    "2024": {
+     "stations": 15,
+     "stations_crawled": 0,
+     "stations_with_docs": 9,
+     "docs_national": 4809,
+     "docs_downloaded": 0,
+     "docs_ok": 0
+    },
+    "2026": {
+     "stations": 15,
+     "stations_crawled": 0,
+     "stations_with_docs": 9,
+     "docs_national": 12716,
+     "docs_downloaded": 0,
+     "docs_ok": 0
+    }
+   },
+   "MI": {
+    "2024": {
+     "stations": 50,
+     "stations_crawled": 0,
+     "stations_with_docs": 35,
+     "docs_national": 28067,
+     "docs_downloaded": 0,
+     "docs_ok": 0
+    },
+    "2026": {
+     "stations": 50,
+     "stations_crawled": 33,
+     "stations_with_docs": 33,
+     "docs_national": 23625,
+     "docs_downloaded": 23617,
+     "docs_ok": 18670
+    }
+   },
+   "MN": {
+    "2024": {
+     "stations": 34,
+     "stations_crawled": 0,
+     "stations_with_docs": 20,
+     "docs_national": 5832,
+     "docs_downloaded": 0,
+     "docs_ok": 0
+    },
+    "2026": {
+     "stations": 34,
+     "stations_crawled": 0,
+     "stations_with_docs": 19,
+     "docs_national": 10230,
+     "docs_downloaded": 0,
+     "docs_ok": 0
+    }
+   },
+   "MO": {
+    "2024": {
+     "stations": 35,
+     "stations_crawled": 0,
+     "stations_with_docs": 29,
+     "docs_national": 11350,
+     "docs_downloaded": 0,
+     "docs_ok": 0
+    },
+    "2026": {
+     "stations": 35,
+     "stations_crawled": 0,
+     "stations_with_docs": 28,
+     "docs_national": 9033,
+     "docs_downloaded": 0,
+     "docs_ok": 0
+    }
+   },
+   "MS": {
+    "2024": {
+     "stations": 31,
+     "stations_crawled": 0,
+     "stations_with_docs": 19,
+     "docs_national": 1169,
+     "docs_downloaded": 0,
+     "docs_ok": 0
+    },
+    "2026": {
+     "stations": 31,
+     "stations_crawled": 0,
+     "stations_with_docs": 16,
+     "docs_national": 1673,
+     "docs_downloaded": 0,
+     "docs_ok": 0
+    }
+   },
+   "MT": {
+    "2024": {
+     "stations": 23,
+     "stations_crawled": 0,
+     "stations_with_docs": 16,
+     "docs_national": 12994,
+     "docs_downloaded": 0,
+     "docs_ok": 0
+    },
+    "2026": {
+     "stations": 23,
+     "stations_crawled": 0,
+     "stations_with_docs": 14,
+     "docs_national": 4189,
+     "docs_downloaded": 0,
+     "docs_ok": 0
+    }
+   },
+   "NC": {
+    "2024": {
+     "stations": 48,
+     "stations_crawled": 0,
+     "stations_with_docs": 30,
+     "docs_national": 22403,
+     "docs_downloaded": 0,
+     "docs_ok": 0
+    },
+    "2026": {
+     "stations": 48,
+     "stations_crawled": 38,
+     "stations_with_docs": 38,
+     "docs_national": 11805,
+     "docs_downloaded": 11792,
+     "docs_ok": 9125
+    }
+   },
+   "ND": {
+    "2024": {
+     "stations": 28,
+     "stations_crawled": 0,
+     "stations_with_docs": 20,
+     "docs_national": 7826,
+     "docs_downloaded": 0,
+     "docs_ok": 0
+    },
+    "2026": {
+     "stations": 28,
+     "stations_crawled": 0,
+     "stations_with_docs": 19,
+     "docs_national": 2107,
+     "docs_downloaded": 0,
+     "docs_ok": 0
+    }
+   },
+   "NE": {
+    "2024": {
+     "stations": 26,
+     "stations_crawled": 0,
+     "stations_with_docs": 15,
+     "docs_national": 9451,
+     "docs_downloaded": 0,
+     "docs_ok": 0
+    },
+    "2026": {
+     "stations": 26,
+     "stations_crawled": 0,
+     "stations_with_docs": 25,
+     "docs_national": 8481,
+     "docs_downloaded": 0,
+     "docs_ok": 0
+    }
+   },
+   "NH": {
+    "2024": {
+     "stations": 7,
+     "stations_crawled": 0,
+     "stations_with_docs": 1,
+     "docs_national": 1139,
+     "docs_downloaded": 0,
+     "docs_ok": 0
+    },
+    "2026": {
+     "stations": 7,
+     "stations_crawled": 0,
+     "stations_with_docs": 2,
+     "docs_national": 977,
+     "docs_downloaded": 0,
+     "docs_ok": 0
+    }
+   },
+   "NJ": {
+    "2024": {
+     "stations": 18,
+     "stations_crawled": 0,
+     "stations_with_docs": 9,
+     "docs_national": 712,
+     "docs_downloaded": 0,
+     "docs_ok": 0
+    },
+    "2026": {
+     "stations": 18,
+     "stations_crawled": 0,
+     "stations_with_docs": 8,
+     "docs_national": 480,
+     "docs_downloaded": 0,
+     "docs_ok": 0
+    }
+   },
+   "NM": {
+    "2024": {
+     "stations": 25,
+     "stations_crawled": 0,
+     "stations_with_docs": 16,
+     "docs_national": 6825,
+     "docs_downloaded": 0,
+     "docs_ok": 0
+    },
+    "2026": {
+     "stations": 25,
+     "stations_crawled": 0,
+     "stations_with_docs": 15,
+     "docs_national": 6676,
+     "docs_downloaded": 0,
+     "docs_ok": 0
+    }
+   },
+   "NV": {
+    "2024": {
+     "stations": 20,
+     "stations_crawled": 0,
+     "stations_with_docs": 13,
+     "docs_national": 13113,
+     "docs_downloaded": 0,
+     "docs_ok": 0
+    },
+    "2026": {
+     "stations": 20,
+     "stations_crawled": 13,
+     "stations_with_docs": 13,
+     "docs_national": 4330,
+     "docs_downloaded": 4330,
+     "docs_ok": 3627
+    }
+   },
+   "NY": {
+    "2024": {
+     "stations": 59,
+     "stations_crawled": 0,
+     "stations_with_docs": 38,
+     "docs_national": 11944,
+     "docs_downloaded": 0,
+     "docs_ok": 0
+    },
+    "2026": {
+     "stations": 59,
+     "stations_crawled": 0,
+     "stations_with_docs": 37,
+     "docs_national": 10299,
+     "docs_downloaded": 0,
+     "docs_ok": 0
+    }
+   },
+   "OH": {
+    "2024": {
+     "stations": 51,
+     "stations_crawled": 0,
+     "stations_with_docs": 30,
+     "docs_national": 22669,
+     "docs_downloaded": 0,
+     "docs_ok": 0
+    },
+    "2026": {
+     "stations": 51,
+     "stations_crawled": 0,
+     "stations_with_docs": 29,
+     "docs_national": 24900,
+     "docs_downloaded": 0,
+     "docs_ok": 0
+    }
+   },
+   "OK": {
+    "2024": {
+     "stations": 28,
+     "stations_crawled": 0,
+     "stations_with_docs": 16,
+     "docs_national": 2131,
+     "docs_downloaded": 0,
+     "docs_ok": 0
+    },
+    "2026": {
+     "stations": 28,
+     "stations_crawled": 0,
+     "stations_with_docs": 13,
+     "docs_national": 8266,
+     "docs_downloaded": 0,
+     "docs_ok": 0
+    }
+   },
+   "OR": {
+    "2024": {
+     "stations": 34,
+     "stations_crawled": 0,
+     "stations_with_docs": 22,
+     "docs_national": 7459,
+     "docs_downloaded": 0,
+     "docs_ok": 0
+    },
+    "2026": {
+     "stations": 34,
+     "stations_crawled": 0,
+     "stations_with_docs": 23,
+     "docs_national": 4796,
+     "docs_downloaded": 0,
+     "docs_ok": 0
+    }
+   },
+   "PA": {
+    "2024": {
+     "stations": 46,
+     "stations_crawled": 0,
+     "stations_with_docs": 31,
+     "docs_national": 42538,
+     "docs_downloaded": 0,
+     "docs_ok": 0
+    },
+    "2026": {
+     "stations": 46,
+     "stations_crawled": 31,
+     "stations_with_docs": 31,
+     "docs_national": 10362,
+     "docs_downloaded": 10358,
+     "docs_ok": 8956
+    }
+   },
+   "PR": {
+    "2024": {
+     "stations": 29,
+     "stations_crawled": 0,
+     "stations_with_docs": 11,
+     "docs_national": 2775,
+     "docs_downloaded": 0,
+     "docs_ok": 0
+    },
+    "2026": {
+     "stations": 29,
+     "stations_crawled": 0,
+     "stations_with_docs": 0,
+     "docs_national": 0,
+     "docs_downloaded": 0,
+     "docs_ok": 0
+    }
+   },
+   "RI": {
+    "2024": {
+     "stations": 5,
+     "stations_crawled": 0,
+     "stations_with_docs": 3,
+     "docs_national": 369,
+     "docs_downloaded": 0,
+     "docs_ok": 0
+    },
+    "2026": {
+     "stations": 5,
+     "stations_crawled": 0,
+     "stations_with_docs": 3,
+     "docs_national": 1810,
+     "docs_downloaded": 0,
+     "docs_ok": 0
+    }
+   },
+   "SC": {
+    "2024": {
+     "stations": 33,
+     "stations_crawled": 0,
+     "stations_with_docs": 17,
+     "docs_national": 3490,
+     "docs_downloaded": 0,
+     "docs_ok": 0
+    },
+    "2026": {
+     "stations": 33,
+     "stations_crawled": 0,
+     "stations_with_docs": 29,
+     "docs_national": 10177,
+     "docs_downloaded": 0,
+     "docs_ok": 0
+    }
+   },
+   "SD": {
+    "2024": {
+     "stations": 25,
+     "stations_crawled": 0,
+     "stations_with_docs": 12,
+     "docs_national": 2263,
+     "docs_downloaded": 0,
+     "docs_ok": 0
+    },
+    "2026": {
+     "stations": 25,
+     "stations_crawled": 0,
+     "stations_with_docs": 11,
+     "docs_national": 6650,
+     "docs_downloaded": 0,
+     "docs_ok": 0
+    }
+   },
+   "TN": {
+    "2024": {
+     "stations": 42,
+     "stations_crawled": 0,
+     "stations_with_docs": 21,
+     "docs_national": 3199,
+     "docs_downloaded": 0,
+     "docs_ok": 0
+    },
+    "2026": {
+     "stations": 42,
+     "stations_crawled": 0,
+     "stations_with_docs": 25,
+     "docs_national": 6475,
+     "docs_downloaded": 0,
+     "docs_ok": 0
+    }
+   },
+   "TX": {
+    "2024": {
+     "stations": 135,
+     "stations_crawled": 0,
+     "stations_with_docs": 106,
+     "docs_national": 21455,
+     "docs_downloaded": 0,
+     "docs_ok": 0
+    },
+    "2026": {
+     "stations": 135,
+     "stations_crawled": 6,
+     "stations_with_docs": 103,
+     "docs_national": 36568,
+     "docs_downloaded": 0,
+     "docs_ok": 0
+    }
+   },
+   "UT": {
+    "2024": {
+     "stations": 20,
+     "stations_crawled": 0,
+     "stations_with_docs": 7,
+     "docs_national": 697,
+     "docs_downloaded": 0,
+     "docs_ok": 0
+    },
+    "2026": {
+     "stations": 20,
+     "stations_crawled": 0,
+     "stations_with_docs": 8,
+     "docs_national": 377,
+     "docs_downloaded": 0,
+     "docs_ok": 0
+    }
+   },
+   "VA": {
+    "2024": {
+     "stations": 33,
+     "stations_crawled": 0,
+     "stations_with_docs": 23,
+     "docs_national": 6789,
+     "docs_downloaded": 0,
+     "docs_ok": 0
+    },
+    "2026": {
+     "stations": 33,
+     "stations_crawled": 0,
+     "stations_with_docs": 21,
+     "docs_national": 6637,
+     "docs_downloaded": 0,
+     "docs_ok": 0
+    }
+   },
+   "VI": {
+    "2024": {
+     "stations": 5,
+     "stations_crawled": 0,
+     "stations_with_docs": 0,
+     "docs_national": 0,
+     "docs_downloaded": 0,
+     "docs_ok": 0
+    },
+    "2026": {
+     "stations": 5,
+     "stations_crawled": 0,
+     "stations_with_docs": 2,
+     "docs_national": 108,
+     "docs_downloaded": 0,
+     "docs_ok": 0
+    }
+   },
+   "VT": {
+    "2024": {
+     "stations": 6,
+     "stations_crawled": 0,
+     "stations_with_docs": 4,
+     "docs_national": 539,
+     "docs_downloaded": 0,
+     "docs_ok": 0
+    },
+    "2026": {
+     "stations": 6,
+     "stations_crawled": 0,
+     "stations_with_docs": 4,
+     "docs_national": 1248,
+     "docs_downloaded": 0,
+     "docs_ok": 0
+    }
+   },
+   "WA": {
+    "2024": {
+     "stations": 35,
+     "stations_crawled": 0,
+     "stations_with_docs": 20,
+     "docs_national": 5546,
+     "docs_downloaded": 0,
+     "docs_ok": 0
+    },
+    "2026": {
+     "stations": 35,
+     "stations_crawled": 0,
+     "stations_with_docs": 21,
+     "docs_national": 1744,
+     "docs_downloaded": 0,
+     "docs_ok": 0
+    }
+   },
+   "WI": {
+    "2024": {
+     "stations": 44,
+     "stations_crawled": 0,
+     "stations_with_docs": 32,
+     "docs_national": 26562,
+     "docs_downloaded": 0,
+     "docs_ok": 0
+    },
+    "2026": {
+     "stations": 44,
+     "stations_crawled": 32,
+     "stations_with_docs": 32,
+     "docs_national": 12866,
+     "docs_downloaded": 12942,
+     "docs_ok": 11260
+    }
+   },
+   "WV": {
+    "2024": {
+     "stations": 18,
+     "stations_crawled": 0,
+     "stations_with_docs": 11,
+     "docs_national": 8135,
+     "docs_downloaded": 0,
+     "docs_ok": 0
+    },
+    "2026": {
+     "stations": 18,
+     "stations_crawled": 0,
+     "stations_with_docs": 11,
+     "docs_national": 4668,
+     "docs_downloaded": 0,
+     "docs_ok": 0
+    }
+   },
+   "WY": {
+    "2024": {
+     "stations": 16,
+     "stations_crawled": 0,
+     "stations_with_docs": 7,
+     "docs_national": 525,
+     "docs_downloaded": 0,
+     "docs_ok": 0
+    },
+    "2026": {
+     "stations": 16,
+     "stations_crawled": 0,
+     "stations_with_docs": 11,
+     "docs_national": 1698,
+     "docs_downloaded": 0,
+     "docs_ok": 0
+    }
+   }
+  },
+  "stations_not_yet_crawled_2026": 890
+ },
  "stations": {
   "licensed": 2147,
-  "with_documents": 198,
+  "with_documents": 202,
   "states": [
+   "AL",
+   "AR",
    "AZ",
    "GA",
+   "GU",
    "IA",
    "MI",
    "NC",
@@ -16,9 +1224,9 @@
   "with_streams": 217,
   "by_group": [
    {
-    "group": "other",
-    "stations": 86,
-    "docs": 41138
+    "group": "Sinclair",
+    "stations": 30,
+    "docs": 15254
    },
    {
     "group": "Gray",
@@ -31,14 +1239,24 @@
     "docs": 13060
    },
    {
+    "group": "Tegna",
+    "stations": 14,
+    "docs": 7038
+   },
+   {
+    "group": "CBS",
+    "stations": 7,
+    "docs": 6743
+   },
+   {
+    "group": "Allen Media",
+    "stations": 7,
+    "docs": 5241
+   },
+   {
     "group": "Hearst",
     "stations": 7,
     "docs": 4713
-   },
-   {
-    "group": "Tegna",
-    "stations": 8,
-    "docs": 4678
    },
    {
     "group": "Scripps",
@@ -46,14 +1264,9 @@
     "docs": 4537
    },
    {
-    "group": "CBS",
-    "stations": 3,
-    "docs": 3268
-   },
-   {
     "group": "Fox",
-    "stations": 5,
-    "docs": 2786
+    "stations": 6,
+    "docs": 3491
    },
    {
     "group": "Graham",
@@ -61,14 +1274,54 @@
     "docs": 2148
    },
    {
-    "group": "Sinclair",
-    "stations": 1,
-    "docs": 998
+    "group": "Cox",
+    "stations": 4,
+    "docs": 2052
    },
    {
-    "group": "Cox",
-    "stations": 1,
-    "docs": 931
+    "group": "ABC",
+    "stations": 2,
+    "docs": 1801
+   },
+   {
+    "group": "Independent",
+    "stations": 10,
+    "docs": 1608
+   },
+   {
+    "group": "Capitol",
+    "stations": 2,
+    "docs": 1602
+   },
+   {
+    "group": "Lockwood",
+    "stations": 2,
+    "docs": 1454
+   },
+   {
+    "group": "Univision",
+    "stations": 4,
+    "docs": 1247
+   },
+   {
+    "group": "Marquee",
+    "stations": 2,
+    "docs": 1121
+   },
+   {
+    "group": "Heritage",
+    "stations": 2,
+    "docs": 1045
+   },
+   {
+    "group": "Morgan Murphy",
+    "stations": 2,
+    "docs": 967
+   },
+   {
+    "group": "Morris",
+    "stations": 2,
+    "docs": 877
    },
    {
     "group": "NBCUniversal",
@@ -76,14 +1329,44 @@
     "docs": 876
    },
    {
-    "group": "Univision",
+    "group": "Weigel",
+    "stations": 3,
+    "docs": 701
+   },
+   {
+    "group": "Sarkes Tarzian",
+    "stations": 1,
+    "docs": 614
+   },
+   {
+    "group": "Maranatha",
+    "stations": 1,
+    "docs": 444
+   },
+   {
+    "group": "Lilly",
+    "stations": 3,
+    "docs": 433
+   },
+   {
+    "group": "Bahakel",
+    "stations": 1,
+    "docs": 398
+   },
+   {
+    "group": "Rincon",
     "stations": 2,
-    "docs": 572
+    "docs": 310
    },
    {
     "group": "Entravision",
     "stations": 2,
     "docs": 201
+   },
+   {
+    "group": "Londen",
+    "stations": 1,
+    "docs": 163
    },
    {
     "group": "Ion",
@@ -92,8 +1375,8 @@
    },
    {
     "group": "Public",
-    "stations": 11,
-    "docs": 11
+    "stations": 13,
+    "docs": 13
    },
    {
     "group": "Religious",
@@ -103,68 +1386,75 @@
   ]
  },
  "documents": {
-  "total": 93804,
-  "parsed": 93750,
+  "total": 94039,
+  "parsed": 93985,
   "by_kind_status": {
-   "other/failed": 244,
-   "order/ok": 24878,
-   "form/ok": 4914,
-   "invoice/ok": 12096,
-   "form/failed": 14401,
-   "other/ok": 32017,
-   "order/failed": 35,
-   "invoice/partial": 1029,
-   "order/partial": 1702,
-   "invoice/failed": 2434
+   "order/ok": 45926,
+   "form/failed": 1188,
+   "order/failed": 233,
+   "other/unrecognized": 6981,
+   "order/partial": 2855,
+   "other/failed": 1,
+   "form/ok": 20027,
+   "invoice/ok": 12384,
+   "other/ok": 1058,
+   "invoice/partial": 2820,
+   "invoice/failed": 512
   },
   "templates": {
-   "sinclair": 3343,
-   "unknown": 31272,
-   "katz": 3573,
-   "eport": 21,
-   "wideorbit-ocr": 3965
+   "wideorbit-invoice": 12372,
+   "sinclair-invoice": 3344,
+   "katz": 3661,
+   "wideorbit-contract-ocr": 4213,
+   "sinclair-contract": 87,
+   "wideorbit-contract": 19135,
+   "locality-worksheet": 560,
+   "wideorbit-order": 17930,
+   "wideorbit-order-ocr": 1529,
+   "katz-ecr": 1881,
+   "eport": 18
   },
-  "ocr": 24799,
+  "ocr": 24888,
   "first_upload": "2025-12-19",
   "last_upload": "2026-10-24"
  },
  "entities": {
-  "orders": 14640,
-  "orders_with_lines": 10084,
-  "invoices": 12939,
-  "invoices_linked": 6787,
-  "spots": 275610,
-  "creatives": 24746,
-  "buyers": 890,
+  "orders": 28661,
+  "orders_with_lines": 22073,
+  "invoices": 14493,
+  "invoices_linked": 11035,
+  "spots": 517362,
+  "creatives": 49563,
+  "buyers": 1325,
   "identity": {
    "fec-committee": [
-    115,
-    300
+    137,
+    346
    ],
    "manual": [
     2,
     15
    ],
    "fec-candidate": [
-    95,
-    531
+    114,
+    598
    ],
    "raw": [
-    2,
+    4,
     0
    ],
    "name-rule": [
-    676,
-    1411
+    1068,
+    2004
    ]
   },
   "manual_overrides": 17
  },
  "money": {
-  "booked": 826411383.92,
-  "invoiced": 447845960.39,
-  "first_day": "2025-10-13",
-  "last_day": "2026-11-15"
+  "booked": 1353593266.01,
+  "invoiced": 461541226.74,
+  "first_day": "2025-07-02",
+  "last_day": "2028-10-11"
  },
  "geography": {
   "counties": 3235,
@@ -233,17 +1523,22 @@
   }
  ],
  "modules": {
-  "crawl": "Crawl FCC political files for stations into SQLite, optionally downloading PDFs.\n\n  python3 -m ingest.crawl --stations 33710,66221 --years 2026 --download --workers 4\n\nResumable: files already listed are skipped on re-list only if --relist is absent;\ndownloads already on disk are never repeated.",
-  "update": "Incremental updater: apply the FCC file-history change feed to the local store.\n\nThe feed (`/api/manager/file/history.json`) lists every file added, deleted,\nmoved, renamed or purged across all stations for a date range, with the folder\npath, size and timestamps. One call per 500 rows; a peak day is ~30 pages.\n\n  python3 -m ingest.update                       # from last sync (or yesterday) to today\n  python3 -m ingest.update --since 2026-10-20    # explicit window\n  python3 -m ingest.update --download --parse --aggregate   # and run the rest of the pipeline\n\nOnly tracked stations (those already in `files`) are applied unless --stations\nadds more. Re-running a window is idempotent.",
-  "ocr": "OCR image-only PDFs (Nexstar, Sinclair and some others file scans/prints with no text layer).\n\nRenders pages with pypdfium2 and runs the tesseract CLI; text is cached at\ndata/ocr/<file_manager_id>.txt and picked up by ingest.parse.\n\n  python3 -m ingest.ocr --workers 6          # all downloaded docs that parsed as kind=other without text",
-  "parse": "Parse downloaded political-file PDFs into structured rows.\n\nHandles the three document kinds that make up nearly all of a station's\npolitical file when the station runs WideOrbit traffic (most do):\n  * order / contract  (\"CONTRACT\", \"Contract / Revision\")\n  * invoice           (\"INVOICE\", \"Invoice #\", per-spot lines with Ad-ID)\n  * NAB PB-19 forms   (fillable AcroForm fields: candidate, committee, agency...)\nAnything else is stored as kind=other so the gap is visible.\n\n  python3 -m ingest.parse            # parse everything downloaded and unparsed\n  python3 -m ingest.parse --file x.pdf   # print the parse of one file",
+  "crawl": "Crawl FCC political files for stations into SQLite, optionally downloading PDFs.\n\n  python3 -m ingest.crawl --stations 33710,66221 --years 2026 --download --workers 6\n  python3 -m ingest.crawl --stations-file data/crawl_targets_2026.txt --state PA --years 2026 --download\n\nResumable and idempotent:\n  * a station-year is re-listed unless its `listing` row is complete (a walk that died mid-way\n    is recorded as partial and redone on the next run; --relist forces it);\n  * downloads go to <file>.pdf.part and are renamed only after the PDF header/trailer check,\n    so a killed run never leaves a half file that looks done; files on disk but not marked\n    downloaded are verified and adopted;\n  * every download failure is recorded on the file (download_attempts, download_error) and\n    retried on later runs until MAX_ATTEMPTS, then reported by ingest.status as given up.\nLogs to data/logs/crawl-<ts>.log; exits non-zero if failures exceed the threshold.",
+  "update": "Incremental updater: apply the FCC file-history change feed to the local store.\n\nThe feed (`/api/manager/file/history.json`) lists every file added, deleted,\nmoved, renamed or purged across all stations for a date range, with the folder\npath, size and timestamps. One call per 500 rows; a peak day is ~30 pages.\n\n  python3 -m ingest.update                       # from last sync (or yesterday) to today\n  python3 -m ingest.update --since 2026-10-20    # explicit window\n  python3 -m ingest.update --download            # and fetch the new files\n\nOnly tracked stations (those already in `files`) are applied unless --stations\nadds more. Re-running a window is idempotent. A day whose feed could not be read\nis recorded as a failure and the sync marker is not advanced past it, so the next\nrun picks it up again.",
+  "ocr": "OCR image-only PDFs (Nexstar, Sinclair, Gray and others file scans/prints with no text layer).\n\nEngines\n  vision     Apple Vision via the `ocrmac` package (default on macOS). ~0.2 s/page at scale 1.5 in one\n             process, about 5x tesseract, with the same parse results on WideOrbit/Katz prints.\n  tesseract  the tesseract CLI, psm 6, scale 2.2 (~1 s/page). Fallback / non-Mac.\nText is cached at data/ocr/<file_manager_id>.txt (pages separated by form feeds) and picked up by\ningest.parse. Each attempt is recorded in the SQLite `ocr` table; a failure is retried on later runs\nuntil OCR_MAX_ATTEMPTS and then left alone (ingest.status lists them), never retried forever.\n\n  python3 -m ingest.ocr --workers 6                 # everything downloaded that parsed as image-only\n  python3 -m ingest.ocr --engine tesseract --ids a,b\n  python3 -m ingest.ocr --pages 4                   # cap pages per document (default 12)",
+  "parse": "Parse downloaded political-file PDFs into structured rows.\n\nEvery document gets a kind (order | invoice | form | other), a template naming the layout that\nwas recognised, a source (text layer or OCR) and a parse_status (ok | partial | failed | unrecognized). Layouts:\n\n  wideorbit-contract      WideOrbit \"CONTRACT\" print, text layer (Hearst, Tegna, Fox, Nexstar invoices...)\n  wideorbit-contract-ocr  the same printed to an image PDF and OCR'd (Nexstar, Gray)\n  wideorbit-order         WideOrbit \"ORDER\" print (\"Order / Rev:\", \"Flight Dates:\"), text (Gray, Nexstar, Scripps, Allen)\n  wideorbit-order-ocr     the same OCR'd (Gray scans)\n  wideorbit-invoice       WideOrbit invoice with per-spot Ad-ID lines\n  katz                    Katz / Sinclair contract (\"Contract #\", \"Total $:\"), text or OCR\n  katz-ecr                Katz ECR confirmation contract (\"External #\", \"Grand Total:\"), Sinclair stations\n  locality-worksheet      Locality rep \"CONTRACT WORKSHEET REPORT\" (OCR)\n  sinclair-contract       Sinclair traffic contract (\"Contract #\", \"Date Entered\", \"Schedule Dates\"), OCR\n  eport                   Sinclair ePort order/revision summary\n  sinclair-invoice        Sinclair \"OFFICIAL BILLING INVOICE\" (text or OCR)\n  nab-acroform            NAB PB-19 fillable form, values in AcroForm fields\n  nab-text                NAB / station agreement forms read from page text or OCR (scanned, signed forms)\n  nab-supplement          ad-specific NAB supplements and addenda (ISCI codes, no money) -> kind other\nAnything else is kind=other with template NULL so the gap is visible; ingest.validate clusters those.\n\nText extraction is cached under data/text/<ab>/<file_id>.json (text layer, AcroForm fields, page count) so\nre-parsing after a parser change is regex-only. Image-only PDFs are flagged needs_ocr; ingest.ocr fills\ndata/ocr/<file_id>.txt and `parse --only-failed` picks the text up.\n\n  python3 -m ingest.parse                 # parse everything downloaded and not yet at PARSER_VERSION\n  python3 -m ingest.parse --only-failed   # re-parse documents that are not ok or unrecognised (after OCR)\n  python3 -m ingest.parse --reparse       # everything (from the text cache)\n  python3 -m ingest.parse --file x.pdf    # print the parse of one file",
+  "validate": "Parse validation report: invariants checked over document.raw in Postgres, failure rates per template,\nand the worst examples with file ids so a human can open the PDFs.\n\nChecks (each applies only where the fields exist):\n  lines_sum          order line amounts sum to the order gross (WideOrbit prints with line items)\n  net_ratio          net is gross less the 15% agency commission (or equal to gross for direct buys)\n  order_no_filename  a 7-9 digit number in the station's file name, when present, matches the parsed order number\n  flight_range       flight dates fall inside the cycle window and start <= end\n  gross_range        gross is between 0 and $5M (orders above $2M are listed for eyeballing)\n  invoice_spots      WideOrbit invoice 'Total Spots' equals the number of per-spot lines read\n  invoice_linked     an invoice's order number matches an order filed by the same station\n  form_fields        a form yields an advertiser (committee / candidate / sponsor)\n  dup_order_cross    an order number appears at stations of different groups (same group = sister stations, normal)\n\n  python3 -m ingest.validate                   # full report\n  python3 -m ingest.validate --examples 12     # more worst examples per check\n  python3 -m ingest.validate --json > report.json\nAlso prints parse coverage by kind / template / status, which is the before/after number for parser work.",
+  "load_pg": "Load stations (web/data/stations.json) and the crawl store (data/political.sqlite) into Postgres.\n\nIdempotent: rows are upserted by primary key. Run after every crawl/parse.\n  python3 -m ingest.load_pg [--db data/political.sqlite]\n\nstation_group is derived from the licensee string with the rules in GROUPS (checked against every licensee\nin the station table: the large groups use dozens of licensee entities, e.g. Sinclair's \"<CALL> Licensee, LLC\",\nAllen Media's \"<City> TV License Company, LLC\", Tegna's legacy Belo/Gannett companies). Stations no rule\nmatches get \"Independent\", public and religious broadcasters are grouped as such; NULL means unknown.",
   "entities": "Rebuild domain entities from `document.raw` + `opif_file.folder_path`.\n\nDeterministic and total: it truncates the entity tables and rebuilds them, so a parser\nimprovement or an alias change only needs `load_pg` + `entities`, never a recrawl.\nManual buyer merges live in data/buyer_overrides.yaml (alias -> canonical name) and are\napplied on top of the automatic folder-based identity.\n  python3 -m ingest.entities",
   "identity": "Buyer identity: merge the stations' own folder labels into canonical buyers and match them\nto FEC candidates and committees.\n\nInputs: buyer_alias rows of source 'folder' (one per station label) with the station's state,\nFEC bulk master files in data/fec (cn.txt candidates, cm.txt committees, ccl.txt linkage),\nand data/buyer_overrides.yaml (manual: `raw label: Canonical Name`, or `category|raw label: ...`).\nOutput: data/buyer_identity.json, read by ingest.entities on its next run.\n\n  python3 -m ingest.identity          # then: python3 -m ingest.entities",
   "geo": "Geography: counties with population, H3 cells with population, and station coverage shares.\n\n  python3 -m ingest.geo            # everything (downloads Census files to data/geo on first run)\n\nResolutions come from HEX_RES. Coarse resolutions are built nationwide; fine ones only inside\nthe contours of stations that have political files loaded (\"active\"), so the fine layers grow\nwith the crawl. Adding a resolution is a one-line change here plus a rerun.",
-  "aggregate": "Roll parsed documents up to spend per station per buyer and export JSON for the web app.\n\nSpend rule, per order number within a station-year:\n  * if invoices exist, spend = sum of gross over distinct invoice numbers (what actually aired)\n  * else spend = gross on the latest order revision (latest print date, then latest upload)\nBuyer = the leaf folder the station filed the documents under (candidate, committee or\nissue sponsor), which is how station staff label buys. Category = the second folder level\n(Federal / State / Local / Non-Candidate Issue Ads).\n\n  python3 -m ingest.aggregate            # writes web/data/spend/<facility>.json and index.json",
   "export": "Export serving artifacts from the marts.\n\nweb/data/spend/<facility>.json, index.json   per-station buyers (what the map reads today)\nweb/data/hex/total_r<res>.json                money/ads reaching each cell (for the hex layers)\ndata/marts/*.parquet                          every mart, for DuckDB / the next UI / analysis\nweb/data/build.json                           build id + timestamp (cache busting)\n\npython3 -m ingest.export",
   "tiles": "Vector tiles (PMTiles) for the map: hex money layers and station contours, via tippecanoe.\n\npython3 -m ingest.tiles        -> web/data/tiles/hex5.pmtiles, hex7.pmtiles, contours.pmtiles, meta.json",
-  "places": "Static place index for search: ZIP centroids and populated places from the Census Gazetteer files.\nWrites web/data/places.json so the app can resolve \"50309\", \"Des Moines\" or \"Des Moines, IA\" with no\nexternal geocoder. Street addresses still fall back to Nominatim in the app.\n\n  python3 -m ingest.places"
+  "places": "Static place index for search: ZIP centroids and populated places from the Census Gazetteer files.\nWrites web/data/places.json so the app can resolve \"50309\", \"Des Moines\" or \"Des Moines, IA\" with no\nexternal geocoder. Street addresses still fall back to Nominatim in the app.\n\n  python3 -m ingest.places",
+  "status": "Pipeline status: what has been listed, downloaded, OCR'd, parsed and loaded, per station and overall,\nwhich stages are running or failed last, and what is stuck.\n\n  python3 -m ingest.status                 # overall + per-stage last runs + problem list\n  python3 -m ingest.status --stations      # add a per-station table (sorted by pending work)\n  python3 -m ingest.status --state PA      # per-station table for one state\n  python3 -m ingest.status --json          # machine-readable (used by ingest.batch and the About page export)\nReads SQLite only (never blocks a running stage: WAL mode) plus the lock files; Postgres counts are\nincluded when it is reachable.",
+  "coverage": "Coverage report: what has been crawled versus the national political-file totals.\n\nThe denominator is data/political_doc_counts.csv: per-station document counts for 2024 and 2026 for all\n1,750 licensed full-power stations (one FCC folder call each, taken 2026-10-23). The numerator is the\nlocal store (files listed, downloaded, parsed ok). Reported per state and per year, plus the gap list.\n\n  python3 -m ingest.coverage              # table by state\n  python3 -m ingest.coverage --json       # for export_methods / the About page\n  python3 -m ingest.coverage --missing    # stations not yet crawled, biggest first",
+  "batch": "National crawl driver: one state at a time, crawl -> parse -> OCR -> parse, with the Postgres refresh\n(load_pg, entities, identity, entities, marts) running in the background after each state while the next\nstate downloads. Holds the \"pipeline\" lock so two drivers cannot overlap.\n\n  python3 -m ingest.batch --targets data/crawl_targets_2026_national.txt --years 2026\n  python3 -m ingest.batch ... --states TX,OH          # a subset, in that order\n  python3 -m ingest.batch ... --all                   # redo states already marked done (cheap: crawl skips complete listings)\n\nResumable: each state that finishes crawl+parse+ocr+parse gets a pipeline_run row (stage=batch_state, batch=<ST>,\nstatus ok); a rerun skips those unless --all. A state whose crawl fails is recorded failed and the driver moves on;\nthree consecutive failed states abort the run (the FCC edge is refusing us). Monitor with `make status` or\n`tail -f data/logs/batch-*.log`; every stage keeps its own log in data/logs/.",
+  "runlog": "Run bookkeeping shared by every pipeline stage: log files, locks, counts, and the pipeline_run table.\n\n    from .runlog import Stage\n    with Stage(\"crawl\", args=vars(a), db_path=a.db) as st:\n        st.count(\"listed\", n)\n        st.fail(file_id, \"HTTP 404\")       # logged with the id and reason, counted, summarised\n        ...\n    # on exit: SUMMARY line, pipeline_run row closed, exit 1 if the stage failed or\n    # failures exceeded max_fail_rate of the work attempted\n\nEvery stage writes data/logs/<stage>-<YYYYmmdd-HHMMSS>.log (INFO and above) and mirrors it to stderr.\nA per-stage lock in data/locks/ stops two instances of the same stage from overlapping; the batch\ndriver (ingest.batch) additionally holds the \"pipeline\" lock so two full pipeline runs cannot overlap.\nStage runs are recorded in the SQLite pipeline_run table (copied to Postgres by load_pg), with start,\nend, status, counts and the log path, so `ingest.status` can show what ran and what failed last."
  },
  "fcc_notice": "This product uses the FCC Data API but is not endorsed or certified by the FCC."
 }
