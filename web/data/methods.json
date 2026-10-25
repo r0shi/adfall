@@ -1,210 +1,290 @@
 {
- "generated": "2026-10-24",
+ "generated": "2026-10-25",
  "pipeline": {
   "last_runs": {
    "crawl": {
     "status": "ok",
-    "started": "2026-10-24 23:26:32+00:00",
-    "ended": "2026-10-24 23:26:42+00:00",
+    "started": "2026-10-25 15:07:22.661403+00:00",
+    "ended": "2026-10-25 15:20:07.523671+00:00",
     "counts": {
-     "seconds": 9.5,
-     "download_mb": 14.6,
-     "downloads_ok": 62,
-     "files_listed": 62,
-     "still_pending": 0,
-     "stations_listed": 2,
-     "downloads_failed": 0,
-     "downloads_pending": 62
+     "seconds": 764.9,
+     "download_mb": 3960.4,
+     "downloads_ok": 12683,
+     "files_listed": 12684,
+     "still_pending": 11,
+     "stations_listed": 21,
+     "downloads_failed": 11,
+     "stations_skipped": 5,
+     "downloads_pending": 12694
     },
-    "failures": 0,
+    "failures": 11,
     "error": null,
-    "log": "data/logs/crawl-20261024-232632.log"
+    "log": "data/logs/crawl-20261025-110722.log"
    },
    "entities": {
     "status": "ok",
-    "started": "2026-10-24 23:35:17+00:00",
-    "ended": "2026-10-24 23:39:05+00:00",
+    "started": "2026-10-25 15:50:51.782085+00:00",
+    "ended": "2026-10-25 15:57:48.490520+00:00",
     "counts": {
-     "form": 21215,
-     "spot": 517362,
-     "buyer": 1531,
-     "agency": 574,
-     "order_": 28661,
-     "invoice": 14493,
-     "seconds": 228.2,
-     "creative": 49563,
-     "documents": 93985,
-     "order_line": 573460,
-     "buyer_alias": 12626,
-     "order_revision": 45926
+     "form": 40656,
+     "spot": 953118,
+     "buyer": 2877,
+     "agency": 874,
+     "order_": 55320,
+     "invoice": 28062,
+     "seconds": 416.7,
+     "creative": 12539,
+     "documents": 190143,
+     "order_line": 1052331,
+     "buyer_alias": 24019,
+     "order_revision": 92413
     },
     "failures": 0,
     "error": null,
-    "log": "data/logs/entities-20261024-233517.log"
+    "log": "data/logs/entities-20261025-115051.log"
    },
    "export": {
-    "status": "ok",
-    "started": "2026-10-24 23:40:08+00:00",
-    "ended": "2026-10-24 23:40:16+00:00",
-    "counts": {
-     "seconds": 8.7
-    },
-    "failures": 0,
-    "error": null,
-    "log": "data/logs/export-20261024-234008.log"
-   },
-   "identity": {
-    "status": "ok",
-    "started": "2026-10-24 23:35:09+00:00",
-    "ended": "2026-10-24 23:35:16+00:00",
-    "counts": {
-     "buyers": 1519,
-     "labels": 3197,
-     "merged": 601,
-     "seconds": 6.9,
-     "method_raw": 1,
-     "method_manual": 8,
-     "method_name-rule": 2221,
-     "method_fec-candidate": 604,
-     "method_fec-committee": 363
-    },
-    "failures": 0,
-    "error": null,
-    "log": "data/logs/identity-20261024-233509.log"
-   },
-   "load_pg": {
     "status": "running",
-    "started": "2026-10-24 23:41:14+00:00",
+    "started": "2026-10-25 16:00:00.327125+00:00",
     "ended": null,
     "counts": null,
     "failures": 0,
     "error": null,
-    "log": "data/logs/load_pg-20261024-234114.log"
+    "log": "data/logs/export-20261025-120000.log"
+   },
+   "identity": {
+    "status": "ok",
+    "started": "2026-10-25 15:48:43.718623+00:00",
+    "ended": "2026-10-25 15:48:55.822194+00:00",
+    "counts": {
+     "buyers": 2841,
+     "labels": 5872,
+     "merged": 997,
+     "seconds": 12.1,
+     "method_raw": 7,
+     "method_manual": 9,
+     "method_name-rule": 4102,
+     "method_fec-candidate": 1177,
+     "method_fec-committee": 577
+    },
+    "failures": 0,
+    "error": null,
+    "log": "data/logs/identity-20261025-114843.log"
+   },
+   "load_pg": {
+    "status": "ok",
+    "started": "2026-10-25 07:02:57+00:00",
+    "ended": "2026-10-25 07:04:17+00:00",
+    "counts": {
+     "listing": 403,
+     "seconds": 80.5,
+     "document": 155470,
+     "stations": 2147,
+     "opif_file": 177571,
+     "pipeline_run": 70
+    },
+    "failures": 0,
+    "error": null,
+    "log": "data/logs/load_pg-20261025-030257.log"
+   },
+   "marts": {
+    "status": "ok",
+    "started": "2026-10-25 15:58:00.730913+00:00",
+    "ended": "2026-10-25 15:59:44.769436+00:00",
+    "counts": {
+     "seconds": 104.1,
+     "hex_total": 298148,
+     "spend_daily": 319328,
+     "buyer_station": 7915,
+     "station_daily": 72902,
+     "station_total": 2147
+    },
+    "failures": 0,
+    "error": null,
+    "log": "data/logs/marts-20261025-115800.log"
+   },
+   "migrate_sqlite": {
+    "status": "ok",
+    "started": "2026-10-25 15:00:28.484368+00:00",
+    "ended": "2026-10-25 15:01:50.912013+00:00",
+    "counts": {
+     "ocr": 16958,
+     "docs": 177460,
+     "meta": 0,
+     "runs": 76,
+     "files": 177571,
+     "cmp_ocr": 0,
+     "listing": 403,
+     "seconds": 82.5,
+     "cmp_docs": 0,
+     "cmp_meta": 1,
+     "cmp_files": 0,
+     "cmp_listing": 0,
+     "runs_renumbered": 1,
+     "cmp_pipeline_run": 1,
+     "cmp_docs_needs_ocr": 0,
+     "cmp_files_downloaded": 0,
+     "files_unknown_station": 0
+    },
+    "failures": 0,
+    "error": null,
+    "log": "data/logs/migrate_sqlite-20261025-110028.log"
    },
    "ocr": {
     "status": "ok",
-    "started": "2026-10-24 23:26:44+00:00",
-    "ended": "2026-10-24 23:27:26+00:00",
+    "started": "2026-10-25 15:48:16.503962+00:00",
+    "ended": "2026-10-25 15:48:19.513123+00:00",
     "counts": {
-     "ok": 175,
-     "pages": 691,
+     "ok": 4,
+     "pages": 15,
      "cached": 0,
-     "failed": 1,
-     "queued": 176,
-     "seconds": 42.2,
-     "given_up": 0
+     "failed": 0,
+     "queued": 4,
+     "seconds": 3.0,
+     "given_up": 0,
+     "pool_rebuilds": 0
     },
-    "failures": 1,
+    "failures": 0,
     "error": null,
-    "log": "data/logs/ocr-20261024-232644.log"
+    "log": "data/logs/ocr-20261025-114816.log"
    },
    "parse": {
     "status": "ok",
-    "started": "2026-10-24 23:40:52+00:00",
-    "ended": "2026-10-24 23:41:13+00:00",
+    "started": "2026-10-25 15:27:50.524785+00:00",
+    "ended": "2026-10-25 15:29:01.801644+00:00",
     "counts": {
-     "ok": 79395,
-     "queued": 93985,
+     "ok": 22940,
+     "queued": 30027,
      "crashes": 0,
-     "seconds": 21.1,
-     "needs_ocr": 1,
-     "order/katz/ok": 3648,
-     "order/eport/ok": 10,
-     "other/-/failed": 1,
-     "form/nab-text/ok": 15977,
-     "order/katz-ecr/ok": 1127,
-     "order/katz/partial": 13,
-     "order/eport/partial": 8,
-     "form/nab-acroform/ok": 4050,
-     "form/nab-text/failed": 1145,
-     "other/-/unrecognized": 6981,
-     "order/katz-ecr/partial": 754,
-     "other/nab-supplement/ok": 1058,
-     "form/nab-acroform/failed": 43,
-     "order/wideorbit-order/ok": 17742,
-     "order/sinclair-contract/ok": 87,
-     "invoice/sinclair-invoice/ok": 502,
-     "order/locality-worksheet/ok": 532,
-     "order/wideorbit-contract/ok": 19074,
-     "invoice/wideorbit-invoice/ok": 11882,
-     "order/wideorbit-order-ocr/ok": 1192,
-     "order/wideorbit-order/failed": 1,
-     "order/wideorbit-order/partial": 187,
-     "invoice/sinclair-invoice/failed": 502,
-     "order/wideorbit-contract-ocr/ok": 2514,
-     "invoice/sinclair-invoice/partial": 2340,
-     "invoice/wideorbit-invoice/failed": 10,
-     "order/locality-worksheet/partial": 28,
-     "order/wideorbit-contract/partial": 61,
-     "order/wideorbit-order-ocr/failed": 205,
-     "invoice/wideorbit-invoice/partial": 480,
-     "order/wideorbit-order-ocr/partial": 132,
-     "order/wideorbit-contract-ocr/failed": 27,
-     "order/wideorbit-contract-ocr/partial": 1672
+     "seconds": 71.3,
+     "needs_ocr": 0,
+     "invoice/sinclair-invoice/ok": 585,
+     "invoice/wideorbit-invoice/ok": 22355,
+     "invoice/sinclair-invoice/failed": 735,
+     "invoice/sinclair-invoice/partial": 5065,
+     "invoice/wideorbit-invoice/failed": 25,
+     "invoice/wideorbit-invoice/partial": 1262
     },
     "failures": 0,
     "error": null,
-    "log": "data/logs/parse-20261024-234052.log"
+    "log": "data/logs/parse-20261025-112750.log"
    },
    "pipeline": {
+    "status": "running",
+    "started": "2026-10-25 15:03:24.354367+00:00",
+    "ended": null,
+    "counts": null,
+    "failures": 0,
+    "error": null,
+    "log": "data/logs/pipeline-20261025-110324.log"
+   },
+   "tiles": {
     "status": "ok",
-    "started": "2026-10-24 23:26:32+00:00",
-    "ended": "2026-10-24 23:27:27+00:00",
+    "started": "2026-10-25 03:52:00+00:00",
+    "ended": "2026-10-25 03:52:14+00:00",
     "counts": {
-     "seconds": 54.8,
-     "states_ok": 1,
-     "pg_refresh_failures": 0
+     "seconds": 13.9,
+     "hex5_cells": 5383,
+     "hex7_cells": 231564
     },
     "failures": 0,
     "error": null,
-    "log": "data/logs/pipeline-20261024-232632.log"
+    "log": "data/logs/tiles-20261024-235200.log"
    },
    "update": {
     "status": "ok",
-    "started": "2026-10-24 22:53:59+00:00",
-    "ended": "2026-10-24 23:17:35+00:00",
+    "started": "2026-10-25 02:53:59+00:00",
+    "ended": "2026-10-25 03:17:35+00:00",
     "counts": {
      "seconds": 1416.1
     },
     "failures": 1,
     "error": null,
     "log": "data/logs/update-20261024-225359.log"
+   },
+   "video": {
+    "status": "ok",
+    "started": "2026-10-25 06:03:21+00:00",
+    "ended": "2026-10-25 06:33:22+00:00",
+    "counts": {
+     "seconds": 1801.6,
+     "families_low": 489,
+     "channels_none": 117,
+     "channels_found": 178,
+     "channel_blocked": 5,
+     "families_matched": 611,
+     "families_unmatched": 206,
+     "buyers_without_channel": 122
+    },
+    "failures": 0,
+    "error": null,
+    "log": "data/logs/video-20261025-020321.log"
    }
   },
   "batches": [
    {
+    "state": "CA",
+    "status": "failed",
+    "started": "2026-10-25 15:03:24.455915+00:00",
+    "ended": "2026-10-25 15:07:22.262019+00:00"
+   },
+   {
     "state": "GU",
     "status": "ok",
-    "started": "2026-10-24 23:26:32+00:00",
-    "ended": "2026-10-24 23:27:27+00:00"
+    "started": "2026-10-25 03:26:32+00:00",
+    "ended": "2026-10-25 03:27:27+00:00"
+   },
+   {
+    "state": "IA",
+    "status": "running",
+    "started": "2026-10-25 15:07:22.328314+00:00",
+    "ended": null
+   },
+   {
+    "state": "MI",
+    "status": "ok",
+    "started": "2026-10-25 06:47:01+00:00",
+    "ended": "2026-10-25 06:47:34+00:00"
+   },
+   {
+    "state": "OH",
+    "status": "ok",
+    "started": "2026-10-25 05:50:44+00:00",
+    "ended": "2026-10-25 06:47:01+00:00"
+   },
+   {
+    "state": "TX",
+    "status": "ok",
+    "started": "2026-10-25 03:47:37+00:00",
+    "ended": "2026-10-25 05:50:44+00:00"
    }
   ],
   "listing": {
-   "complete": 202
+   "complete": 424
   },
   "ocr_engines": {
-   "legacy-tesseract": 24665,
-   "vision": 223
+   "vision": 14635,
+   "legacy-tesseract": 24665
   },
   "templates": {
-   "order/wideorbit-contract": 19135,
-   "order/wideorbit-order": 17930,
-   "form/nab-text": 17122,
-   "invoice/wideorbit-invoice": 12372,
-   "other/unrecognized": 6982,
-   "order/wideorbit-contract-ocr": 4213,
-   "form/nab-acroform": 4093,
-   "order/katz": 3661,
-   "invoice/sinclair-invoice": 3344,
-   "order/katz-ecr": 1881,
-   "order/wideorbit-order-ocr": 1529,
-   "other/nab-supplement": 1058,
-   "order/locality-worksheet": 560,
-   "order/sinclair-contract": 87,
-   "order/eport": 18
+   "order/wideorbit-contract": 40670,
+   "order/wideorbit-order": 34723,
+   "form/nab-text": 31899,
+   "invoice/wideorbit-invoice": 23642,
+   "other/unrecognized": 19560,
+   "order/katz": 8769,
+   "form/nab-acroform": 8757,
+   "invoice/sinclair-invoice": 6385,
+   "order/wideorbit-contract-ocr": 5030,
+   "order/katz-ecr": 4613,
+   "order/wideorbit-order-ocr": 2916,
+   "other/nab-supplement": 2349,
+   "order/locality-worksheet": 562,
+   "order/eport": 164,
+   "order/sinclair-contract": 104
   },
   "parser_version": 5,
-  "stages": "crawl -> parse -> ocr -> parse --only-failed -> load_pg -> entities -> identity -> entities -> marts -> geo -> export -> tiles",
+  "stages": "crawl -> parse -> ocr -> parse --only-failed -> entities -> identity -> entities -> marts -> geo -> export -> tiles",
   "logs": "data/logs/<stage>-<timestamp>.log; `make status` summarises; every stage records a pipeline_run row"
  },
  "coverage": {
@@ -221,12 +301,12 @@
    },
    "2026": {
     "stations": 1750,
-    "stations_crawled": 208,
+    "stations_crawled": 424,
     "stations_with_docs": 1098,
     "docs_national": 410345,
-    "docs_listed": 101317,
-    "docs_downloaded": 93985,
-    "docs_ok": 79395
+    "docs_listed": 190255,
+    "docs_downloaded": 190143,
+    "docs_ok": 155541
    }
   },
   "by_state": {
@@ -313,11 +393,11 @@
     },
     "2026": {
      "stations": 108,
-     "stations_crawled": 0,
+     "stations_crawled": 69,
      "stations_with_docs": 69,
      "docs_national": 21960,
-     "docs_downloaded": 0,
-     "docs_ok": 0
+     "docs_downloaded": 21990,
+     "docs_ok": 16056
     }
    },
    "CO": {
@@ -475,11 +555,11 @@
     },
     "2026": {
      "stations": 32,
-     "stations_crawled": 5,
+     "stations_crawled": 26,
      "stations_with_docs": 26,
      "docs_national": 18523,
-     "docs_downloaded": 5882,
-     "docs_ok": 5468
+     "docs_downloaded": 18565,
+     "docs_ok": 14073
     }
    },
    "ID": {
@@ -889,11 +969,11 @@
     },
     "2026": {
      "stations": 51,
-     "stations_crawled": 0,
+     "stations_crawled": 29,
      "stations_with_docs": 29,
      "docs_national": 24900,
-     "docs_downloaded": 0,
-     "docs_ok": 0
+     "docs_downloaded": 24922,
+     "docs_ok": 20835
     }
    },
    "OK": {
@@ -1051,11 +1131,11 @@
     },
     "2026": {
      "stations": 135,
-     "stations_crawled": 6,
+     "stations_crawled": 103,
      "stations_with_docs": 103,
      "docs_national": 36568,
-     "docs_downloaded": 0,
-     "docs_ok": 0
+     "docs_downloaded": 36563,
+     "docs_ok": 30650
     }
    },
    "UT": {
@@ -1203,90 +1283,108 @@
     }
    }
   },
-  "stations_not_yet_crawled_2026": 890
+  "stations_not_yet_crawled_2026": 674
  },
  "stations": {
   "licensed": 2147,
-  "with_documents": 202,
+  "with_documents": 424,
   "states": [
    "AL",
    "AR",
    "AZ",
+   "CA",
    "GA",
    "GU",
    "IA",
    "MI",
    "NC",
    "NV",
+   "OH",
    "PA",
+   "TX",
    "WI"
   ],
   "with_streams": 217,
   "by_group": [
    {
+    "group": "Nexstar",
+    "stations": 62,
+    "docs": 31205
+   },
+   {
     "group": "Sinclair",
-    "stations": 30,
-    "docs": 15254
+    "stations": 58,
+    "docs": 30526
    },
    {
     "group": "Gray",
-    "stations": 31,
-    "docs": 13816
-   },
-   {
-    "group": "Nexstar",
-    "stations": 24,
-    "docs": 13060
+    "stations": 55,
+    "docs": 27289
    },
    {
     "group": "Tegna",
-    "stations": 14,
-    "docs": 7038
+    "stations": 24,
+    "docs": 14105
+   },
+   {
+    "group": "Independent",
+    "stations": 38,
+    "docs": 13971
    },
    {
     "group": "CBS",
-    "stations": 7,
-    "docs": 6743
-   },
-   {
-    "group": "Allen Media",
-    "stations": 7,
-    "docs": 5241
-   },
-   {
-    "group": "Hearst",
-    "stations": 7,
-    "docs": 4713
+    "stations": 13,
+    "docs": 10709
    },
    {
     "group": "Scripps",
+    "stations": 17,
+    "docs": 8415
+   },
+   {
+    "group": "Allen Media",
     "stations": 10,
-    "docs": 4537
+    "docs": 8196
+   },
+   {
+    "group": "Hearst",
+    "stations": 11,
+    "docs": 6949
    },
    {
     "group": "Fox",
-    "stations": 6,
-    "docs": 3491
+    "stations": 15,
+    "docs": 6694
    },
    {
     "group": "Graham",
-    "stations": 1,
-    "docs": 2148
+    "stations": 3,
+    "docs": 4536
+   },
+   {
+    "group": "ABC",
+    "stations": 5,
+    "docs": 4400
+   },
+   {
+    "group": "NBCUniversal",
+    "stations": 15,
+    "docs": 3362
+   },
+   {
+    "group": "Univision",
+    "stations": 19,
+    "docs": 2811
+   },
+   {
+    "group": "Entravision",
+    "stations": 13,
+    "docs": 2446
    },
    {
     "group": "Cox",
     "stations": 4,
     "docs": 2052
-   },
-   {
-    "group": "ABC",
-    "stations": 2,
-    "docs": 1801
-   },
-   {
-    "group": "Independent",
-    "stations": 10,
-    "docs": 1608
    },
    {
     "group": "Capitol",
@@ -1299,14 +1397,14 @@
     "docs": 1454
    },
    {
-    "group": "Univision",
+    "group": "Marquee",
     "stations": 4,
-    "docs": 1247
+    "docs": 1409
    },
    {
-    "group": "Marquee",
-    "stations": 2,
-    "docs": 1121
+    "group": "Morgan Murphy",
+    "stations": 3,
+    "docs": 1261
    },
    {
     "group": "Heritage",
@@ -1314,9 +1412,9 @@
     "docs": 1045
    },
    {
-    "group": "Morgan Murphy",
-    "stations": 2,
-    "docs": 967
+    "group": "News-Press & Gazette",
+    "stations": 4,
+    "docs": 973
    },
    {
     "group": "Morris",
@@ -1324,9 +1422,9 @@
     "docs": 877
    },
    {
-    "group": "NBCUniversal",
-    "stations": 4,
-    "docs": 876
+    "group": "SagamoreHill",
+    "stations": 2,
+    "docs": 732
    },
    {
     "group": "Weigel",
@@ -1359,11 +1457,6 @@
     "docs": 310
    },
    {
-    "group": "Entravision",
-    "stations": 2,
-    "docs": 201
-   },
-   {
     "group": "Londen",
     "stations": 1,
     "docs": 163
@@ -1374,86 +1467,92 @@
     "docs": 70
    },
    {
+    "group": "RNN",
+    "stations": 1,
+    "docs": 36
+   },
+   {
     "group": "Public",
-    "stations": 13,
-    "docs": 13
+    "stations": 23,
+    "docs": 32
+   },
+   {
+    "group": "Estrella",
+    "stations": 2,
+    "docs": 30
    },
    {
     "group": "Religious",
-    "stations": 1,
-    "docs": 1
+    "stations": 2,
+    "docs": 5
    }
   ]
  },
  "documents": {
-  "total": 94039,
-  "parsed": 93985,
+  "total": 190255,
+  "parsed": 190143,
   "by_kind_status": {
-   "order/ok": 45926,
-   "form/failed": 1188,
-   "order/failed": 233,
-   "other/unrecognized": 6981,
-   "order/partial": 2855,
-   "other/failed": 1,
-   "form/ok": 20027,
-   "invoice/ok": 12384,
-   "other/ok": 1058,
-   "invoice/partial": 2820,
-   "invoice/failed": 512
+   "form/failed": 2817,
+   "form/ok": 37839,
+   "invoice/failed": 760,
+   "invoice/ok": 22940,
+   "invoice/partial": 6327,
+   "order/failed": 517,
+   "order/ok": 92413,
+   "order/partial": 4621,
+   "other/failed": 5557,
+   "other/ok": 2349,
+   "other/unrecognized": 14003
   },
   "templates": {
-   "wideorbit-invoice": 12372,
-   "sinclair-invoice": 3344,
-   "katz": 3661,
-   "wideorbit-contract-ocr": 4213,
-   "sinclair-contract": 87,
-   "wideorbit-contract": 19135,
-   "locality-worksheet": 560,
-   "wideorbit-order": 17930,
-   "wideorbit-order-ocr": 1529,
-   "katz-ecr": 1881,
-   "eport": 18
+   "eport": 164,
+   "katz": 8769,
+   "katz-ecr": 4613,
+   "locality-worksheet": 562,
+   "sinclair-contract": 104,
+   "sinclair-invoice": 6385,
+   "wideorbit-contract": 40670,
+   "wideorbit-contract-ocr": 5030,
+   "wideorbit-invoice": 23642,
+   "wideorbit-order": 34723,
+   "wideorbit-order-ocr": 2916
   },
-  "ocr": 24888,
+  "ocr": 39300,
   "first_upload": "2025-12-19",
-  "last_upload": "2026-10-24"
+  "last_upload": "2026-10-25"
  },
  "entities": {
-  "orders": 28661,
-  "orders_with_lines": 22073,
-  "invoices": 14493,
-  "invoices_linked": 11035,
-  "spots": 517362,
-  "creatives": 49563,
-  "buyers": 1325,
+  "orders": 55320,
+  "orders_with_lines": 41924,
+  "invoices": 28062,
+  "invoices_linked": 20400,
+  "spots": 953118,
+  "creatives": 12539,
+  "buyers": 2412,
   "identity": {
    "fec-committee": [
-    137,
-    346
-   ],
-   "manual": [
-    2,
-    15
-   ],
-   "fec-candidate": [
-    114,
-    598
+    213,
+    560
    ],
    "raw": [
-    4,
+    15,
     0
    ],
+   "fec-candidate": [
+    229,
+    1187
+   ],
    "name-rule": [
-    1068,
-    2004
+    1955,
+    3596
    ]
   },
   "manual_overrides": 17
  },
  "money": {
-  "booked": 1353593266.01,
-  "invoiced": 461541226.74,
-  "first_day": "2025-07-02",
+  "booked": 2538663792.82,
+  "invoiced": 866953802.96,
+  "first_day": "2025-07-01",
   "last_day": "2028-10-11"
  },
  "geography": {
@@ -1523,22 +1622,22 @@
   }
  ],
  "modules": {
-  "crawl": "Crawl FCC political files for stations into SQLite, optionally downloading PDFs.\n\n  python3 -m ingest.crawl --stations 33710,66221 --years 2026 --download --workers 6\n  python3 -m ingest.crawl --stations-file data/crawl_targets_2026.txt --state PA --years 2026 --download\n\nResumable and idempotent:\n  * a station-year is re-listed unless its `listing` row is complete (a walk that died mid-way\n    is recorded as partial and redone on the next run; --relist forces it);\n  * downloads go to <file>.pdf.part and are renamed only after the PDF header/trailer check,\n    so a killed run never leaves a half file that looks done; files on disk but not marked\n    downloaded are verified and adopted;\n  * every download failure is recorded on the file (download_attempts, download_error) and\n    retried on later runs until MAX_ATTEMPTS, then reported by ingest.status as given up.\nLogs to data/logs/crawl-<ts>.log; exits non-zero if failures exceed the threshold.",
-  "update": "Incremental updater: apply the FCC file-history change feed to the local store.\n\nThe feed (`/api/manager/file/history.json`) lists every file added, deleted,\nmoved, renamed or purged across all stations for a date range, with the folder\npath, size and timestamps. One call per 500 rows; a peak day is ~30 pages.\n\n  python3 -m ingest.update                       # from last sync (or yesterday) to today\n  python3 -m ingest.update --since 2026-10-20    # explicit window\n  python3 -m ingest.update --download            # and fetch the new files\n\nOnly tracked stations (those already in `files`) are applied unless --stations\nadds more. Re-running a window is idempotent. A day whose feed could not be read\nis recorded as a failure and the sync marker is not advanced past it, so the next\nrun picks it up again.",
-  "ocr": "OCR image-only PDFs (Nexstar, Sinclair, Gray and others file scans/prints with no text layer).\n\nEngines\n  vision     Apple Vision via the `ocrmac` package (default on macOS). ~0.2 s/page at scale 1.5 in one\n             process, about 5x tesseract, with the same parse results on WideOrbit/Katz prints.\n  tesseract  the tesseract CLI, psm 6, scale 2.2 (~1 s/page). Fallback / non-Mac.\nText is cached at data/ocr/<file_manager_id>.txt (pages separated by form feeds) and picked up by\ningest.parse. Each attempt is recorded in the SQLite `ocr` table; a failure is retried on later runs\nuntil OCR_MAX_ATTEMPTS and then left alone (ingest.status lists them), never retried forever.\n\n  python3 -m ingest.ocr --workers 6                 # everything downloaded that parsed as image-only\n  python3 -m ingest.ocr --engine tesseract --ids a,b\n  python3 -m ingest.ocr --pages 4                   # cap pages per document (default 12)",
-  "parse": "Parse downloaded political-file PDFs into structured rows.\n\nEvery document gets a kind (order | invoice | form | other), a template naming the layout that\nwas recognised, a source (text layer or OCR) and a parse_status (ok | partial | failed | unrecognized). Layouts:\n\n  wideorbit-contract      WideOrbit \"CONTRACT\" print, text layer (Hearst, Tegna, Fox, Nexstar invoices...)\n  wideorbit-contract-ocr  the same printed to an image PDF and OCR'd (Nexstar, Gray)\n  wideorbit-order         WideOrbit \"ORDER\" print (\"Order / Rev:\", \"Flight Dates:\"), text (Gray, Nexstar, Scripps, Allen)\n  wideorbit-order-ocr     the same OCR'd (Gray scans)\n  wideorbit-invoice       WideOrbit invoice with per-spot Ad-ID lines\n  katz                    Katz / Sinclair contract (\"Contract #\", \"Total $:\"), text or OCR\n  katz-ecr                Katz ECR confirmation contract (\"External #\", \"Grand Total:\"), Sinclair stations\n  locality-worksheet      Locality rep \"CONTRACT WORKSHEET REPORT\" (OCR)\n  sinclair-contract       Sinclair traffic contract (\"Contract #\", \"Date Entered\", \"Schedule Dates\"), OCR\n  eport                   Sinclair ePort order/revision summary\n  sinclair-invoice        Sinclair \"OFFICIAL BILLING INVOICE\" (text or OCR)\n  nab-acroform            NAB PB-19 fillable form, values in AcroForm fields\n  nab-text                NAB / station agreement forms read from page text or OCR (scanned, signed forms)\n  nab-supplement          ad-specific NAB supplements and addenda (ISCI codes, no money) -> kind other\nAnything else is kind=other with template NULL so the gap is visible; ingest.validate clusters those.\n\nText extraction is cached under data/text/<ab>/<file_id>.json (text layer, AcroForm fields, page count) so\nre-parsing after a parser change is regex-only. Image-only PDFs are flagged needs_ocr; ingest.ocr fills\ndata/ocr/<file_id>.txt and `parse --only-failed` picks the text up.\n\n  python3 -m ingest.parse                 # parse everything downloaded and not yet at PARSER_VERSION\n  python3 -m ingest.parse --only-failed   # re-parse documents that are not ok or unrecognised (after OCR)\n  python3 -m ingest.parse --reparse       # everything (from the text cache)\n  python3 -m ingest.parse --file x.pdf    # print the parse of one file",
+  "crawl": "Crawl FCC political files for stations into Postgres (opif_file / opif_listing), optionally downloading PDFs.\n\n  python3 -m ingest.crawl --stations 33710,66221 --years 2026 --download --workers 6\n  python3 -m ingest.crawl --stations-file data/crawl_targets_2026.txt --state PA --years 2026 --download\n\nResumable and idempotent:\n  * a station-year is re-listed unless its `opif_listing` row is complete (a walk that died mid-way\n    is recorded as partial and redone on the next run; --relist forces it);\n  * downloads go to <file>.pdf.part and are renamed only after the PDF header/trailer check,\n    so a killed run never leaves a half file that looks done; files on disk but not marked\n    downloaded are verified and adopted;\n  * every download failure is recorded on the file (download_attempts, download_error) and\n    retried on later runs until MAX_ATTEMPTS, then reported by ingest.status as given up; a 401, 404\n    or 410 is permanent (the station removed or restricted the file) and is given up at once, counted\n    as downloads_gone, and does not fail the stage.\nStations that are not in the `station` table (web/data/stations.json, `make stations`) are reported\nand skipped, never silently dropped. Logs to data/logs/crawl-<ts>.log; exits non-zero if failures\nexceed the threshold.",
+  "update": "Incremental updater: apply the FCC file-history change feed to the local store.\n\nThe feed (`/api/manager/file/history.json`) lists every file added, deleted,\nmoved, renamed or purged across all stations for a date range, with the folder\npath, size and timestamps. One call per 500 rows; a peak day is ~30 pages.\n\n  python3 -m ingest.update                       # from last sync (or yesterday) to today\n  python3 -m ingest.update --since 2026-10-20    # explicit window\n  python3 -m ingest.update --download            # and fetch the new files\n\nOnly tracked stations (those already in `opif_file`) are applied unless --stations\nadds more. Re-running a window is idempotent. A day whose feed could not be read\nis recorded as a failure and the sync marker (meta.last_history_sync) is not\nadvanced past it, so the next run picks it up again.",
+  "ocr": "OCR image-only PDFs (Nexstar, Sinclair, Gray and others file scans/prints with no text layer).\n\nEngines\n  vision     Apple Vision via the `ocrmac` package (default on macOS). ~0.2 s/page at scale 1.5 in one\n             process, about 5x tesseract, with the same parse results on WideOrbit/Katz prints.\n  tesseract  the tesseract CLI, psm 6, scale 2.2 (~1 s/page). Fallback / non-Mac.\nText is cached at data/ocr/<file_id>.txt (pages separated by form feeds) and picked up by\ningest.parse. Each attempt is recorded in the Postgres `ocr` table; a failure is retried on later runs\nuntil OCR_MAX_ATTEMPTS and then left alone (ingest.status lists them), never retried forever.\nWorker processes only render and read PDFs; the ledger is written by the parent process.\n\n  python3 -m ingest.ocr --workers 6                 # everything downloaded that parsed as image-only\n  python3 -m ingest.ocr --engine tesseract --ids a,b\n  python3 -m ingest.ocr --pages 4                   # cap pages per document (default 12)",
+  "parse": "Parse downloaded political-file PDFs into structured rows.\n\nEvery document gets a kind (order | invoice | form | other), a template naming the layout that\nwas recognised, a source (text layer or OCR) and a parse_status (ok | partial | failed | unrecognized). Layouts:\n\n  wideorbit-contract      WideOrbit \"CONTRACT\" print, text layer (Hearst, Tegna, Fox, Nexstar invoices...)\n  wideorbit-contract-ocr  the same printed to an image PDF and OCR'd (Nexstar, Gray)\n  wideorbit-order         WideOrbit \"ORDER\" print (\"Order / Rev:\", \"Flight Dates:\"), text (Gray, Nexstar, Scripps, Allen)\n  wideorbit-order-ocr     the same OCR'd (Gray scans)\n  wideorbit-invoice       WideOrbit invoice with per-spot Ad-ID lines\n  katz                    Katz / Sinclair contract (\"Contract #\", \"Total $:\"), text or OCR\n  katz-ecr                Katz ECR confirmation contract (\"External #\", \"Grand Total:\"), Sinclair stations\n  locality-worksheet      Locality rep \"CONTRACT WORKSHEET REPORT\" (OCR)\n  sinclair-contract       Sinclair traffic contract (\"Contract #\", \"Date Entered\", \"Schedule Dates\"), OCR\n  eport                   Sinclair ePort order/revision summary\n  sinclair-invoice        Sinclair \"OFFICIAL BILLING INVOICE\" (text or OCR)\n  nab-acroform            NAB PB-19 fillable form, values in AcroForm fields\n  nab-text                NAB / station agreement forms read from page text or OCR (scanned, signed forms)\n  nab-supplement          ad-specific NAB supplements and addenda (ISCI codes, no money) -> kind other\nAnything else is kind=other with template NULL so the gap is visible; ingest.validate clusters those.\n\nResults go to the Postgres `document` table (one upsert per document, committed every 500; the worker\nprocesses only read PDFs). Text extraction is cached under data/text/<ab>/<file_id>.json (text layer, AcroForm fields, page count) so\nre-parsing after a parser change is regex-only. Image-only PDFs are flagged needs_ocr; ingest.ocr fills\ndata/ocr/<file_id>.txt and `parse --only-failed` picks the text up.\n\n  python3 -m ingest.parse                 # parse everything downloaded and not yet at PARSER_VERSION\n  python3 -m ingest.parse --only-failed   # re-parse documents that are not ok or unrecognised (after OCR)\n  python3 -m ingest.parse --reparse       # everything (from the text cache)\n  python3 -m ingest.parse --file x.pdf    # print the parse of one file",
   "validate": "Parse validation report: invariants checked over document.raw in Postgres, failure rates per template,\nand the worst examples with file ids so a human can open the PDFs.\n\nChecks (each applies only where the fields exist):\n  lines_sum          order line amounts sum to the order gross (WideOrbit prints with line items)\n  net_ratio          net is gross less the 15% agency commission (or equal to gross for direct buys)\n  order_no_filename  a 7-9 digit number in the station's file name, when present, matches the parsed order number\n  flight_range       flight dates fall inside the cycle window and start <= end\n  gross_range        gross is between 0 and $5M (orders above $2M are listed for eyeballing)\n  invoice_spots      WideOrbit invoice 'Total Spots' equals the number of per-spot lines read\n  invoice_linked     an invoice's order number matches an order filed by the same station\n  form_fields        a form yields an advertiser (committee / candidate / sponsor)\n  dup_order_cross    an order number appears at stations of different groups (same group = sister stations, normal)\n\n  python3 -m ingest.validate                   # full report\n  python3 -m ingest.validate --examples 12     # more worst examples per check\n  python3 -m ingest.validate --json > report.json\nAlso prints parse coverage by kind / template / status, which is the before/after number for parser work.",
-  "load_pg": "Load stations (web/data/stations.json) and the crawl store (data/political.sqlite) into Postgres.\n\nIdempotent: rows are upserted by primary key. Run after every crawl/parse.\n  python3 -m ingest.load_pg [--db data/political.sqlite]\n\nstation_group is derived from the licensee string with the rules in GROUPS (checked against every licensee\nin the station table: the large groups use dozens of licensee entities, e.g. Sinclair's \"<CALL> Licensee, LLC\",\nAllen Media's \"<City> TV License Company, LLC\", Tegna's legacy Belo/Gannett companies). Stations no rule\nmatches get \"Independent\", public and religious broadcasters are grouped as such; NULL means unknown.",
-  "entities": "Rebuild domain entities from `document.raw` + `opif_file.folder_path`.\n\nDeterministic and total: it truncates the entity tables and rebuilds them, so a parser\nimprovement or an alias change only needs `load_pg` + `entities`, never a recrawl.\nManual buyer merges live in data/buyer_overrides.yaml (alias -> canonical name) and are\napplied on top of the automatic folder-based identity.\n  python3 -m ingest.entities",
+  "stations": "Load stations (web/data/stations.json) into the Postgres `station` table.\n\nIdempotent: rows are upserted by facility_id. Run once after a stations.json refresh (`make stations`);\nthe crawl refuses stations that are not in this table, so the licensed-station list stays the one\nsource of what gets crawled.\n  python3 -m ingest.stations\n\nstation_group is derived from the licensee string with the rules in GROUPS (checked against every licensee\nin the station table: the large groups use dozens of licensee entities, e.g. Sinclair's \"<CALL> Licensee, LLC\",\nAllen Media's \"<City> TV License Company, LLC\", Tegna's legacy Belo/Gannett companies). Stations no rule\nmatches get \"Independent\", public and religious broadcasters are grouped as such; NULL means unknown.",
+  "entities": "Rebuild domain entities from `document.raw` + `opif_file.folder_path`.\n\nDeterministic and total: it truncates the entity tables and rebuilds them, so a parser\nimprovement or an alias change only needs `parse` + `entities`, never a recrawl.\nManual buyer merges live in data/buyer_overrides.yaml (alias -> canonical name) and are\napplied on top of the automatic folder-based identity.\n  python3 -m ingest.entities",
   "identity": "Buyer identity: merge the stations' own folder labels into canonical buyers and match them\nto FEC candidates and committees.\n\nInputs: buyer_alias rows of source 'folder' (one per station label) with the station's state,\nFEC bulk master files in data/fec (cn.txt candidates, cm.txt committees, ccl.txt linkage),\nand data/buyer_overrides.yaml (manual: `raw label: Canonical Name`, or `category|raw label: ...`).\nOutput: data/buyer_identity.json, read by ingest.entities on its next run.\n\n  python3 -m ingest.identity          # then: python3 -m ingest.entities",
   "geo": "Geography: counties with population, H3 cells with population, and station coverage shares.\n\n  python3 -m ingest.geo            # everything (downloads Census files to data/geo on first run)\n\nResolutions come from HEX_RES. Coarse resolutions are built nationwide; fine ones only inside\nthe contours of stations that have political files loaded (\"active\"), so the fine layers grow\nwith the crawl. Adding a resolution is a one-line change here plus a rerun.",
   "export": "Export serving artifacts from the marts.\n\nweb/data/spend/<facility>.json, index.json   per-station buyers (what the map reads today)\nweb/data/hex/total_r<res>.json                money/ads reaching each cell (for the hex layers)\ndata/marts/*.parquet                          every mart, for DuckDB / the next UI / analysis\nweb/data/build.json                           build id + timestamp (cache busting)\n\npython3 -m ingest.export",
   "tiles": "Vector tiles (PMTiles) for the map: hex money layers and station contours, via tippecanoe.\n\npython3 -m ingest.tiles        -> web/data/tiles/hex5.pmtiles, hex7.pmtiles, contours.pmtiles, meta.json",
   "places": "Static place index for search: ZIP centroids and populated places from the Census Gazetteer files.\nWrites web/data/places.json so the app can resolve \"50309\", \"Des Moines\" or \"Des Moines, IA\" with no\nexternal geocoder. Street addresses still fall back to Nominatim in the app.\n\n  python3 -m ingest.places",
-  "status": "Pipeline status: what has been listed, downloaded, OCR'd, parsed and loaded, per station and overall,\nwhich stages are running or failed last, and what is stuck.\n\n  python3 -m ingest.status                 # overall + per-stage last runs + problem list\n  python3 -m ingest.status --stations      # add a per-station table (sorted by pending work)\n  python3 -m ingest.status --state PA      # per-station table for one state\n  python3 -m ingest.status --json          # machine-readable (used by ingest.batch and the About page export)\nReads SQLite only (never blocks a running stage: WAL mode) plus the lock files; Postgres counts are\nincluded when it is reachable.",
-  "coverage": "Coverage report: what has been crawled versus the national political-file totals.\n\nThe denominator is data/political_doc_counts.csv: per-station document counts for 2024 and 2026 for all\n1,750 licensed full-power stations (one FCC folder call each, taken 2026-10-23). The numerator is the\nlocal store (files listed, downloaded, parsed ok). Reported per state and per year, plus the gap list.\n\n  python3 -m ingest.coverage              # table by state\n  python3 -m ingest.coverage --json       # for export_methods / the About page\n  python3 -m ingest.coverage --missing    # stations not yet crawled, biggest first",
-  "batch": "National crawl driver: one state at a time, crawl -> parse -> OCR -> parse, with the Postgres refresh\n(load_pg, entities, identity, entities, marts) running in the background after each state while the next\nstate downloads. Holds the \"pipeline\" lock so two drivers cannot overlap.\n\n  python3 -m ingest.batch --targets data/crawl_targets_2026_national.txt --years 2026\n  python3 -m ingest.batch ... --states TX,OH          # a subset, in that order\n  python3 -m ingest.batch ... --all                   # redo states already marked done (cheap: crawl skips complete listings)\n\nResumable: each state that finishes crawl+parse+ocr+parse gets a pipeline_run row (stage=batch_state, batch=<ST>,\nstatus ok); a rerun skips those unless --all. A state whose crawl fails is recorded failed and the driver moves on;\nthree consecutive failed states abort the run (the FCC edge is refusing us). Monitor with `make status` or\n`tail -f data/logs/batch-*.log`; every stage keeps its own log in data/logs/.",
-  "runlog": "Run bookkeeping shared by every pipeline stage: log files, locks, counts, and the pipeline_run table.\n\n    from .runlog import Stage\n    with Stage(\"crawl\", args=vars(a), db_path=a.db) as st:\n        st.count(\"listed\", n)\n        st.fail(file_id, \"HTTP 404\")       # logged with the id and reason, counted, summarised\n        ...\n    # on exit: SUMMARY line, pipeline_run row closed, exit 1 if the stage failed or\n    # failures exceeded max_fail_rate of the work attempted\n\nEvery stage writes data/logs/<stage>-<YYYYmmdd-HHMMSS>.log (INFO and above) and mirrors it to stderr.\nA per-stage lock in data/locks/ stops two instances of the same stage from overlapping; the batch\ndriver (ingest.batch) additionally holds the \"pipeline\" lock so two full pipeline runs cannot overlap.\nStage runs are recorded in the SQLite pipeline_run table (copied to Postgres by load_pg), with start,\nend, status, counts and the log path, so `ingest.status` can show what ran and what failed last."
+  "status": "Pipeline status: what has been listed, downloaded, OCR'd, parsed and built into entities, per station and\noverall, which stages are running or failed last, and what is stuck.\n\n  python3 -m ingest.status                 # overall + per-stage last runs + problem list\n  python3 -m ingest.status --stations      # add a per-station table (sorted by pending work)\n  python3 -m ingest.status --state PA      # per-station table for one state\n  python3 -m ingest.status --json          # machine-readable (used by ingest.batch and the About page export)\nReads Postgres (plain SELECTs; never blocks a running stage) plus the lock files in data/locks/.",
+  "coverage": "Coverage report: what has been crawled versus the national political-file totals.\n\nThe denominator is data/political_doc_counts.csv: per-station document counts for 2024 and 2026 for all\n1,750 licensed full-power stations (one FCC folder call each, taken 2026-10-23). The numerator is\nPostgres (opif_file listed, downloaded, document parsed ok). Reported per state and per year, plus the gap list.\n\n  python3 -m ingest.coverage              # table by state\n  python3 -m ingest.coverage --json       # for export_methods / the About page\n  python3 -m ingest.coverage --missing    # stations not yet crawled, biggest first",
+  "batch": "National crawl driver: one state at a time, crawl -> parse -> OCR -> parse, with the entity refresh\n(entities, identity, entities, marts) running in the background after each state while the next\nstate downloads. Every stage writes straight to Postgres, so the refresh reads what the state just parsed. Holds the \"pipeline\" lock so two drivers cannot overlap.\n\n  python3 -m ingest.batch --targets data/crawl_targets_2026_national.txt --years 2026\n  python3 -m ingest.batch ... --states TX,OH          # a subset, in that order\n  python3 -m ingest.batch ... --all                   # redo states already marked done (cheap: crawl skips complete listings)\n\nResumable: each state that finishes crawl+parse+ocr+parse gets a pipeline_run row (stage=batch_state, batch=<ST>,\nstatus ok); a rerun skips those unless --all. A state whose crawl fails is recorded failed and the driver moves on;\nthree consecutive failed states abort the run (the FCC edge is refusing us). Monitor with `make status` or\n`tail -f data/logs/batch-*.log`; every stage keeps its own log in data/logs/.",
+  "runlog": "Run bookkeeping shared by every pipeline stage: log files, locks, counts, and the pipeline_run table.\n\n    from .runlog import Stage\n    with Stage(\"crawl\", args=vars(a)) as st:\n        st.count(\"listed\", n)\n        st.fail(file_id, \"HTTP 404\")       # logged with the id and reason, counted, summarised\n        ...\n    # on exit: SUMMARY line, pipeline_run row closed, exit 1 if the stage failed or\n    # failures exceeded max_fail_rate of the work attempted\n\nEvery stage writes data/logs/<stage>-<YYYYmmdd-HHMMSS>.log (INFO and above) and mirrors it to stderr.\nA per-stage lock in data/locks/ stops two instances of the same stage from overlapping; the batch\ndriver (ingest.batch) additionally holds the \"pipeline\" lock so two full pipeline runs cannot overlap.\nStage runs are recorded in the Postgres pipeline_run table with start, end, status, counts and the log\npath, so `ingest.status` and the About page export can show what ran and what failed last. The ledger\nuses its own short-lived connection, so a stage whose own transaction is broken still closes its run row."
  },
  "fcc_notice": "This product uses the FCC Data API but is not endorsed or certified by the FCC."
 }

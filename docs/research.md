@@ -944,8 +944,25 @@ lets a maintenance reparse run beside the batch driver, whose own parse
 stage would otherwise fail on the held lock) rather than bumping
 PARSER_VERSION, which would have queued a 4.5-hour reparse of every
 document in the middle of the national crawl. The next entity refresh
-collapses the duplicate creatives; the counts after it are in the table
-below.
+collapses the duplicate creatives:
+
+| | before | after |
+|---|---|---|
+| distinct Ad-IDs on invoices | 73,000 | 13,452 |
+| weekday-glued tokens left | 72,610 | 2 (both disagree with the air date, kept) |
+| creative rows | 73,000 | 12,539 |
+| Rob Sand families | hundreds | 164 (top code RSFI2610000H, 617 airings) |
+| airings with a playable upload (after re-aligning video) | 55% of inflated families | 46% of 953,118 airings; 9% high confidence |
+
+The video rate fell, not rose: the old figure counted each glued copy of a
+matched family as matched, so one aligned upload scored up to fourteen
+times. The new number is the honest one. Video matches are keyed by Ad-ID,
+so after any change to how codes are read `ingest.video videos` must run
+again (it works from the cached channel listings, about 13 minutes).
+
+Mixed-case tokens (`CONl0430HTu3`, `WakingUpHTu1`) carry the same tail, so
+the code part of the pattern is `[A-Za-z0-9]{4,14}`; the weekday check is
+what keeps `KCOXSHERIFF30` on a Monday intact.
 
 ### OCR stall (2026-10-25, 11:29)
 
