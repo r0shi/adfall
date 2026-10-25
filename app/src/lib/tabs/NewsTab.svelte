@@ -2,7 +2,7 @@
   // Newscasts: the political spots in each station's news blocks for one night. Scheduled from order lines
   // (what was bought into "News at 6", with spots per week) until the invoices for that night arrive, then the
   // confirmed airings with their Ad-IDs. Data: web/data/newscasts/<fac>.json (ingest.newscasts).
-  import { newscasts, newscastIndex, creatives, CATS, num } from '../data.js';
+  import { newscasts, newscastIndex, creatives, CATS, num, slugOf } from '../data.js';
   import Coverage from '../Coverage.svelte';
   let { found, idx = null } = $props();
   const iso = (d) => d.toISOString().slice(0, 10);
@@ -18,7 +18,8 @@
   const wd = $derived((new Date(day + 'T00:00:00Z').getUTCDay() + 6) % 7);   // Mon=0
   const LABELS = ['Morning', 'Midday', 'Evening', 'Late'];
   // creatives by buyer id -> [creative], for the "likely spots" under a scheduled buyer
-  const byBuyer = $derived.by(() => { const m = new Map(); for (const c of cr || []) { if (c.buyer_id == null) continue; (m.get(c.buyer_id) || m.set(c.buyer_id, []).get(c.buyer_id)).push(c); } return m; });
+  // keyed by buyer slug: buyer ids are reassigned on every entity rebuild, slugs are stable across exports
+  const byBuyer = $derived.by(() => { const m = new Map(); for (const c of cr || []) { if (!c.buyer) continue; const k = slugOf(c.category, c.buyer); (m.get(k) || m.set(k, []).get(k)).push(c); } return m; });
   const byAd = $derived(new Map((cr || []).map(c => [c.ad_id, c])));
   function eligible(l) {   // nights in the line's week that its day pattern allows
     let n = 0; for (let d = l.start; d <= l.end; d = shift(d, 1)) { const w = (new Date(d + 'T00:00:00Z').getUTCDay() + 6) % 7; if (!l.days || l.days.includes(w)) n++; }
@@ -57,7 +58,7 @@
   const latest = $derived(files.reduce((m, f) => f.confirmed_through > m ? f.confirmed_through : m, ''));
   const fmtT = (m) => { const h = Math.floor(m / 60) % 24, mm = m % 60; return `${h % 12 || 12}:${String(mm).padStart(2, '0')}${h < 12 ? 'a' : 'p'}`; };
   const dayLabel = $derived(day === today ? 'Tonight' : day === shift(today, -1) ? 'Last night' : new Date(day + 'T00:00:00Z').toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', timeZone: 'UTC' }));
-  const likely = (e, fac) => (byBuyer.get(e.buyer?.id) || []).filter(c => c.facs?.[fac]).sort((a, b) => (b.last || '').localeCompare(a.last || '')).slice(0, 3);
+  const likely = (e, fac) => (byBuyer.get(e.buyer?.slug) || []).filter(c => c.facs?.[fac]).sort((a, b) => (b.last || '').localeCompare(a.last || '')).slice(0, 3);
 </script>
 <div class="chips" style="margin:0 0 8px">
   <span class="chip" class:on={day === today} onclick={() => day = today} role="button" tabindex="0">Tonight</span>
