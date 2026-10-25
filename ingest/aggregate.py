@@ -38,9 +38,13 @@ def split_path(p):
 
 
 def aggregate_station(con, fac, year):
-    rows = con.execute("""SELECT f.file_manager_id, f.folder_path, f.create_ts, d.* FROM files f
-                          LEFT JOIN docs d ON d.file_manager_id=f.file_manager_id
-                          WHERE f.facility_id=? AND f.year=? AND f.deleted=0""", (fac, year)).fetchall()
+    rows = con.execute("""SELECT f.file_id AS file_manager_id, f.folder_path, f.fcc_created_at::text AS create_ts, d.kind, d.parse_status,
+                                 d.raw->>'order_no' order_no, d.raw->>'revision' revision, d.raw->>'invoice_no' invoice_no, d.raw->>'advertiser' advertiser,
+                                 d.raw->>'agency' agency, d.raw->>'product' product, d.raw->>'flight_start' flight_start, d.raw->>'flight_end' flight_end,
+                                 d.raw->>'print_date' print_date, (d.raw->>'gross')::float gross, (d.raw->>'net')::float net, (d.raw->>'spots')::int spots,
+                                 d.raw->'ad_ids' ad_ids, d.raw->'fields' fields
+                          FROM opif_file f LEFT JOIN document d USING (file_id)
+                          WHERE f.facility_id=%s AND f.year=%s AND f.deleted_at IS NULL""", (fac, year)).fetchall()
     orders = collections.defaultdict(lambda: {"invoices": {}, "orders": [], "forms": [], "folder": None, "advertiser": None, "agencies": set(), "ad_ids": set()})
     kinds = collections.Counter(); status = collections.Counter()
     for r in rows:
@@ -55,7 +59,7 @@ def aggregate_station(con, fac, year):
         if r["kind"] == "invoice":
             if r["gross"] is not None:
                 o["invoices"][r["invoice_no"] or r["file_manager_id"]] = r["gross"]
-            for a in json.loads(r["ad_ids"] or "[]"):
+            for a in (r["ad_ids"] or []):
                 o["ad_ids"].add(a)
         elif r["kind"] == "order":
             o["orders"].append((r["print_date"] or "", r["create_ts"] or "", r["gross"]))
@@ -108,13 +112,12 @@ def aggregate_station(con, fac, year):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--db", default=db.DEFAULT_DB)
     ap.add_argument("--year", type=int, default=2026)
     a = ap.parse_args()
-    con = db.connect(a.db)
+    con = db.connect()
     os.makedirs(OUT, exist_ok=True)
     index = {}
-    for (fac,) in con.execute("SELECT DISTINCT facility_id FROM files WHERE year=?", (a.year,)):
+    for (fac,) in con.execute("SELECT DISTINCT facility_id FROM opif_file WHERE year=%s", (a.year,)):
         s = aggregate_station(con, fac, a.year)
         json.dump(s, open(os.path.join(OUT, f"{fac}.json"), "w"), separators=(",", ":"))
         index[str(fac)] = {"total": s["total"], "buyers": len(s["buyers"]), "docs": s["docs"],

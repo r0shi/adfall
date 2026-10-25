@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-"""National crawl driver: one state at a time, crawl -> parse -> OCR -> parse, with the Postgres refresh
-(load_pg, entities, identity, entities, marts) running in the background after each state while the next
-state downloads. Holds the "pipeline" lock so two drivers cannot overlap.
+"""National crawl driver: one state at a time, crawl -> parse -> OCR -> parse, with the entity refresh
+(entities, identity, entities, marts) running in the background after each state while the next
+state downloads. Every stage writes straight to Postgres, so the refresh reads what the state just parsed. Holds the "pipeline" lock so two drivers cannot overlap.
 
   python3 -m ingest.batch --targets data/crawl_targets_2026_national.txt --years 2026
   python3 -m ingest.batch ... --states TX,OH          # a subset, in that order
@@ -14,7 +14,7 @@ three consecutive failed states abort the run (the FCC edge is refusing us). Mon
 """
 import argparse, datetime, json, logging, os, subprocess, sys, threading, time
 from . import db
-from .runlog import Stage, run_db, hms, ROOT
+from .runlog import Stage, hms, ROOT
 
 log = logging.getLogger("ingest.batch")
 PY = sys.executable
@@ -35,9 +35,9 @@ def run_stage(cmd, batch, timeout=None):
 
 
 class PgRefresher:
-    """Serialises the Postgres refresh chain in a background thread; a request made while one is running
+    """Serialises the entity refresh chain in a background thread; a request made while one is running
     is coalesced into one more run after it finishes."""
-    CHAIN = [("load_pg",), ("entities",), ("identity",), ("entities",), ("pg", "marts")]
+    CHAIN = [("entities",), ("identity",), ("entities",), ("pg", "marts")]
 
     def __init__(self, st):
         self.st, self.pending, self.running, self.lock = st, False, False, threading.Lock()
@@ -87,9 +87,8 @@ def main(argv=None):
     ap.add_argument("--workers", type=int, default=6, help="download workers")
     ap.add_argument("--ocr-workers", type=int, default=4)
     ap.add_argument("--parse-workers", type=int, default=6)
-    ap.add_argument("--no-pg", action="store_true", help="skip the Postgres refresh chain")
-    ap.add_argument("--redo-legacy-at-end", action="store_true", help="after all states: re-OCR the old tesseract text with Vision, re-parse, refresh Postgres")
-    ap.add_argument("--db", default=db.DEFAULT_DB)
+    ap.add_argument("--no-pg", action="store_true", help="skip the entity refresh chain")
+    ap.add_argument("--redo-legacy-at-end", action="store_true", help="after all states: re-OCR the old tesseract text with Vision, re-parse, refresh entities")
     a = ap.parse_args(argv)
     states = []
     for line in open(a.targets):
@@ -99,8 +98,8 @@ def main(argv=None):
     if a.states:
         want = a.states.split(",")
         states = sorted([s for s in states if s[0] in want], key=lambda s: want.index(s[0]))
-    with Stage("pipeline", args=vars(a), db_path=a.db, max_fail_rate=0.2, min_failures=3) as st:
-        con = run_db(a.db)
+    with Stage("pipeline", args=vars(a), max_fail_rate=0.2, min_failures=3) as st:
+        con = db.connect()
         skip = set() if a.all else done_states(con)
         todo = [s for s in states if s[0] not in skip]
         total_docs = sum(len(f) for _, f in todo)
@@ -142,7 +141,7 @@ def main(argv=None):
             else:
                 if not a.no_pg:
                     pgr.request("legacy")
-        log.info("waiting for the Postgres refresh to finish")
+        log.info("waiting for the entity refresh to finish")
         pgr.wait()
         st.count("pg_refresh_failures", pgr.failures)
         if failed_states:
@@ -152,7 +151,7 @@ def main(argv=None):
 def run_state(a, state, facs, steps):
     """Run one state's stages under a batch_state run row; any failed stage fails the state. Returns True on success."""
     try:
-        with Stage("batch_state", args={"state": state, "stations": len(facs)}, db_path=a.db, lock=False, batch=state, max_fail_rate=0, min_failures=0) as sst:
+        with Stage("batch_state", args={"state": state, "stations": len(facs)}, lock=False, batch=state, max_fail_rate=0, min_failures=0) as sst:
             for name, cmd in steps:
                 rc, secs, summ = run_stage(cmd, batch=state)
                 log.info("  %-6s exit=%d %s  %s", name, rc, hms(secs), summ[-200:])

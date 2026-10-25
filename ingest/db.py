@@ -1,93 +1,69 @@
-import os, sqlite3
+"""Postgres is the pipeline's single store: crawl state (opif_file, opif_listing), the OCR ledger (ocr),
+parsed documents (document), sync markers (meta) and stage runs (pipeline_run) all live next to the entities.
 
-DEFAULT_DB = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data", "political.sqlite")
+    from . import db
+    con = db.connect()                       # one connection per process; parse/OCR workers never touch the DB
+    for r in con.execute("SELECT file_id, local_path FROM opif_file WHERE downloaded"):
+        r[0], r["file_id"]                   # rows index by position and by column name
 
-SCHEMA = """
-CREATE TABLE IF NOT EXISTS files (
-  file_manager_id TEXT PRIMARY KEY,
-  facility_id     INTEGER NOT NULL,
-  year            INTEGER NOT NULL,
-  folder_path     TEXT NOT NULL,
-  file_name       TEXT,
-  file_size       INTEGER,          -- as listed by the FCC; NOT the byte size served (differs for ~99% of files)
-  create_ts       TEXT,
-  local_path      TEXT,
-  downloaded      INTEGER DEFAULT 0,
-  deleted         INTEGER DEFAULT 0,
-  local_size      INTEGER,          -- bytes on disk after a verified download
-  sha256          TEXT,
-  downloaded_at   TEXT,
-  download_attempts INTEGER DEFAULT 0,
-  download_error  TEXT              -- last failure reason (HTTP code, 'not a PDF', ...); NULL once downloaded
-);
-CREATE TABLE IF NOT EXISTS meta (key TEXT PRIMARY KEY, value TEXT);
-CREATE INDEX IF NOT EXISTS files_fac_year ON files(facility_id, year);
-CREATE INDEX IF NOT EXISTS files_pending ON files(downloaded, deleted);
-CREATE TABLE IF NOT EXISTS docs (
-  file_manager_id TEXT PRIMARY KEY REFERENCES files(file_manager_id),
-  kind            TEXT,             -- order | invoice | form | other
-  parse_status    TEXT,             -- ok | partial | failed
-  order_no        TEXT,
-  revision        TEXT,
-  invoice_no      TEXT,
-  advertiser      TEXT,
-  agency          TEXT,
-  product         TEXT,
-  flight_start    TEXT,             -- ISO date
-  flight_end      TEXT,
-  print_date      TEXT,
-  gross           REAL,
-  net             REAL,
-  spots           INTEGER,
-  ad_ids          TEXT,             -- JSON list
-  fields          TEXT,             -- JSON: form fields or line items
-  parser_version  INTEGER,
-  parsed_at       TEXT,
-  error           TEXT              -- exception text when the parser crashed on this file
-);
--- one row per (station, year) listing walk; a crawl only skips a station-year whose listing is complete
-CREATE TABLE IF NOT EXISTS listing (
-  facility_id INTEGER NOT NULL,
-  year        INTEGER NOT NULL,
-  status      TEXT NOT NULL,        -- complete | partial | failed | empty
-  files       INTEGER,              -- files seen in the walk
-  api_count   INTEGER,              -- file_count the API reports for the year folder
-  listed_at   TEXT,
-  error       TEXT,
-  PRIMARY KEY (facility_id, year)
-);
--- one row per OCR attempt outcome; a failed OCR is retried at most OCR_MAX_ATTEMPTS times, never forever
-CREATE TABLE IF NOT EXISTS ocr (
-  file_manager_id TEXT PRIMARY KEY,
-  engine      TEXT,                 -- vision | tesseract
-  status      TEXT NOT NULL,        -- ok | failed
-  attempts    INTEGER DEFAULT 1,
-  pages_done  INTEGER, pages_total INTEGER,
-  chars       INTEGER,
-  seconds     REAL,
-  error       TEXT,
-  ocr_at      TEXT
-);
+DATABASE_URL comes from the environment or .env (see ingest.pg); the default is the compose service.
+connect() refuses to run against a schema that is behind db/migrations (run `make migrate`), so a stage
+never writes into a table it does not expect.
 """
+import datetime, glob, os
+import psycopg
+from . import pg
 
-UPGRADES = {  # table -> [(column, ddl)] for databases created before the column existed
-    "files": [("deleted", "INTEGER DEFAULT 0"), ("local_size", "INTEGER"), ("sha256", "TEXT"), ("downloaded_at", "TEXT"),
-              ("download_attempts", "INTEGER DEFAULT 0"), ("download_error", "TEXT")],
-    "docs": [("parsed_at", "TEXT"), ("error", "TEXT")],
-}
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+_checked = set()
 
 
-def connect(path=DEFAULT_DB):
-    os.makedirs(os.path.dirname(path), exist_ok=True)
-    con = sqlite3.connect(path, timeout=120)
-    con.row_factory = sqlite3.Row
-    con.execute("PRAGMA journal_mode=WAL")           # readers (status) never block the writing stage
-    con.execute("PRAGMA busy_timeout=120000")
-    con.executescript(SCHEMA)
-    for table, cols in UPGRADES.items():
-        have = {r[1] for r in con.execute(f"PRAGMA table_info({table})")}
-        for col, ddl in cols:
-            if col not in have:
-                con.execute(f"ALTER TABLE {table} ADD COLUMN {col} {ddl}")
-    con.commit()
+def row_factory(cursor):
+    """psycopg row factory: tuples that also accept column names (r["file_id"]) and expose keys()."""
+    desc = cursor.description
+    names = [d.name for d in desc] if desc else []
+    index = {n: i for i, n in enumerate(names)}
+
+    class Row(tuple):
+        __slots__ = ()
+
+        def __getitem__(self, k, _get=tuple.__getitem__):
+            return _get(self, index[k] if isinstance(k, str) else k)
+
+        def keys(self):
+            return list(names)
+
+        def asdict(self):
+            return dict(zip(names, self))
+
+    return Row
+
+
+def connect(autocommit=False):
+    url = pg.url()
+    con = psycopg.connect(url, autocommit=autocommit, row_factory=row_factory)
+    if url not in _checked:
+        check_schema(con)
+        _checked.add(url)
     return con
+
+
+def check_schema(con):
+    want = sorted(os.path.basename(p) for p in glob.glob(os.path.join(ROOT, "db", "migrations", "*.sql")))
+    try:
+        have = {r[0] for r in con.execute("SELECT name FROM schema_migrations")}
+    except psycopg.errors.UndefinedTable:
+        con.rollback(); have = set()
+    missing = [m for m in want if m not in have]
+    if missing:
+        raise SystemExit(f"database schema is behind: {', '.join(missing)} not applied; run `make migrate`")
+
+
+def dbname():
+    """For status headers: the database part of DATABASE_URL."""
+    return pg.url().rsplit("/", 1)[-1].split("?")[0]
+
+
+def now():
+    """Timezone-aware local time; stored as timestamptz, so the instant survives the server's UTC setting."""
+    return datetime.datetime.now().astimezone()

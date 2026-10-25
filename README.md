@@ -48,16 +48,19 @@ Postgres with PostGIS via docker compose; see [docs/design.md](docs/design.md).
 make db-up && make migrate      # start PostGIS on 127.0.0.1:5434 and apply db/migrations
 make geo                        # counties, population, H3 cells, coverage (once; rerun when the crawl widens)
 make fec                        # FEC candidate/committee master files (once per cycle refresh)
-make pipeline                   # load -> entities -> identity -> entities -> marts -> export -> tiles (tippecanoe)
+make stations                   # upsert web/data/stations.json into the station table (once; rerun when it changes)
+make pipeline                   # stations -> entities -> identity -> entities -> marts -> export -> tiles (tippecanoe)
 ```
 
 ## Ingest pipeline
 
-Stages, in order: `crawl` (list + download PDFs into `data/political.sqlite` and `data/pdfs/`),
-`parse` (text layer -> structured rows; image-only PDFs are flagged), `ocr` (Apple Vision, or
-tesseract), `parse --only-failed` (pick up OCR text), `load_pg`, `entities`, `identity`,
-`entities`, `marts`, then `geo`/`export`/`tiles` for the site. `update` applies the FCC change
-feed for daily upkeep.
+Postgres is the only store: every stage reads and writes it directly (`DATABASE_URL`, default the
+compose service), so a crawl, a parse and the updater can run at the same time. Stages, in order:
+`crawl` (list + download PDFs into `opif_file` and `data/pdfs/`), `parse` (text layer -> `document`;
+image-only PDFs are flagged), `ocr` (Apple Vision, or tesseract; ledger in `ocr`), `parse --only-failed`
+(pick up OCR text), `entities`, `identity`, `entities`, `marts`, then `geo`/`export`/`tiles` for the
+site. `update` applies the FCC change feed for daily upkeep. `make migrate` applies new schema files;
+a stage refuses to run against a schema that is behind.
 
 ```bash
 make status                     # counts per stage, running/failed stages, problems; STATE=PA for per-station rows
@@ -66,12 +69,13 @@ make validate                   # parse invariants per template with worst examp
 make batch                      # national 2026 crawl+OCR+parse, state by state, resumable; Postgres refreshed in the background
 make crawl STATE=TX             # one state from data/crawl_targets_2026_national.txt
 make update                     # FCC change feed since the last sync, plus downloads
-make refresh                    # load -> entities -> identity -> entities -> marts
+make refresh                    # entities -> identity -> entities -> marts
+make migrate-sqlite             # one-off: copy the retired data/political.sqlite store into Postgres
 ```
 
 Every stage writes `data/logs/<stage>-<timestamp>.log` (mirrored to stderr) ending in a
-`SUMMARY` line with counts and failures, records a row in the `pipeline_run` table (SQLite,
-mirrored to Postgres), holds a lock in `data/locks/` so it cannot overlap itself, and exits
+`SUMMARY` line with counts and failures, records a row in the Postgres `pipeline_run` table,
+holds a lock in `data/locks/` so it cannot overlap itself, and exits
 non-zero when failures exceed its threshold. Everything resumes after a kill: listings are
 redone unless complete, downloads are atomic and verified, OCR and download failures are
 retried a capped number of times and then reported by `make status`. Operations notes and

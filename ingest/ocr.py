@@ -5,15 +5,16 @@ Engines
   vision     Apple Vision via the `ocrmac` package (default on macOS). ~0.2 s/page at scale 1.5 in one
              process, about 5x tesseract, with the same parse results on WideOrbit/Katz prints.
   tesseract  the tesseract CLI, psm 6, scale 2.2 (~1 s/page). Fallback / non-Mac.
-Text is cached at data/ocr/<file_manager_id>.txt (pages separated by form feeds) and picked up by
-ingest.parse. Each attempt is recorded in the SQLite `ocr` table; a failure is retried on later runs
+Text is cached at data/ocr/<file_id>.txt (pages separated by form feeds) and picked up by
+ingest.parse. Each attempt is recorded in the Postgres `ocr` table; a failure is retried on later runs
 until OCR_MAX_ATTEMPTS and then left alone (ingest.status lists them), never retried forever.
+Worker processes only render and read PDFs; the ledger is written by the parent process.
 
   python3 -m ingest.ocr --workers 6                 # everything downloaded that parsed as image-only
   python3 -m ingest.ocr --engine tesseract --ids a,b
   python3 -m ingest.ocr --pages 4                   # cap pages per document (default 12)
 """
-import argparse, datetime, json, logging, os, re, subprocess, sys, tempfile, time
+import argparse, datetime, logging, os, re, subprocess, sys, tempfile, time
 from concurrent.futures import ProcessPoolExecutor
 import multiprocessing as mp
 from . import db
@@ -40,7 +41,7 @@ def vision_text(img, level="accurate"):
         else:
             rows.append([top, [(left, t)], h])
     text = "\n".join("  ".join(t for _, t in sorted(r[1])) for r in rows)
-    return re.sub(r"[^\x00-\x7f\u00c0-\u00ff]", "", text)          # Vision appends ł ą ẠỊ to digits; nothing in these documents needs them
+    return re.sub(r"[^\x00-\x7fÀ-ÿ]", "", text)          # Vision appends ł ą ẠỊ to digits; nothing in these documents needs them
 
 
 def tesseract_text(img):
@@ -67,7 +68,7 @@ def ocr_pdf(job):
             img = pdf[i].render(scale=SCALES[engine]).to_pil()
             texts.append(vision_text(img) if engine == "vision" else tesseract_text(img))
         text = "\n\f\n".join(texts)
-        tmp = out + ".part"
+        tmp = f"{out}.{os.getpid()}.part"               # unique per worker: two OCR runs never write the same temp file
         with open(tmp, "w") as fh:
             fh.write(text)
         os.replace(tmp, out)
@@ -76,24 +77,44 @@ def ocr_pdf(job):
         return {"fid": fid, "status": "failed", "pages_done": 0, "pages_total": None, "chars": 0, "seconds": time.time() - t0, "error": f"{type(e).__name__}: {str(e)[:200]}"}
 
 
-def candidates(con, ids=None, max_attempts=OCR_MAX_ATTEMPTS):
-    """Downloaded documents the parser found no text layer in, minus those already OCR'd or given up on."""
+def candidates(con, st, ids=None, max_attempts=OCR_MAX_ATTEMPTS):
+    """Downloaded documents the parser found no text layer in, minus those already OCR'd or given up on.
+    Cached text without a ledger row (an OCR run killed before its commit, or text produced by another run) is
+    adopted into the ledger as engine='cached', so `parse --only-failed` picks it up instead of it lying unused."""
     if ids:
-        rows = con.execute(f"SELECT file_manager_id, local_path FROM files WHERE file_manager_id IN ({','.join('?'*len(ids))})", ids).fetchall()
+        rows = con.execute("SELECT file_id, local_path FROM opif_file WHERE file_id = ANY(%s)", (list(ids),)).fetchall()
         return [(r[0], r[1]) for r in rows]
-    rows = con.execute("""SELECT f.file_manager_id, f.local_path, o.status, o.attempts
-                          FROM files f JOIN docs d USING(file_manager_id) LEFT JOIN ocr o USING(file_manager_id)
-                          WHERE f.downloaded=1 AND f.deleted=0 AND json_extract(d.fields,'$.needs_ocr')=1""").fetchall()
-    jobs, given_up, cached = [], 0, 0
+    rows = con.execute("""SELECT f.file_id, f.local_path, o.status, o.attempts
+                          FROM opif_file f JOIN document d USING (file_id) LEFT JOIN ocr o USING (file_id)
+                          WHERE f.downloaded AND f.deleted_at IS NULL AND d.needs_ocr ORDER BY f.file_id""").fetchall()
+    jobs, given_up, cached, adopted = [], 0, 0, 0
     for fid, path, status, attempts in rows:
-        if os.path.exists(os.path.join(OCR_DIR, fid + ".txt")):
+        txt = os.path.join(OCR_DIR, fid + ".txt")
+        if os.path.exists(txt):
             cached += 1
+            if status is None:
+                size = os.path.getsize(txt)
+                con.execute("""INSERT INTO ocr(file_id,engine,status,attempts,chars,ocr_at) VALUES(%s,'cached','ok',1,%s,%s) ON CONFLICT (file_id) DO NOTHING""",
+                            (fid, size, datetime.datetime.fromtimestamp(os.path.getmtime(txt)).astimezone()))
+                adopted += 1
             continue
         if status == "failed" and (attempts or 0) >= max_attempts:
             given_up += 1
             continue
         jobs.append((fid, path))
+    if adopted:
+        con.commit()
+        st.warn("%d documents had OCR text on disk but no ledger row; recorded as engine=cached so parse --only-failed picks them up", adopted)
+        st.count("adopted", adopted)
     return jobs, given_up, cached
+
+
+def record(con, r, engine):
+    con.execute("""INSERT INTO ocr(file_id,engine,status,attempts,pages_done,pages_total,chars,seconds,error,ocr_at)
+                   VALUES(%s,%s,%s,1,%s,%s,%s,%s,%s,%s) ON CONFLICT (file_id) DO UPDATE SET engine=EXCLUDED.engine, status=EXCLUDED.status,
+                   attempts=ocr.attempts+1, pages_done=EXCLUDED.pages_done, pages_total=EXCLUDED.pages_total, chars=EXCLUDED.chars,
+                   seconds=EXCLUDED.seconds, error=EXCLUDED.error, ocr_at=EXCLUDED.ocr_at""",
+                (r["fid"], engine, r["status"], r["pages_done"], r["pages_total"], r["chars"], round(r["seconds"], 2), r["error"], db.now()))
 
 
 def main(argv=None):
@@ -105,32 +126,33 @@ def main(argv=None):
     ap.add_argument("--retry-given-up", action="store_true")
     ap.add_argument("--redo-legacy", action="store_true", help="re-OCR documents whose text came from the pre-ledger tesseract run (no ocr row)")
     ap.add_argument("--max-fail-rate", type=float, default=0.05)
-    ap.add_argument("--db", default=db.DEFAULT_DB)
     a = ap.parse_args(argv)
     os.makedirs(OCR_DIR, exist_ok=True)
-    with Stage("ocr", args=vars(a), db_path=a.db, max_fail_rate=a.max_fail_rate) as st:
-        con = db.connect(a.db)
+    with Stage("ocr", args=vars(a), max_fail_rate=a.max_fail_rate) as st:
+        con = db.connect()
         if a.retry_given_up:
             n = con.execute("UPDATE ocr SET attempts=0 WHERE status='failed'").rowcount; con.commit()
             log.info("reset %d given-up OCR attempts", n)
         if a.redo_legacy:
-            rows = con.execute("""SELECT f.file_manager_id, f.local_path FROM files f JOIN docs d USING(file_manager_id) LEFT JOIN ocr o USING(file_manager_id)
-                                  WHERE json_extract(d.fields,'$.source')='ocr' AND o.file_manager_id IS NULL""").fetchall()
+            rows = con.execute("""SELECT f.file_id, f.local_path FROM opif_file f JOIN document d USING (file_id) LEFT JOIN ocr o USING (file_id)
+                                  WHERE d.source='ocr' AND o.file_id IS NULL ORDER BY f.file_id""").fetchall()
             jobs = [(r[0], r[1]) for r in rows]; given_up = cached = 0
             log.info("redo-legacy: %d documents OCR'd by the old tesseract run will be redone with %s", len(jobs), a.engine)
             for fid, _ in jobs:
                 p = os.path.join(OCR_DIR, fid + ".txt")
                 if os.path.exists(p):
                     os.rename(p, p + ".tesseract")      # keep the old text next to the new one for comparison
-        elif a.ids:
-            ids = a.ids.split(",")
-            jobs = candidates(con, ids); given_up = cached = 0
+        elif a.ids is not None:
+            ids = [x for x in a.ids.split(",") if x]
+            if not ids:
+                raise SystemExit("--ids given but empty")
+            jobs = candidates(con, st, ids); given_up = cached = 0
             for fid in ids:
                 p = os.path.join(OCR_DIR, fid + ".txt")
                 if os.path.exists(p):
                     os.remove(p)
         else:
-            jobs, given_up, cached = candidates(con)
+            jobs, given_up, cached = candidates(con, st)
         log.info("OCR %d image-only PDFs with %d workers (engine=%s, max pages %d); %d already cached, %d given up after %d failures",
                  len(jobs), a.workers, a.engine, a.pages, cached, given_up, OCR_MAX_ATTEMPTS)
         st.count("queued", len(jobs)); st.count("cached", cached); st.count("given_up", given_up)
@@ -143,12 +165,7 @@ def main(argv=None):
             for r in ex.map(ocr_pdf, jobs, chunksize=2):
                 n += 1; st.attempt()
                 pages += r["pages_done"]; secs += r["seconds"]
-                con.execute("""INSERT INTO ocr(file_manager_id,engine,status,attempts,pages_done,pages_total,chars,seconds,error,ocr_at)
-                               VALUES(?,?,?,1,?,?,?,?,?,?) ON CONFLICT(file_manager_id) DO UPDATE SET engine=excluded.engine, status=excluded.status,
-                               attempts=ocr.attempts+1, pages_done=excluded.pages_done, pages_total=excluded.pages_total, chars=excluded.chars,
-                               seconds=excluded.seconds, error=excluded.error, ocr_at=excluded.ocr_at""",
-                            (r["fid"], a.engine, r["status"], r["pages_done"], r["pages_total"], r["chars"], round(r["seconds"], 2), r["error"],
-                             datetime.datetime.now().isoformat(timespec="seconds")))
+                record(con, r, a.engine)
                 if r["status"] == "ok":
                     ok += 1
                     if r["chars"] < 50:

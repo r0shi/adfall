@@ -1,19 +1,21 @@
 #!/usr/bin/env python3
-"""Load stations (web/data/stations.json) and the crawl store (data/political.sqlite) into Postgres.
+"""Load stations (web/data/stations.json) into the Postgres `station` table.
 
-Idempotent: rows are upserted by primary key. Run after every crawl/parse.
-  python3 -m ingest.load_pg [--db data/political.sqlite]
+Idempotent: rows are upserted by facility_id. Run once after a stations.json refresh (`make stations`);
+the crawl refuses stations that are not in this table, so the licensed-station list stays the one
+source of what gets crawled.
+  python3 -m ingest.stations
 
 station_group is derived from the licensee string with the rules in GROUPS (checked against every licensee
 in the station table: the large groups use dozens of licensee entities, e.g. Sinclair's "<CALL> Licensee, LLC",
 Allen Media's "<City> TV License Company, LLC", Tegna's legacy Belo/Gannett companies). Stations no rule
 matches get "Independent", public and religious broadcasters are grouped as such; NULL means unknown.
 """
-import argparse, datetime, json, logging, os, re, sqlite3, sys
-from . import pg, db
+import argparse, json, logging, os, re
+from . import db
 from .runlog import Stage
 
-log = logging.getLogger("ingest.load_pg")
+log = logging.getLogger("ingest.stations")
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 GROUPS = [  # (licensee regex, station group); first match wins, so specific company names come before generic shapes
@@ -119,71 +121,11 @@ def load_stations(con, st):
     log.info("stations: %d; groups: %s", len(rows), ", ".join(f"{g}={n}" for g, n in sorted(groups.items(), key=lambda x: -x[1])[:12]))
 
 
-def load_files(con, st, sqlite_path):
-    sq = sqlite3.connect(sqlite_path, timeout=120); sq.row_factory = sqlite3.Row
-    known = {r[0] for r in con.execute("SELECT facility_id FROM station")}
-    all_files = sq.execute("SELECT * FROM files").fetchall()
-    files = [r for r in all_files if r["facility_id"] in known]
-    unknown = {r["facility_id"] for r in all_files if r["facility_id"] not in known}
-    if unknown:
-        st.warn("%d files belong to %d facility ids not in stations.json and are not loaded: %s", len(all_files) - len(files), len(unknown), sorted(unknown)[:20])
-        st.count("files_unknown_station", len(all_files) - len(files))
-    with con.cursor() as cur:
-        cur.execute("CREATE TEMP TABLE t_files (LIKE opif_file INCLUDING DEFAULTS) ON COMMIT DROP")
-        with cur.copy("COPY t_files(file_id,facility_id,year,folder_path,file_name,size_bytes,fcc_created_at,downloaded_at,deleted_at,sha256,local_path,download_attempts,download_error) FROM STDIN") as cp:
-            for r in files:
-                cp.write_row((r["file_manager_id"], r["facility_id"], r["year"], r["folder_path"], r["file_name"], r["file_size"], r["create_ts"],
-                              (r["downloaded_at"] or datetime.datetime.now()) if r["downloaded"] else None, datetime.datetime.now() if r["deleted"] else None,
-                              r["sha256"], r["local_path"], r["download_attempts"] or 0, r["download_error"]))
-        cur.execute("""INSERT INTO opif_file SELECT * FROM t_files
-                       ON CONFLICT (file_id) DO UPDATE SET folder_path=EXCLUDED.folder_path, file_name=EXCLUDED.file_name, size_bytes=EXCLUDED.size_bytes,
-                         downloaded_at=COALESCE(opif_file.downloaded_at, EXCLUDED.downloaded_at), deleted_at=EXCLUDED.deleted_at, sha256=EXCLUDED.sha256,
-                         local_path=EXCLUDED.local_path, download_attempts=EXCLUDED.download_attempts, download_error=EXCLUDED.download_error""")
-        ocr_engine = {r[0]: r[1] for r in sq.execute("SELECT file_manager_id, engine FROM ocr WHERE status='ok'")}
-        docs = [r for r in sq.execute("SELECT d.*, f.facility_id FROM docs d JOIN files f USING(file_manager_id)") if r["facility_id"] in known]
-        cur.execute("CREATE TEMP TABLE t_docs (LIKE document INCLUDING DEFAULTS) ON COMMIT DROP")
-        with cur.copy("COPY t_docs(file_id,kind,template,source,parse_status,parser_version,raw,ocr_engine,error) FROM STDIN") as cp:
-            for r in docs:
-                fields = json.loads(r["fields"] or "{}")
-                raw = {k: r[k] for k in ("order_no", "revision", "invoice_no", "advertiser", "agency", "product", "flight_start", "flight_end",
-                                         "print_date", "gross", "net", "spots")}
-                raw["ad_ids"] = json.loads(r["ad_ids"] or "[]"); raw["fields"] = fields
-                src = fields.get("source")
-                cp.write_row((r["file_manager_id"], r["kind"], fields.get("template"), src, r["parse_status"], r["parser_version"], json.dumps(raw),
-                              ocr_engine.get(r["file_manager_id"]) if src == "ocr" else None, r["error"]))
-        cur.execute("""INSERT INTO document SELECT * FROM t_docs
-                       ON CONFLICT (file_id) DO UPDATE SET kind=EXCLUDED.kind, template=EXCLUDED.template, source=EXCLUDED.source,
-                         parse_status=EXCLUDED.parse_status, parser_version=EXCLUDED.parser_version, parsed_at=now(), raw=EXCLUDED.raw,
-                         ocr_engine=EXCLUDED.ocr_engine, error=EXCLUDED.error""")
-        # listing state and run history
-        cur.execute("CREATE TEMP TABLE t_listing (LIKE opif_listing INCLUDING DEFAULTS) ON COMMIT DROP")
-        listings = [r for r in sq.execute("SELECT * FROM listing") if r["facility_id"] in known]
-        with cur.copy("COPY t_listing(facility_id,year,status,files,api_count,listed_at,error) FROM STDIN") as cp:
-            for r in listings:
-                cp.write_row((r["facility_id"], r["year"], r["status"], r["files"], r["api_count"], r["listed_at"], r["error"]))
-        cur.execute("""INSERT INTO opif_listing SELECT * FROM t_listing ON CONFLICT (facility_id, year) DO UPDATE SET status=EXCLUDED.status, files=EXCLUDED.files,
-                       api_count=EXCLUDED.api_count, listed_at=EXCLUDED.listed_at, error=EXCLUDED.error""")
-        runs = sq.execute("SELECT * FROM pipeline_run").fetchall()
-        cur.executemany("""INSERT INTO pipeline_run(run_id,stage,batch,started,ended,status,pid,host,args,counts,failures,error,log_path)
-                           VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s) ON CONFLICT (run_id) DO UPDATE SET ended=EXCLUDED.ended, status=EXCLUDED.status,
-                           counts=EXCLUDED.counts, failures=EXCLUDED.failures, error=EXCLUDED.error""",
-                        [(r["run_id"], r["stage"], r["batch"], r["started"], r["ended"], r["status"], r["pid"], r["host"], r["args"], r["counts"], r["failures"], r["error"], r["log_path"]) for r in runs])
-    con.commit()
-    st.count("opif_file", len(files)); st.count("document", len(docs)); st.count("listing", len(listings)); st.count("pipeline_run", len(runs))
-    log.info("opif_file: %d  document: %d  listing: %d  pipeline_run: %d", len(files), len(docs), len(listings), len(runs))
-
-
 def main(argv=None):
     ap = argparse.ArgumentParser()
-    ap.add_argument("--db", default=db.DEFAULT_DB)
-    ap.add_argument("--skip-stations", action="store_true")
     a = ap.parse_args(argv)
-    with Stage("load_pg", args=vars(a), db_path=a.db) as st:
-        pg.migrate()
-        with pg.connect() as con:
-            if not a.skip_stations:
-                load_stations(con, st)
-            load_files(con, st, a.db)
+    with Stage("stations", args=vars(a)) as st, db.connect() as con:
+        load_stations(con, st)
 
 
 if __name__ == "__main__":

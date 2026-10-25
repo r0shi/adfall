@@ -2,8 +2,8 @@
 """Coverage report: what has been crawled versus the national political-file totals.
 
 The denominator is data/political_doc_counts.csv: per-station document counts for 2024 and 2026 for all
-1,750 licensed full-power stations (one FCC folder call each, taken 2026-10-23). The numerator is the
-local store (files listed, downloaded, parsed ok). Reported per state and per year, plus the gap list.
+1,750 licensed full-power stations (one FCC folder call each, taken 2026-10-23). The numerator is
+Postgres (opif_file listed, downloaded, document parsed ok). Reported per state and per year, plus the gap list.
 
   python3 -m ingest.coverage              # table by state
   python3 -m ingest.coverage --json       # for export_methods / the About page
@@ -29,10 +29,10 @@ def national():
 def report(con):
     nat, asof = national()
     local = {}
-    for fac, year, listed, dl, ok in con.execute("""SELECT f.facility_id, f.year, COUNT(*), SUM(f.downloaded), SUM(d.parse_status='ok')
-                                                   FROM files f LEFT JOIN docs d USING(file_manager_id) WHERE f.deleted=0 GROUP BY 1,2"""):
+    for fac, year, listed, dl, ok in con.execute("""SELECT f.facility_id, f.year, COUNT(*), COUNT(*) FILTER (WHERE f.downloaded), COUNT(*) FILTER (WHERE d.parse_status='ok')
+                                                   FROM opif_file f LEFT JOIN document d USING (file_id) WHERE f.deleted_at IS NULL GROUP BY 1,2"""):
         local[(fac, str(year))] = (listed, dl or 0, ok or 0)
-    listing = {(r[0], str(r[1])): r[2] for r in con.execute("SELECT facility_id, year, status FROM listing")}
+    listing = {(r[0], str(r[1])): r[2] for r in con.execute("SELECT facility_id, year, status FROM opif_listing")}
     by_state = collections.defaultdict(lambda: {y: {"stations": 0, "stations_crawled": 0, "stations_with_docs": 0, "docs_national": 0, "docs_listed": 0, "docs_downloaded": 0, "docs_ok": 0} for y in ("2024", "2026")})
     missing = []
     for fac, info in nat.items():
@@ -59,9 +59,8 @@ def main(argv=None):
     ap.add_argument("--json", action="store_true")
     ap.add_argument("--missing", action="store_true")
     ap.add_argument("--year", default="2026")
-    ap.add_argument("--db", default=db.DEFAULT_DB)
     a = ap.parse_args(argv)
-    con = db.connect(a.db)
+    con = db.connect()
     r = report(con)
     if a.json:
         print(json.dumps(r, indent=1)); return

@@ -1,7 +1,7 @@
 """Run bookkeeping shared by every pipeline stage: log files, locks, counts, and the pipeline_run table.
 
     from .runlog import Stage
-    with Stage("crawl", args=vars(a), db_path=a.db) as st:
+    with Stage("crawl", args=vars(a)) as st:
         st.count("listed", n)
         st.fail(file_id, "HTTP 404")       # logged with the id and reason, counted, summarised
         ...
@@ -11,45 +11,18 @@
 Every stage writes data/logs/<stage>-<YYYYmmdd-HHMMSS>.log (INFO and above) and mirrors it to stderr.
 A per-stage lock in data/locks/ stops two instances of the same stage from overlapping; the batch
 driver (ingest.batch) additionally holds the "pipeline" lock so two full pipeline runs cannot overlap.
-Stage runs are recorded in the SQLite pipeline_run table (copied to Postgres by load_pg), with start,
-end, status, counts and the log path, so `ingest.status` can show what ran and what failed last.
+Stage runs are recorded in the Postgres pipeline_run table with start, end, status, counts and the log
+path, so `ingest.status` and the About page export can show what ran and what failed last. The ledger
+uses its own short-lived connection, so a stage whose own transaction is broken still closes its run row.
 """
-import datetime, fcntl, json, logging, os, socket, sqlite3, sys, time, traceback
+import datetime, fcntl, json, logging, os, socket, sys, time, traceback
+from . import db
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 LOG_DIR = os.path.join(ROOT, "data", "logs")
 LOCK_DIR = os.path.join(ROOT, "data", "locks")
-DEFAULT_DB = os.path.join(ROOT, "data", "political.sqlite")
-
-RUN_SCHEMA = """
-CREATE TABLE IF NOT EXISTS pipeline_run (
-  run_id    INTEGER PRIMARY KEY AUTOINCREMENT,
-  stage     TEXT NOT NULL,
-  batch     TEXT,                 -- label from the batch driver (e.g. the state), NULL for ad-hoc runs
-  started   TEXT NOT NULL,
-  ended     TEXT,
-  status    TEXT NOT NULL,        -- running | ok | failed | killed
-  pid       INTEGER,
-  host      TEXT,
-  args      TEXT,                 -- JSON
-  counts    TEXT,                 -- JSON {name: n}
-  failures  INTEGER DEFAULT 0,
-  error     TEXT,
-  log_path  TEXT
-);
-CREATE INDEX IF NOT EXISTS pipeline_run_stage ON pipeline_run(stage, started);
-"""
 
 log = logging.getLogger("ingest")
-
-
-def run_db(path=DEFAULT_DB):
-    os.makedirs(os.path.dirname(path), exist_ok=True)
-    con = sqlite3.connect(path, timeout=120)
-    con.execute("PRAGMA journal_mode=WAL")
-    con.execute("PRAGMA busy_timeout=120000")
-    con.executescript(RUN_SCHEMA)
-    return con
 
 
 def pid_alive(pid):
@@ -118,8 +91,8 @@ def setup_logging(stage, ts):
 
 
 class Stage:
-    def __init__(self, name, args=None, db_path=DEFAULT_DB, lock=True, max_fail_rate=0.02, min_failures=20, batch=None):
-        self.name, self.args, self.db_path, self.use_lock = name, args or {}, db_path, lock
+    def __init__(self, name, args=None, lock=True, max_fail_rate=0.02, min_failures=20, batch=None):
+        self.name, self.args, self.use_lock = name, args or {}, lock
         self.max_fail_rate, self.min_failures = max_fail_rate, min_failures
         self.batch = batch or os.environ.get("TVW_BATCH")
         self.counts, self.failures, self.attempted = {}, [], 0
@@ -156,16 +129,19 @@ class Stage:
         if self.use_lock:
             self.lock_fh = acquire_lock(self.name)
         self.log_path = setup_logging(self.name, ts)
-        con = run_db(self.db_path)
-        # anything still 'running' for this stage with a dead pid was killed
-        for rid, pid in con.execute("SELECT run_id, pid FROM pipeline_run WHERE stage=? AND status='running'", (self.name,)):
-            if not pid_alive(pid):
-                con.execute("UPDATE pipeline_run SET status='killed', ended=COALESCE(ended, started), error='process disappeared (killed or crashed)' WHERE run_id=?", (rid,))
-        cur = con.execute("INSERT INTO pipeline_run(stage,batch,started,status,pid,host,args,log_path) VALUES(?,?,?,?,?,?,?,?)",
-                          (self.name, self.batch, datetime.datetime.now().isoformat(timespec="seconds"), "running", os.getpid(), socket.gethostname(),
-                           json.dumps(self.args, default=str), os.path.relpath(self.log_path, ROOT)))
-        self.run_id = cur.lastrowid
-        con.commit(); con.close()
+        try:
+            with db.connect() as con:
+                # anything still 'running' for this stage with a dead pid was killed
+                for rid, pid, host in con.execute("SELECT run_id, pid, host FROM pipeline_run WHERE stage=%s AND status='running'", (self.name,)).fetchall():
+                    if host == socket.gethostname() and not pid_alive(pid):
+                        con.execute("UPDATE pipeline_run SET status='killed', ended=COALESCE(ended, started), error='process disappeared (killed or crashed)' WHERE run_id=%s", (rid,))
+                self.run_id = con.execute("""INSERT INTO pipeline_run(stage,batch,started,status,pid,host,args,log_path) VALUES(%s,%s,%s,%s,%s,%s,%s::jsonb,%s) RETURNING run_id""",
+                                          (self.name, self.batch, db.now(), "running", os.getpid(), socket.gethostname(),
+                                           json.dumps(self.args, default=str), os.path.relpath(self.log_path, ROOT))).fetchone()[0]
+        except Exception:
+            if self.lock_fh:
+                fcntl.flock(self.lock_fh, fcntl.LOCK_UN); self.lock_fh.close()
+            raise
         log.info("== %s start  run_id=%s pid=%d batch=%s args=%s log=%s", self.name, self.run_id, os.getpid(), self.batch, json.dumps(self.args, default=str), os.path.relpath(self.log_path, ROOT))
         return self
 
@@ -185,10 +161,14 @@ class Stage:
             error = f"{nfail} failures exceed threshold {allowed} (max_fail_rate={self.max_fail_rate}, attempted={self.attempted})"
         elapsed = time.time() - self.t0
         self.counts["seconds"] = round(elapsed, 1)
-        con = run_db(self.db_path)
-        con.execute("UPDATE pipeline_run SET ended=?, status=?, counts=?, failures=?, error=? WHERE run_id=?",
-                    (datetime.datetime.now().isoformat(timespec="seconds"), status, json.dumps(self.counts), nfail, error, self.run_id))
-        con.commit(); con.close()
+        try:
+            with db.connect() as con:
+                con.execute("UPDATE pipeline_run SET ended=%s, status=%s, counts=%s::jsonb, failures=%s, error=%s WHERE run_id=%s",
+                            (db.now(), status, json.dumps(self.counts, default=str), nfail, error, self.run_id))
+        except Exception as e:                      # the summary line below still tells the truth
+            log.error("could not close pipeline_run row %s: %s", self.run_id, e)
+            if status == "ok":
+                status, error = "failed", f"pipeline_run update failed: {e}"
         if self.failures:
             log.info("failures (%d): first %d listed; all are in the log above", nfail, min(nfail, 10))
             for item, reason in self.failures[:10]:
@@ -214,7 +194,7 @@ def last_runs(con, limit_per_stage=1):
     """{stage: [row dicts]} most recent first."""
     out = {}
     for r in con.execute("SELECT * FROM pipeline_run ORDER BY run_id DESC"):
-        d = dict(zip([c[0] for c in con.execute("SELECT * FROM pipeline_run LIMIT 0").description], r))
+        d = r.asdict()
         out.setdefault(d["stage"], [])
         if len(out[d["stage"]]) < limit_per_stage:
             out[d["stage"]].append(d)

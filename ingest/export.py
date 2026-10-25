@@ -227,7 +227,7 @@ def export_methods(con):
     identity = {m or "raw": [n, int(l or 0)] for m, n, l in q("SELECT identity_method, COUNT(*), SUM(raw_labels) FROM buyer WHERE EXISTS (SELECT 1 FROM buyer_station bs WHERE bs.buyer_id=buyer.buyer_id) GROUP BY 1")}
     hexes = {str(r): n for r, n in q("SELECT res, COUNT(*) FROM hex GROUP BY 1 ORDER BY 1")}
     modules = {}
-    for m in ("crawl", "update", "ocr", "parse", "validate", "load_pg", "entities", "identity", "geo", "export", "tiles", "places", "status", "coverage", "batch", "runlog"):
+    for m in ("crawl", "update", "ocr", "parse", "validate", "stations", "entities", "identity", "geo", "export", "tiles", "places", "status", "coverage", "batch", "runlog"):
         try:
             modules[m] = (importlib.import_module(f"ingest.{m}").__doc__ or "").strip()
         except Exception as e:
@@ -244,8 +244,7 @@ def export_methods(con):
     coverage = None
     try:
         from .coverage import report as coverage_report
-        from . import db as _db
-        cov = coverage_report(_db.connect())
+        cov = coverage_report(con)
         coverage = {"national_counts_as_of": cov["national_counts_as_of"], "total": cov["total"],
                     "by_state": {st_: {y: {k: v for k, v in d.items() if k in ("stations", "stations_with_docs", "stations_crawled", "docs_national", "docs_downloaded", "docs_ok")} for y, d in yrs.items()} for st_, yrs in cov["by_state"].items()},
                     "stations_not_yet_crawled_2026": len([m for m in cov["missing"] if m[1] == "2026"])}
@@ -255,7 +254,7 @@ def export_methods(con):
         "generated": datetime.date.today().isoformat(),
         "pipeline": {"last_runs": runs, "batches": batches, "listing": listing, "ocr_engines": ocr_engines, "templates": templates_by_kind,
                      "parser_version": __import__("ingest.parse", fromlist=["PARSER_VERSION"]).PARSER_VERSION,
-                     "stages": "crawl -> parse -> ocr -> parse --only-failed -> load_pg -> entities -> identity -> entities -> marts -> geo -> export -> tiles",
+                     "stages": "crawl -> parse -> ocr -> parse --only-failed -> entities -> identity -> entities -> marts -> geo -> export -> tiles",
                      "logs": "data/logs/<stage>-<timestamp>.log; `make status` summarises; every stage records a pipeline_run row"},
         "coverage": coverage,
         "stations": {"licensed": q("SELECT COUNT(*) FROM station")[0][0], "with_documents": q("SELECT COUNT(DISTINCT facility_id) FROM opif_file WHERE deleted_at IS NULL")[0][0],

@@ -19,7 +19,7 @@ Checks (each applies only where the fields exist):
 Also prints parse coverage by kind / template / status, which is the before/after number for parser work.
 """
 import argparse, collections, datetime, json, os, re, sys
-from . import pg
+from . import db
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 WINDOW = ("2025-06-01", "2027-01-31")
@@ -116,7 +116,7 @@ def main(argv=None):
     ap.add_argument("--json", action="store_true")
     ap.add_argument("--out", help="also write the report (JSON) here; default data/validate-<date>.json")
     a = ap.parse_args(argv)
-    with pg.connect() as con:
+    with db.connect() as con:
         docs, checks, coverage = run(con, a.examples)
     total = len(docs)
     by_status = collections.Counter(); by_kind = collections.Counter()

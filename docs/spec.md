@@ -154,7 +154,7 @@ Could
 
 ## Political-file ingest (added 2026-10-24)
 
-Pipeline, all under `ingest/`, SQLite at `data/political.sqlite`, PDFs under
+Pipeline, all under `ingest/`, state in Postgres (see docs/design.md), PDFs under
 `data/pdfs/<facility>/<year>/`, OCR text under `data/ocr/`:
 
 | Step | Module | What it does |

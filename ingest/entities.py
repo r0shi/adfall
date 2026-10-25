@@ -2,7 +2,7 @@
 """Rebuild domain entities from `document.raw` + `opif_file.folder_path`.
 
 Deterministic and total: it truncates the entity tables and rebuilds them, so a parser
-improvement or an alias change only needs `load_pg` + `entities`, never a recrawl.
+improvement or an alias change only needs `parse` + `entities`, never a recrawl.
 Manual buyer merges live in data/buyer_overrides.yaml (alias -> canonical name) and are
 applied on top of the automatic folder-based identity.
   python3 -m ingest.entities
@@ -175,7 +175,7 @@ def build(st):
             log.info(f"  {t:15s} {n:>8}")
         st.count("documents", len(rows))
         if len(rows) and not order_ids:
-            raise RuntimeError("no orders were built from %d documents: parser output or load_pg is broken" % len(rows))
+            raise RuntimeError("no orders were built from %d documents: parser output is broken" % len(rows))
 
 
 if __name__ == "__main__":

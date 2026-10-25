@@ -1,20 +1,22 @@
 #!/usr/bin/env python3
-"""Crawl FCC political files for stations into SQLite, optionally downloading PDFs.
+"""Crawl FCC political files for stations into Postgres (opif_file / opif_listing), optionally downloading PDFs.
 
   python3 -m ingest.crawl --stations 33710,66221 --years 2026 --download --workers 6
   python3 -m ingest.crawl --stations-file data/crawl_targets_2026.txt --state PA --years 2026 --download
 
 Resumable and idempotent:
-  * a station-year is re-listed unless its `listing` row is complete (a walk that died mid-way
+  * a station-year is re-listed unless its `opif_listing` row is complete (a walk that died mid-way
     is recorded as partial and redone on the next run; --relist forces it);
   * downloads go to <file>.pdf.part and are renamed only after the PDF header/trailer check,
     so a killed run never leaves a half file that looks done; files on disk but not marked
     downloaded are verified and adopted;
   * every download failure is recorded on the file (download_attempts, download_error) and
     retried on later runs until MAX_ATTEMPTS, then reported by ingest.status as given up.
-Logs to data/logs/crawl-<ts>.log; exits non-zero if failures exceed the threshold.
+Stations that are not in the `station` table (web/data/stations.json, `make stations`) are reported
+and skipped, never silently dropped. Logs to data/logs/crawl-<ts>.log; exits non-zero if failures
+exceed the threshold.
 """
-import argparse, datetime, logging, os, sys, time
+import argparse, logging, os, sys, time
 from concurrent.futures import ThreadPoolExecutor
 from . import fcc, db
 from .runlog import Stage
@@ -27,17 +29,23 @@ CONSECUTIVE_FAIL_PAUSE = 25      # this many download failures in a row: pause (
 CONSECUTIVE_FAIL_ABORT = 150     # this many in a row: stop the stage, it is not going to recover by itself
 
 
-def now():
-    return datetime.datetime.now().isoformat(timespec="seconds")
+def known_stations(con, st, facs):
+    """facility ids present in `station`; the others are failures of this run (they need `make stations`)."""
+    known = {r[0] for r in con.execute("SELECT facility_id FROM station WHERE facility_id = ANY(%s)", (facs,))}
+    for fac in facs:
+        if fac not in known:
+            st.fail(fac, "not in the station table (web/data/stations.json + `make stations`); skipped")
+            st.count("stations_unknown")
+    return [f for f in facs if f in known]
 
 
 def list_station(con, st, fac, year, relist):
-    row = con.execute("SELECT status, files FROM listing WHERE facility_id=? AND year=?", (fac, year)).fetchone()
+    row = con.execute("SELECT status, files FROM opif_listing WHERE facility_id=%s AND year=%s", (fac, year)).fetchone()
     if row and row["status"] in ("complete", "empty") and not relist:
         log.info("  %s/%s: listing %s (%s files), skipping", fac, year, row["status"], row["files"])
         st.count("stations_skipped")
         return row["files"] or 0
-    n, new, api_count = 0, 0, None
+    n, api_count = 0, None
     st.attempt()
     try:
         for path, f in fcc.walk(str(fac), f"Political Files/{year}"):
@@ -47,23 +55,27 @@ def list_station(con, st, fac, year, relist):
                 except (TypeError, ValueError):
                     api_count = None
                 continue
-            cur = con.execute("""INSERT INTO files(file_manager_id,facility_id,year,folder_path,file_name,file_size,create_ts)
-                           VALUES(?,?,?,?,?,?,?) ON CONFLICT(file_manager_id) DO UPDATE SET
-                           folder_path=excluded.folder_path, file_name=excluded.file_name, file_size=excluded.file_size, deleted=0""",
-                              (f["file_manager_id"], fac, year, path, f.get("file_name"), f.get("file_size"), f.get("create_ts")))
+            con.execute("""INSERT INTO opif_file(file_id,facility_id,year,folder_path,file_name,size_bytes,fcc_created_at)
+                           VALUES(%s,%s,%s,%s,%s,%s,%s) ON CONFLICT (file_id) DO UPDATE SET
+                           folder_path=EXCLUDED.folder_path, file_name=EXCLUDED.file_name, size_bytes=EXCLUDED.size_bytes, deleted_at=NULL""",
+                        (f["file_manager_id"], fac, year, path, f.get("file_name"), f.get("file_size"), f.get("create_ts")))
             n += 1
             if n % 200 == 0:
                 con.commit()
     except fcc.FccError as e:
-        con.execute("INSERT OR REPLACE INTO listing(facility_id,year,status,files,api_count,listed_at,error) VALUES(?,?,?,?,?,?,?)",
-                    (fac, year, "partial" if n else "failed", n, api_count, now(), str(e)[:300]))
+        con.execute("""INSERT INTO opif_listing(facility_id,year,status,files,api_count,listed_at,error) VALUES(%s,%s,%s,%s,%s,%s,%s)
+                       ON CONFLICT (facility_id, year) DO UPDATE SET status=EXCLUDED.status, files=EXCLUDED.files, api_count=EXCLUDED.api_count,
+                       listed_at=EXCLUDED.listed_at, error=EXCLUDED.error""",
+                    (fac, year, "partial" if n else "failed", n, api_count, db.now(), str(e)[:300]))
         con.commit()
         st.fail(f"{fac}/{year}", f"listing {'partial' if n else 'failed'} after {n} files: {e}")
         st.count("stations_partial" if n else "stations_failed")
         return n
     status = "complete" if n else "empty"
-    con.execute("INSERT OR REPLACE INTO listing(facility_id,year,status,files,api_count,listed_at,error) VALUES(?,?,?,?,?,?,NULL)",
-                (fac, year, status, n, api_count, now()))
+    con.execute("""INSERT INTO opif_listing(facility_id,year,status,files,api_count,listed_at,error) VALUES(%s,%s,%s,%s,%s,%s,NULL)
+                   ON CONFLICT (facility_id, year) DO UPDATE SET status=EXCLUDED.status, files=EXCLUDED.files, api_count=EXCLUDED.api_count,
+                   listed_at=EXCLUDED.listed_at, error=NULL""",
+                (fac, year, status, n, api_count, db.now()))
     con.commit()
     if api_count is not None and api_count != n:
         st.warn("  %s/%s: walked %d files but the API reports file_count=%s", fac, year, n, api_count)
@@ -76,11 +88,11 @@ def adopt_existing(con, st, rows):
     """Files on disk whose DB row says not downloaded (crash between curl and the UPDATE): verify and mark."""
     adopted, left = 0, []
     for r in rows:
-        dest = os.path.join(PDF_DIR, str(r["facility_id"]), str(r["year"]), r["file_manager_id"] + ".pdf")
+        dest = os.path.join(PDF_DIR, str(r["facility_id"]), str(r["year"]), r["file_id"] + ".pdf")
         if os.path.exists(dest):
             ok, why = fcc.check_pdf(dest)
             if ok:
-                mark_downloaded(con, r["file_manager_id"], dest)
+                mark_downloaded(con, r["file_id"], dest)
                 adopted += 1
                 continue
             log.info("  removing bad file on disk %s: %s", os.path.relpath(dest, ROOT), why)
@@ -94,17 +106,17 @@ def adopt_existing(con, st, rows):
 
 
 def mark_downloaded(con, fid, dest):
-    con.execute("UPDATE files SET downloaded=1, local_path=?, local_size=?, sha256=?, downloaded_at=?, download_error=NULL WHERE file_manager_id=?",
-                (os.path.relpath(dest, ROOT), os.path.getsize(dest), fcc.sha256_of(dest), now(), fid))
+    con.execute("""UPDATE opif_file SET downloaded=true, local_path=%s, local_size=%s, sha256=%s, downloaded_at=%s, download_error=NULL
+                   WHERE file_id=%s""", (os.path.relpath(dest, ROOT), os.path.getsize(dest), fcc.sha256_of(dest), db.now(), fid))
 
 
 def download_pending(con, st, facs, years, workers, max_attempts=MAX_ATTEMPTS):
-    q = f"""SELECT file_manager_id, facility_id, year, download_attempts FROM files
-            WHERE downloaded=0 AND deleted=0 AND download_attempts < ?
-              AND facility_id IN ({",".join("?"*len(facs))}) AND year IN ({",".join("?"*len(years))})"""
-    rows = con.execute(q, (max_attempts, *facs, *years)).fetchall()
-    given_up = con.execute(f"""SELECT COUNT(*) FROM files WHERE downloaded=0 AND deleted=0 AND download_attempts >= ?
-                               AND facility_id IN ({",".join("?"*len(facs))})""", (max_attempts, *facs)).fetchone()[0]
+    rows = con.execute("""SELECT file_id, facility_id, year, download_attempts FROM opif_file
+                          WHERE NOT downloaded AND deleted_at IS NULL AND download_attempts < %s
+                            AND facility_id = ANY(%s) AND year = ANY(%s) ORDER BY facility_id, year, file_id""",
+                       (max_attempts, list(facs), list(years))).fetchall()
+    given_up = con.execute("""SELECT COUNT(*) FROM opif_file WHERE NOT downloaded AND deleted_at IS NULL AND download_attempts >= %s
+                              AND facility_id = ANY(%s)""", (max_attempts, list(facs))).fetchone()[0]
     if given_up:
         st.warn("  %d files have reached %d failed attempts and are not retried (see ingest.status; --retry-given-up resets them)", given_up, max_attempts)
     rows = adopt_existing(con, st, rows)
@@ -112,7 +124,7 @@ def download_pending(con, st, facs, years, workers, max_attempts=MAX_ATTEMPTS):
     st.count("downloads_pending", len(rows))
 
     def one(r):
-        fid, fac, year = r["file_manager_id"], r["facility_id"], r["year"]
+        fid, fac, year = r["file_id"], r["facility_id"], r["year"]
         d = os.path.join(PDF_DIR, str(fac), str(year))
         os.makedirs(d, exist_ok=True)
         dest = os.path.join(d, fid + ".pdf")
@@ -129,7 +141,7 @@ def download_pending(con, st, facs, years, workers, max_attempts=MAX_ATTEMPTS):
                 mark_downloaded(con, fid, dest)
                 ok_n += 1; total_bytes += size; consecutive = 0
             else:
-                con.execute("UPDATE files SET download_attempts=download_attempts+1, download_error=? WHERE file_manager_id=?", (reason, fid))
+                con.execute("UPDATE opif_file SET download_attempts=download_attempts+1, download_error=%s WHERE file_id=%s", (reason, fid))
                 st.fail(fid, f"download: {reason}")
                 fail_n += 1; consecutive += 1
                 if consecutive == CONSECUTIVE_FAIL_PAUSE:
@@ -149,7 +161,7 @@ def download_pending(con, st, facs, years, workers, max_attempts=MAX_ATTEMPTS):
 
 def verify_downloads(con, st, facs):
     """Re-check every downloaded file on disk (header, trailer, size); unmark the bad ones so they are re-fetched."""
-    rows = con.execute(f"SELECT file_manager_id, local_path, local_size FROM files WHERE downloaded=1 AND facility_id IN ({','.join('?'*len(facs))})", facs).fetchall()
+    rows = con.execute("SELECT file_id, local_path, local_size FROM opif_file WHERE downloaded AND facility_id = ANY(%s)", (list(facs),)).fetchall()
     bad = 0
     for i, r in enumerate(rows, 1):
         p = os.path.join(ROOT, r["local_path"] or "")
@@ -158,8 +170,8 @@ def verify_downloads(con, st, facs):
             ok, why = False, f"size changed ({os.path.getsize(p)} vs {r['local_size']})"
         if not ok:
             bad += 1
-            st.fail(r["file_manager_id"], f"verify: {why}")
-            con.execute("UPDATE files SET downloaded=0, download_error=? WHERE file_manager_id=?", (f"verify: {why}", r["file_manager_id"]))
+            st.fail(r["file_id"], f"verify: {why}")
+            con.execute("UPDATE opif_file SET downloaded=false, download_error=%s WHERE file_id=%s", (f"verify: {why}", r["file_id"]))
             if os.path.exists(p):
                 os.remove(p)
         st.progress(i, len(rows), every=5000, label="verify")
@@ -190,7 +202,6 @@ def main(argv=None):
     ap.add_argument("--retry-given-up", action="store_true", help="reset download_attempts for files that hit the cap")
     ap.add_argument("--workers", type=int, default=6)
     ap.add_argument("--max-fail-rate", type=float, default=0.02)
-    ap.add_argument("--db", default=db.DEFAULT_DB)
     a = ap.parse_args(argv)
     if a.stations:
         facs = [int(x) for x in a.stations.split(",") if x]
@@ -199,11 +210,13 @@ def main(argv=None):
     else:
         ap.error("--stations or --stations-file required")
     years = [int(y) for y in a.years.split(",")]
-    with Stage("crawl", args=vars(a), db_path=a.db, max_fail_rate=a.max_fail_rate) as st:
-        con = db.connect(a.db)
+    with Stage("crawl", args=vars(a), max_fail_rate=a.max_fail_rate) as st:
+        con = db.connect()
+        facs = known_stations(con, st, facs)
         log.info("stations: %d  years: %s", len(facs), years)
         if a.retry_given_up:
-            n = con.execute(f"UPDATE files SET download_attempts=0 WHERE downloaded=0 AND deleted=0 AND download_attempts>=? AND facility_id IN ({','.join('?'*len(facs))})", (MAX_ATTEMPTS, *facs)).rowcount
+            n = con.execute("UPDATE opif_file SET download_attempts=0 WHERE NOT downloaded AND deleted_at IS NULL AND download_attempts>=%s AND facility_id = ANY(%s)",
+                            (MAX_ATTEMPTS, facs)).rowcount
             con.commit(); log.info("reset %d given-up downloads", n)
         for fac in facs:
             for y in years:
@@ -212,7 +225,7 @@ def main(argv=None):
             verify_downloads(con, st, facs)
         if a.download:
             download_pending(con, st, facs, years, a.workers)
-        pend = con.execute(f"SELECT COUNT(*) FROM files WHERE downloaded=0 AND deleted=0 AND facility_id IN ({','.join('?'*len(facs))})", facs).fetchone()[0]
+        pend = con.execute("SELECT COUNT(*) FROM opif_file WHERE NOT downloaded AND deleted_at IS NULL AND facility_id = ANY(%s)", (facs,)).fetchone()[0]
         st.count("still_pending", pend)
         con.close()
 

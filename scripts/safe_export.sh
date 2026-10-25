@@ -7,7 +7,7 @@ import sys, time
 from ingest.runlog import lock_holder
 waited = 0
 while True:
-    held = {n: lock_holder(n) for n in ("entities", "marts", "load_pg", "identity")}
+    held = {n: lock_holder(n) for n in ("entities", "marts", "identity")}
     held = {n: h for n, h in held.items() if h}
     if not held:
         break

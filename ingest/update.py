@@ -9,10 +9,10 @@ path, size and timestamps. One call per 500 rows; a peak day is ~30 pages.
   python3 -m ingest.update --since 2026-10-20    # explicit window
   python3 -m ingest.update --download            # and fetch the new files
 
-Only tracked stations (those already in `files`) are applied unless --stations
+Only tracked stations (those already in `opif_file`) are applied unless --stations
 adds more. Re-running a window is idempotent. A day whose feed could not be read
-is recorded as a failure and the sync marker is not advanced past it, so the next
-run picks it up again.
+is recorded as a failure and the sync marker (meta.last_history_sync) is not
+advanced past it, so the next run picks it up again.
 """
 import argparse, datetime, logging, os, re, sys, time
 from . import fcc, db
@@ -49,7 +49,7 @@ def fetch_day(day):
         time.sleep(0.2)
 
 
-def apply(con, rows, tracked):
+def apply(con, rows, tracked, known):
     counts = {}
     for r in rows:
         path = r.get("file_folder_path") or ""
@@ -69,14 +69,17 @@ def apply(con, rows, tracked):
             if year is None:
                 counts["new_without_year"] = counts.get("new_without_year", 0) + 1
                 continue
-            con.execute("""INSERT INTO files(file_manager_id,facility_id,year,folder_path,file_name,file_size,create_ts,deleted)
-                           VALUES(?,?,?,?,?,?,?,0) ON CONFLICT(file_manager_id) DO UPDATE SET
-                           folder_path=excluded.folder_path, file_name=excluded.file_name, file_size=excluded.file_size, deleted=0""",
+            if fac not in known:
+                counts["new_unknown_station"] = counts.get("new_unknown_station", 0) + 1
+                continue
+            con.execute("""INSERT INTO opif_file(file_id,facility_id,year,folder_path,file_name,size_bytes,fcc_created_at)
+                           VALUES(%s,%s,%s,%s,%s,%s,%s) ON CONFLICT (file_id) DO UPDATE SET
+                           folder_path=EXCLUDED.folder_path, file_name=EXCLUDED.file_name, size_bytes=EXCLUDED.size_bytes, deleted_at=NULL""",
                         (fid, fac, year, path, r.get("file_name"), r.get("file_size"), r.get("create_ts")))
         elif st in ("delete", "purge"):
-            con.execute("UPDATE files SET deleted=1 WHERE file_manager_id=?", (fid,))
+            con.execute("UPDATE opif_file SET deleted_at=COALESCE(deleted_at, %s) WHERE file_id=%s", (db.now(), fid))
         elif st in ("move", "rename"):
-            con.execute("UPDATE files SET folder_path=?, file_name=?, year=COALESCE(?, year) WHERE file_manager_id=?",
+            con.execute("UPDATE opif_file SET folder_path=%s, file_name=%s, year=COALESCE(%s, year) WHERE file_id=%s",
                         (path, r.get("file_name"), year, fid))
     con.commit()
     return counts
@@ -89,17 +92,20 @@ def main(argv=None):
     ap.add_argument("--stations", help="extra facility IDs to track, comma-separated")
     ap.add_argument("--download", action="store_true")
     ap.add_argument("--workers", type=int, default=4)
-    ap.add_argument("--db", default=db.DEFAULT_DB)
     a = ap.parse_args(argv)
-    with Stage("update", args=vars(a), db_path=a.db, min_failures=0) as st:
-        con = db.connect(a.db)
+    with Stage("update", args=vars(a), min_failures=0) as st:
+        con = db.connect()
         today = datetime.date.today()
         last = con.execute("SELECT value FROM meta WHERE key='last_history_sync'").fetchone()
         since = datetime.date.fromisoformat(a.since) if a.since else (datetime.date.fromisoformat(last[0]) if last else today - datetime.timedelta(days=1))
         until = datetime.date.fromisoformat(a.until) if a.until else today
-        tracked = {r[0] for r in con.execute("SELECT DISTINCT facility_id FROM files")}
+        tracked = {r[0] for r in con.execute("SELECT DISTINCT facility_id FROM opif_file")}
         if a.stations:
             tracked |= {int(x) for x in a.stations.split(",")}
+        known = {r[0] for r in con.execute("SELECT facility_id FROM station")}
+        unknown = sorted(tracked - known)
+        if unknown:
+            st.warn("%d tracked stations are not in the station table and their new files cannot be stored: %s (make stations)", len(unknown), unknown[:20])
         log.info("syncing %s..%s for %d stations", since, until, len(tracked))
         synced_through = None
         for day in days(since, until):
@@ -109,21 +115,21 @@ def main(argv=None):
             except fcc.FccError as e:
                 st.fail(str(day), f"feed unreadable: {e}")
                 break                                   # do not advance past a day we could not read
-            c = apply(con, rows, tracked)
+            c = apply(con, rows, tracked, known)
             log.info("  %s: %d feed rows -> %s", day, len(rows), c or "no changes for tracked stations")
             st.count("feed_rows", len(rows))
             for k, v in c.items():
                 st.count("applied_" + k, v)
             synced_through = day
         if synced_through:
-            con.execute("INSERT OR REPLACE INTO meta(key,value) VALUES('last_history_sync',?)", (synced_through.isoformat(),))
+            con.execute("INSERT INTO meta(key,value) VALUES('last_history_sync',%s) ON CONFLICT (key) DO UPDATE SET value=EXCLUDED.value", (synced_through.isoformat(),))
             con.commit()
             log.info("last_history_sync = %s", synced_through)
         if a.download:
             from .crawl import download_pending
-            years = [r[0] for r in con.execute("SELECT DISTINCT year FROM files WHERE downloaded=0 AND deleted=0")]
+            years = [r[0] for r in con.execute("SELECT DISTINCT year FROM opif_file WHERE NOT downloaded AND deleted_at IS NULL")]
             if years:
-                download_pending(con, st, sorted(tracked), years, a.workers)
+                download_pending(con, st, sorted(tracked & known), years, a.workers)
         con.close()
 
 

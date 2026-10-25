@@ -309,7 +309,7 @@ progress. Commands are `make` targets; `make pipeline` runs load → entities
 | --- | --- | --- |
 | PostGIS | `docker-compose.yml` (port 5434; 5433 was taken by a local Postgres) | postgis/postgis 16-3.4, x86 image under emulation; fine so far |
 | Schema | `db/migrations/001_init.sql`, `002_marts.sql`, `003_hex_marts.sql` | applied by `ingest.pg migrate`, tracked in `schema_migrations` |
-| Loader | `ingest/load_pg.py` | stations.json → `station` (contours as MultiPolygon); SQLite crawl store → `opif_file`, `document` (full extraction kept in `raw` jsonb) |
+| Stations | `ingest/stations.py` | stations.json → `station` (contours as MultiPolygon). Crawl and parse write `opif_file` / `document` (full extraction kept in `raw` jsonb) directly |
 | Entities | `ingest/entities.py` | total rebuild from `document.raw`: `buyer`, `buyer_alias`, `agency`, `order_`, `order_revision`, `order_line`, `invoice`, `spot`, `creative`, `form`. Overrides from `data/buyer_overrides.yaml` |
 | Geography | `ingest/geo.py` | Census 500k county boundaries + 2024 population estimates (CSV, no API key; the ACS API now requires one); H3 cells with population by county area share; `station_hex` coverage shares |
 | Marts | `spend_daily`, `station_daily`, `station_total`, `buyer_station`, `hex_total` | materialized; `ingest.pg marts` refreshes |
@@ -345,9 +345,9 @@ Design decisions that landed while building:
 - **Sinclair invoices stay unlinked to orders** (different contract
   numbering) but count toward station invoiced totals and creatives.
 - **Not built yet**: PMTiles (no tippecanoe on this machine; the Parquet is
-  the input), Postgres as the direct crawl target (the crawler still writes
-  SQLite and `load_pg` upserts from it; cheap to flip once the crawl ends),
-  block-group population (county area share for now).
+  the input), block-group population (county area share for now). Postgres as
+  the direct crawl target landed 2026-10-25 (migration 007; see
+  docs/research.md "Postgres as the only store").
 
 ## Presentation layer v1: what exists (2026-10-24)
 

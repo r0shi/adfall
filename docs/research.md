@@ -501,10 +501,10 @@ section for numbers and the operations notes for how to watch it).
 | update | A day whose feed could not be read stopped the run but the sync marker could still move; errors went to stderr only. | The marker advances only through days that were applied; failures are recorded per day. |
 | ocr | Errors were printed and forgotten; the same broken PDF was retried on every run; a document with 20 pages was cut at 12 and lost its totals page. | `ocr` ledger table (engine, status, attempts, pages, seconds, error), three attempts then given up and listed by status; when a document exceeds the page cap the first pages plus the last two are read. |
 | parse | 244 documents failed with "cryptography>=3.1 is required for AES" (missing dependency), recorded only as a per-document error string. kind=other documents were stored with `parse_status=ok`, so 32k unrecognised documents counted as successes. pypdf's "Ignoring wrong pointing object" flooded the logs. | `cryptography` is a requirement; parser crashes are counted and fail the stage above a threshold; unrecognised documents get `parse_status=unrecognized`; pypdf's logger is silenced. |
-| load_pg | Files for stations missing from `stations.json` were dropped without a count. | Counted and warned. |
+| crawl | Files for stations missing from `stations.json` were dropped without a count (in `load_pg`). | The crawl refuses stations that are not in the `station` table and reports each as a failure; `make stations` loads the list. |
 | entities | Could "succeed" with zero orders if upstream broke. | Fails if documents exist but no orders were built. |
 | scripts/*.sh | `>> log` without exit codes; polled a log file for a sentinel; could print "done" with stages skipped. | Replaced by `ingest.batch` (per-stage exit codes, run ledger, resume). |
-| all | No locks, no run history, counts only on stderr. | `ingest.runlog.Stage`: `data/logs/<stage>-<ts>.log` + stderr, `pipeline_run` row (SQLite, mirrored to Postgres), per-stage lock in `data/locks/`, non-zero exit above a failure threshold, dead "running" rows marked killed on the next run. |
+| all | No locks, no run history, counts only on stderr. | `ingest.runlog.Stage`: `data/logs/<stage>-<ts>.log` + stderr, `pipeline_run` row in Postgres, per-stage lock in `data/locks/`, non-zero exit above a failure threshold, dead "running" rows marked killed on the next run. |
 
 ### Operations
 
@@ -526,8 +526,8 @@ section for numbers and the operations notes for how to watch it).
 - National crawl: `make batch` runs `ingest.batch` detached. For each state in
   `data/crawl_targets_2026_national.txt` (53 states, 1,098 stations with 2026 documents,
   biggest states first): crawl (list + download, 6 workers) -> parse -> ocr (Vision, 4 workers)
-  -> parse --only-failed, then the Postgres refresh (load_pg, entities, identity, entities,
-  marts) in a background thread while the next state downloads. Follow it with
+  -> parse --only-failed, then the entity refresh (entities, identity, entities, marts) in a
+  background thread while the next state downloads. Follow it with
   `tail -f data/logs/batch-*.log` (one line per stage per state, with ETA) or `make status`.
 - Resume: rerun `make batch`. States with an ok `batch_state` run are skipped; inside a state
   the crawl skips complete listings and pending downloads only, OCR skips cached text, parse
@@ -537,7 +537,8 @@ section for numbers and the operations notes for how to watch it).
 - Daily upkeep after the crawl: `make update` applies the FCC change feed since the last sync
   (adds, deletes, moves) and downloads new files; then `make parse`, `make ocr`, `make parse`,
   `make refresh`, and the owner's `make export`.
-- Postgres migrations are applied by `load_pg` automatically (`ingest.pg migrate`).
+- Postgres migrations: `make migrate`. Every stage checks `schema_migrations` against `db/migrations/`
+  on connect and refuses to run against a schema that is behind.
 
 ### OCR engine choice
 
@@ -602,7 +603,7 @@ knew only parent company names. Sinclair's licensees are "<CALL> Licensee, LLC" 
 "<City> (<CALL>-TV) Licensee, Inc."; Allen Media's are "<City> TV License Company, LLC";
 Tegna's are legacy Belo and Gannett companies ("Combined Communications of Oklahoma" is
 WZZM, "Multimedia Holdings" is KPNX); CBS's are "<City> Television Station <CALL> Inc.".
-The rules in `ingest/load_pg.py` were checked against all 860 distinct licensee strings and
+The rules in `ingest/stations.py` were checked against all 860 distinct licensee strings and
 confirmed against the document templates each station files (every "Licensee, LLC" station
 files Sinclair invoices or Katz contracts). Public and religious broadcasters are grouped as
 such; the rest are "Independent" (five crawled stations). No station is NULL.
@@ -689,15 +690,45 @@ make batch                          # resume: finished states are skipped, pendi
 ```
 
 Known soft spots to keep an eye on: the FCC edge returning 503 on the history feed for the
-current day (seen 2026-10-24; the updater records the day as failed and does not advance), and
-SQLite's single writer, which makes a parse run block an updater or a second crawl until it
-commits (motivation for writing straight to Postgres, below).
+current day (seen 2026-10-24; the updater records the day as failed and does not advance).
+
+### Postgres as the only store (2026-10-25)
+
+Until the national crawl, `crawl`, `parse` and `ocr` wrote `data/political.sqlite` and `load_pg`
+copied it into Postgres after every state. SQLite's single writer made a running parse block the
+updater or a second crawl ("database is locked"), the copy step was pure overhead, and the run
+ledger lived apart from the data it described. Migration `007_pipeline_store.sql` moves the
+remaining state into Postgres and the stages write there directly:
+
+| was (SQLite) | now (Postgres) |
+| --- | --- |
+| `files` | `opif_file` with `downloaded`, `local_size` added to the existing `sha256`, `downloaded_at`, `download_attempts`, `download_error`; `deleted` is `deleted_at IS NOT NULL` |
+| `docs` | `document`: `raw` holds the whole extraction (`order_no` ... `ad_ids`, `fields`); `template`, `source`, `parse_status`, `parser_version`, `parsed_at`, `ocr_engine`, `error` are columns; `needs_ocr` is a generated column from `raw->'fields'->>'needs_ocr'` |
+| `listing` | `opif_listing` |
+| `ocr` | `ocr` (engine, status, attempts, pages, chars, seconds, error, ocr_at) |
+| `pipeline_run` | `pipeline_run`, ids from a sequence; timestamps are `timestamptz` (SQLite stored local wall-clock text, which the mirror had read as UTC) |
+| `meta` | `meta` (`last_history_sync`, `entities_built_at`) |
+
+`ingest.db.connect()` returns a psycopg connection whose rows index by position and by name, and
+refuses a schema that is behind `db/migrations/`. Parse and OCR workers never touch the database:
+they read PDFs and return results, the parent process upserts (one connection per process). The
+OCR stage now also adopts cached text that has no ledger row (engine `cached`), so text produced by
+a killed run is parsed instead of lying unused. `ingest/load_pg.py` is gone; its station loader is
+`ingest/stations.py` (`make stations`), and the crawl refuses stations that are not in `station`.
+`ingest/migrate_sqlite.py` copied the SQLite store idempotently (130,618 files, 130,548 documents,
+305 listings, 923 OCR rows, 37 runs when first run) and compares row counts at the end.
+
+Checked on a copy of the live database before the switch: `make status`, `make coverage`,
+`make validate` unchanged in content; crawl with downloads, parse, OCR, `parse --only-failed`
+(picks up OCR newer than the parse), `update --since`, `make refresh`; a crawl downloading and a
+parse writing at the same time showed no lock waits in `pg_stat_activity` (row locks on different
+tables; the parse's foreign-key check takes `KEY SHARE`, compatible with the crawl's updates); a
+crawl killed mid-download resumed with the pending files only and no `.part` leftovers, a parse
+killed mid-way resumed with the documents not yet at the parser version, and the killed runs were
+marked `killed` on the next run of the stage.
 
 ### Next
 
-- Write crawl/parse/OCR state straight to Postgres and drop SQLite + `load_pg`. The stages
-  already share `db.connect()`, the SQL is `INSERT ... ON CONFLICT`, only `json_extract` needs
-  a `jsonb` spelling; the run ledger and listing tables would live beside the data.
 - 2024 crawl (`--years 2024`) for the comparison cycle.
 - Remaining layouts in the 6,981 unrecognised documents and the 1,934 failures, re-clustered
   after the national crawl (`make validate` lists them by template).

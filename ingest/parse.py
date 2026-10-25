@@ -20,7 +20,8 @@ was recognised, a source (text layer or OCR) and a parse_status (ok | partial | 
   nab-supplement          ad-specific NAB supplements and addenda (ISCI codes, no money) -> kind other
 Anything else is kind=other with template NULL so the gap is visible; ingest.validate clusters those.
 
-Text extraction is cached under data/text/<ab>/<file_id>.json (text layer, AcroForm fields, page count) so
+Results go to the Postgres `document` table (one upsert per document, committed every 500; the worker
+processes only read PDFs). Text extraction is cached under data/text/<ab>/<file_id>.json (text layer, AcroForm fields, page count) so
 re-parsing after a parser change is regex-only. Image-only PDFs are flagged needs_ocr; ingest.ocr fills
 data/ocr/<file_id>.txt and `parse --only-failed` picks the text up.
 
@@ -708,22 +709,31 @@ def _work(job):
     return d
 
 
+RAW_KEYS = ("order_no", "revision", "invoice_no", "advertiser", "agency", "product", "flight_start", "flight_end", "print_date", "gross", "net", "spots")
+
+
 def store(con, d):
-    con.execute("""INSERT OR REPLACE INTO docs(file_manager_id,kind,parse_status,order_no,revision,invoice_no,advertiser,agency,product,
-                   flight_start,flight_end,print_date,gross,net,spots,ad_ids,fields,parser_version,parsed_at,error)
-                   VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
-                (d["fid"], d["kind"], d["parse_status"], d.get("order_no"), d.get("revision"), d.get("invoice_no"),
-                 d.get("advertiser"), d.get("agency"), d.get("product"), d.get("flight_start"), d.get("flight_end"), d.get("print_date"),
-                 d.get("gross"), d.get("net"), d.get("spots"), json.dumps(d.get("ad_ids") or []),
-                 json.dumps({**(d.get("fields") or {}), "template": d.get("template")}, default=str), PARSER_VERSION,
-                 _dt.datetime.now().isoformat(timespec="seconds"), d.get("error")))
+    """Upsert one parse result into document. raw keeps the whole extraction ({..., ad_ids, fields}); kind, template,
+    source, parse_status and parser_version are columns; ocr_engine comes from the OCR ledger for OCR-sourced text."""
+    fields = {**(d.get("fields") or {}), "template": d.get("template")}
+    raw = {k: d.get(k) for k in RAW_KEYS}
+    raw["ad_ids"] = d.get("ad_ids") or []
+    raw["fields"] = fields
+    source = fields.get("source")
+    con.execute("""INSERT INTO document(file_id,kind,template,source,parse_status,parser_version,parsed_at,raw,ocr_engine,error)
+                   VALUES(%s,%s,%s,%s,%s,%s,%s,%s::jsonb,
+                          CASE WHEN %s='ocr' THEN (SELECT engine FROM ocr WHERE file_id=%s AND status='ok') END, %s)
+                   ON CONFLICT (file_id) DO UPDATE SET kind=EXCLUDED.kind, template=EXCLUDED.template, source=EXCLUDED.source,
+                     parse_status=EXCLUDED.parse_status, parser_version=EXCLUDED.parser_version, parsed_at=EXCLUDED.parsed_at,
+                     raw=EXCLUDED.raw, ocr_engine=EXCLUDED.ocr_engine, error=EXCLUDED.error""",
+                (d["fid"], d["kind"], d.get("template"), source, d["parse_status"], PARSER_VERSION, db.now(),
+                 json.dumps(raw, default=str), source, d["fid"], d.get("error")))
 
 
 def main(argv=None):
     ap = argparse.ArgumentParser()
     ap.add_argument("--file")
     ap.add_argument("--ids", help="comma-separated file ids")
-    ap.add_argument("--db", default=db.DEFAULT_DB)
     ap.add_argument("--reparse", action="store_true", help="every downloaded document (from the text cache)")
     ap.add_argument("--only-failed", action="store_true", help="documents that are not parse_status=ok or are kind=other, and have text or OCR available")
     ap.add_argument("--stations", help="restrict to these facility ids")
@@ -740,26 +750,30 @@ def main(argv=None):
         d["form"] = f.get("form"); d["level"] = f.get("level"); d["source"] = f.get("source"); d["pages"] = f.get("pages"); d["estimate"] = f.get("estimate")
         print(json.dumps(d, indent=1, default=str))
         return
-    with Stage("parse", args=vars(a), db_path=a.db, max_fail_rate=a.max_fail_rate) as st:
-        con = db.connect(a.db)
-        q = "SELECT file_manager_id, local_path, file_name FROM files WHERE downloaded=1 AND deleted=0"
+    with Stage("parse", args=vars(a), max_fail_rate=a.max_fail_rate) as st:
+        con = db.connect()
+        q = "SELECT f.file_id, f.local_path, f.file_name FROM opif_file f WHERE f.downloaded AND f.deleted_at IS NULL"
         params = []
         if a.ids:
-            ids = a.ids.split(","); q += f" AND file_manager_id IN ({','.join('?'*len(ids))})"; params += ids
+            q += " AND f.file_id = ANY(%s)"; params.append(a.ids.split(","))
         elif a.only_failed:
-            q += """ AND file_manager_id IN (SELECT d.file_manager_id FROM docs d LEFT JOIN ocr o USING(file_manager_id)
-                     WHERE ((d.parse_status!='ok' OR d.kind='other' OR d.parser_version<%d)
-                            AND (json_extract(d.fields,'$.needs_ocr') IS NULL OR o.status='ok'))
-                        OR (o.status='ok' AND o.ocr_at > COALESCE(d.parsed_at, '')))""" % PARSER_VERSION
+            # not ok / unrecognised / older parser version, once OCR text exists where it was needed; or OCR newer than the parse
+            q += """ AND f.file_id IN (SELECT d.file_id FROM document d LEFT JOIN ocr o USING (file_id)
+                     WHERE ((d.parse_status!='ok' OR d.kind='other' OR d.parser_version<%s) AND (NOT d.needs_ocr OR o.status='ok'))
+                        OR (o.status='ok' AND o.ocr_at > COALESCE(d.parsed_at, '-infinity'::timestamptz)))"""
+            params.append(PARSER_VERSION)
         elif not a.reparse:
-            q += " AND file_manager_id NOT IN (SELECT file_manager_id FROM docs WHERE parser_version=%d AND json_extract(fields,'$.needs_ocr') IS NULL)" % PARSER_VERSION
-            q += " AND file_manager_id NOT IN (SELECT d.file_manager_id FROM docs d LEFT JOIN ocr o USING(file_manager_id) WHERE d.parser_version=%d AND json_extract(d.fields,'$.needs_ocr')=1 AND o.status IS DISTINCT FROM 'ok')" % PARSER_VERSION
+            # skip documents already at this parser version, unless they wait for OCR that has since succeeded
+            q += """ AND NOT EXISTS (SELECT 1 FROM document d LEFT JOIN ocr o USING (file_id) WHERE d.file_id=f.file_id AND d.parser_version=%s
+                                     AND (NOT d.needs_ocr OR o.status IS DISTINCT FROM 'ok'))"""
+            params.append(PARSER_VERSION)
         if a.stations:
-            facs = [int(x) for x in a.stations.split(",")]; q += f" AND facility_id IN ({','.join('?'*len(facs))})"; params += facs
+            q += " AND f.facility_id = ANY(%s)"; params.append([int(x) for x in a.stations.split(",")])
+        q += " ORDER BY f.facility_id, f.file_id"
         rows = con.execute(q, params).fetchall()
         log.info("parsing %d files with %d workers (cache %s)", len(rows), a.workers, "off" if a.no_cache else "on")
         st.count("queued", len(rows))
-        jobs = [(r["file_manager_id"], r["local_path"], r["file_name"], not a.no_cache) for r in rows]
+        jobs = [(r["file_id"], r["local_path"], r["file_name"], not a.no_cache) for r in rows]
         stats, crashes, needs_ocr = {}, 0, 0
         with ProcessPoolExecutor(a.workers) as ex:
             for i, d in enumerate(ex.map(_work, jobs, chunksize=16), 1):
