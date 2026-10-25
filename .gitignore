@@ -27,3 +27,5 @@ data/validate-*.json
 data/political.sqlite-wal
 data/political.sqlite-shm
 data/ocr/*.tesseract
+data/video_cache/
+data/google_political_ads/

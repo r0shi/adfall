@@ -734,3 +734,186 @@ marked `killed` on the next run of the stage.
 - 2024 crawl (`--years 2024`) for the comparison cycle.
 - Remaining layouts in the 6,981 unrecognised documents and the 1,934 failures, re-clustered
   after the national crawl (`make validate` lists them by template).
+## From Ad-ID to video (2026-10-25)
+
+Question: the invoices name every aired spot by its Ad-ID. Can we show the ad?
+
+Short answer: often, for the big buyers, via the campaign's own YouTube
+channel. There is no registry from Ad-ID to video, so the chain is
+buyer → channel → upload, scored on dates, length and release order.
+`ingest/video.py` builds it; `data/video_overrides.yaml` corrects it; the
+app's Ads tab has a thumbnail wall and creative pages embed the match.
+
+### What an Ad-ID looks like in this corpus
+
+- The registry form is a four-character advertiser prefix plus a
+  seven-character code, with `H` for HD (`RSFI2615000H`). The prefix maps
+  cleanly to buyers here (`RSFI` = Rob Sand, 997 creatives; 568 of 781
+  prefixes belong to one buyer).
+- The running number is usually sequential by release: Rob Sand's spots
+  are `RSFI261000H`, `262000H` ... `2625000H`, one every one to two
+  weeks, first airing in that order. Ossoff's are date-coded (`JO0826`).
+  Release order is therefore a usable matching signal.
+- **Parser artefact, large:** several invoice layouts glue the weekday
+  column and a slot digit onto the Ad-ID (`RSFI2615000HTu1`,
+  `RSFI2615000HW2`, `ZLFG0916TVHSa2`). 49,563 rows in `creative` are
+  about 2,200 real spots. `ingest.video.family()` strips the
+  `(M|Tu|W|Th|F|Sa|Su)\d*` tail and the HD suffix; the export carries
+  `family` on every creative and the wall shows one tile per family. The
+  right fix is in the parser (split the cell), noted for the pipeline
+  session.
+- Program names leak into the Ad-ID column on some layouts ("Tennis",
+  "GUNSMOKE", one airing each); the matcher skips keys with lowercase
+  letters or with no digits and fewer than three airings.
+
+### Sources tried, and their terms
+
+| Source | What it gives | Terms / limits |
+|---|---|---|
+| YouTube Data API v3 | channel search, upload lists with exact `publishedAt`, durations, thumbnails | API key per project; 10,000 units/day, a channel search costs 100, so ~90 buyers/day. Terms require attribution and forbid storing beyond 30 days except ids. Not configured yet: set `YOUTUBE_API_KEY` in `.env` and the matcher switches to it. |
+| yt-dlp (metadata only) | keyless search (`ytsearch15:`), flat channel listings with exact durations and approximate dates ("2 months ago"), thumbnails | Reads public pages; YouTube's ToS disallow automated access without permission, so this is a research-grade fallback, rate-limited to one request per listing and nothing downloaded. One listing ≈ 1.5 s. |
+| YouTube watch page `uploadDate` | exact publish date for an upload | one GET per ad-length upload, 4 in parallel, cached forever under `data/video_cache/dates/` |
+| YouTube RSS (`feeds/videos.xml?channel_id=`) | exact dates for the latest 15 uploads | returned 404 for the channels tried on 2026-10-25; not used |
+| Google Ads Transparency Center | per-advertiser page listing every political ad with a playable creative (`/advertiser/AR…?region=US&political`) | the site is a JS app with no name-based deep link; advertiser ids come only from the BigQuery public dataset `google_political_ads` (needs a GCP project; no `bq`/`gcloud` on this machine) or the site's internal RPC. Supported as a link-out when `data/google_political_ads/advertiser_stats.csv` is exported from BigQuery; empty otherwise. The old zip bundle is a stub. |
+| iSpot.tv | public ad pages (`ispot.tv/ad/<id>/<slug>`) with a player for many political spots | search is JS-only (`/search?q=` renders no results), brand ids are internal; usable only as an override URL (kept as a link-out, never embedded or scraped) |
+| Ad-ID registry (ad-id.org) | the authoritative prefix → advertiser table | members only; no video |
+
+Embedding uses the platforms' own players only (`youtube-nocookie.com`
+iframe); nothing is downloaded or rehosted.
+
+### Method
+
+1. **Buyer → channel.** For buyers ordered by airings, query the buyer's
+   names (canonical, FEC committee name, "<name> for <office>", "<name>
+   <state> <office> ad"). Channels behind the results are scored: token-set
+   similarity of the channel title to the names, with a 40% penalty per
+   title token that is neither a name token (nicknames expanded:
+   Rick/Richard, Mike/Michael…) nor campaign filler ("for Governor",
+   "official", the buyer's state); hits across queries; the name appearing
+   in the title; the surname appearing in the result titles. News and
+   station channels (call signs, "ABC15", "News") are excluded. Accepted at
+   ≥ 0.6, confidence and evidence stored in `buyer_channel.matched_by`.
+2. **Channel → uploads.** Ad-length uploads (10–95 s) since 60 days before
+   the buyer's first airing, exact dates fetched per upload.
+3. **Creative → upload.** Spot families sorted by first airing are aligned
+   with uploads sorted by date by a no-crossing dynamic programme (release
+   order is preserved, gaps free). Pair score = date score (upload within
+   −7…+3 days of first airing = 1.0, ±7 d 0.85, ±14 d 0.6, ±30 d 0.3,
+   after the last airing 0) × (0.5 + 0.35·length + 0.15·title), where
+   length is 1 for the buyer's billed length (`order_line.length_sec`) or a
+   standard TV length and 0.35 for digital cuts (19 s, 53 s, 65 s), and
+   title is 1 when the title names the buyer or says "ad"/":30". Confidence
+   = pair score × a margin factor (1.0 when the runner-up is ≥ 0.2 behind,
+   0.55 on a dead tie such as five spots posted the same day), capped at
+   0.6 when the length disagrees with what the station billed and at 0.45
+   when only an approximate date is known. Tiers: high ≥ 0.7, medium ≥
+   0.4, low below. Best and runner-up are stored per creative.
+4. **Overrides** (`data/video_overrides.yaml`: `AD-ID or family: video
+   url`, `buyer slug: channel url`) are applied last and win.
+
+Rob Sand, as the worked example: 26 families, 23 ad-length uploads with
+exact dates, 21 aligned. `RSFI262000H` (first aired 2026-05-01) ↔ "Sand
+Family Tradition" (uploaded 2026-05-01, 31 s) at 1.0; the five spots
+posted together on 2026-06-23 tie at 0.6; `RSFI2614000H` lands on a 19 s
+"Serving Lunch at Cattleman's" at 0.45, which is probably wrong and shows
+why digital cuts are penalised. Ossoff's channel carries 47–72 s digital
+versions, not the 30 s TV cuts, so his matches cap at 0.65.
+
+### Results (top 300 buyers by airings, 2026-10-25 02:30, 866 buyers / 64,978 creatives / 2,797 spot families / 707,127 airings in Postgres)
+
+Channels: 178 of the top 300 buyers resolved to a channel (5 wrong picks
+blocked by hand in the overrides file: "Victory Fund" for two state victory
+funds, a jiu-jitsu channel for a Brian Wrightson, the City of Reno for a
+local buyer called "Reno"). By category:
+
+| Category | Buyers with creatives | With a channel | Channel has ad-length uploads |
+|---|---|---|---|
+| Federal | 156 | 57 | 47 |
+| State | 334 | 88 | 67 |
+| Issue | 325 | 33 | 21 |
+| Local | 51 | 0 | 0 |
+
+Issue groups are the weak spot: super PACs rarely keep a public channel
+under the name on the NAB form ("Texans for a Conservative Majority" has
+one but posts nothing ad-length). Local buyers were not in the top 300.
+
+Match rates, counted on creatives (invoice rows) and on airings:
+
+| Tier | Creatives | Airings | Share of all airings |
+|---|---|---|---|
+| High (≥ 0.7) | 4,747 | 77,481 | 11% |
+| Medium (0.4–0.7) | 10,889 | 156,196 | 22% |
+| Low (< 0.4) | 12,538 | 156,310 | 22% |
+| Any match | 28,174 of 64,978 | 389,987 of 707,127 | 55% |
+
+| Category | Airings | With a playable match | High tier |
+|---|---|---|---|
+| Federal | 187,056 | 115,941 (62%) | 20,376 (11%) |
+| State | 329,912 | 230,928 (70%) | 53,862 (16%) |
+| Issue | 185,378 | 43,118 (23%) | 3,243 (2%) |
+| Local | 4,781 | 0 | 0 |
+
+Share of airings with a playable match for two places (stations whose
+contour covers the ZIP, all invoiced airings on them):
+
+| Place | Stations | Airings | Playable | High | Medium or better |
+|---|---|---|---|---|---|
+| Des Moines 50309 | 10 | 59,797 | 39,548 (66%) | 11,502 (19%) | 24,198 (40%) |
+| Atlanta 30303 | 20 | 81,768 | 58,585 (72%) | 6,908 (8%) | 28,131 (34%) |
+
+Atlanta is dominated by Richard Jackson (80k airings, 4,254 creative rows,
+one channel, 28 ad-length uploads for 28 real spot families once the junk
+rows are dropped): most of his airings get a medium-tier match because
+several spots were posted on the same day.
+
+The tail: the top 15 buyers are 37% of all airings, the top 100 are 73%,
+the top 300 are 92%. Below #300 the buyers have under 350 airings each and
+mostly no channel worth finding (a local PAC, a county race, a school
+board). Running `--top 600` would add at most a few points of coverage;
+the better lever is the issue groups in the top 100 that have a channel
+under a different name (override material: `issue-<slug>: <channel url>`).
+
+Why "low" is big: the alignment leaves a family unassigned when the DP
+preferred a neighbour, and the family then keeps its nearest upload as a
+low guess (shown as "guess" in the app) rather than nothing; and campaigns
+batch-post (five spots on one day), which the margin rule scores 0.55.
+Both are honest; a reader sees the badge.
+
+### Quota, terms and keeping it fresh
+
+- Without an API key the matcher makes one yt-dlp listing per channel
+  (cached 24 h), one search per query (cached 14 d) and one watch-page GET
+  per ad-length upload, sequential at ~1/s with a 90 s pause on a 429
+  (YouTube rate-limits bursts; a 4-wide parallel fetch got 429s within a
+  minute). The first top-300 run took 30 min; reruns from cache take
+  10 min.
+- With `YOUTUBE_API_KEY` in `.env` the same run costs about 100 units per
+  buyer searched plus 2 per 50 uploads: ~20,000 units for 300 buyers, so
+  two days on the default 10,000/day quota (searches are cached; reruns
+  are nearly free). The API path gives exact dates for every upload and is
+  the one the Data API terms cover. Ask Google for the key through the
+  Cloud console (YouTube Data API v3, API key, no OAuth needed).
+- Embeds: `youtube-nocookie.com` iframe, the platform's own player, no
+  download, no rehost. Thumbnails are YouTube's `mqdefault.jpg` hotlinked.
+- Freshness: `make video` (or `python3 -m ingest.video all --top 300`)
+  after the crawl adds creatives. It re-lists channels older than a day,
+  re-aligns every family of each buyer (new families attach to new uploads;
+  earlier matches can move if a better alignment appears), keeps overrides
+  on top, and survives the entity rebuild (migration 008 keys channels by
+  buyer slug, not buyer_id, which the rebuild reassigns). Then
+  `scripts/safe_export.sh --only creatives,pages,details`.
+- Cross-check sources are wired but dormant: drop a BigQuery export of
+  `google_political_ads.advertiser_stats` at
+  `data/google_political_ads/advertiser_stats.csv` and `ingest.video
+  google-ads` adds a Transparency Center link per buyer; iSpot pages go in
+  as overrides.
+
+### Known limits
+
+- No video for buyers without a channel; no channel for most issue groups.
+- A match says "this is the upload that lines up"; it can be the wrong one
+  of two spots released the same week (both 30 s, same channel). The
+  runner-up is stored and shown on the creative page for exactly that case.
+- The invoice tail bug multiplies creatives; airings are the right unit for
+  every rate above.
+- Deleted or private uploads keep their rows until the next listing.

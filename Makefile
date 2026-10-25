@@ -47,3 +47,5 @@ migrate-sqlite: ## one-off: copy the retired data/political.sqlite store into Po
 	$(PY) -m ingest.migrate_sqlite
 fec:          ## download FEC candidate/committee/linkage master files for the cycle
 	mkdir -p data/fec && cd data/fec && for f in cn26 cm26 ccl26; do curl -s -L -A tv-wormhole -o $$f.zip https://www.fec.gov/files/bulk-downloads/2026/$$f.zip && unzip -oq $$f.zip; done
+video:        ## Ad-ID creatives -> YouTube video: channels for the top buyers, upload matching, overrides (python3 -m ingest.video)
+	$(PY) -m ingest.video all --top $(or $(TOP),300)

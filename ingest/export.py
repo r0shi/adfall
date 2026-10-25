@@ -11,6 +11,7 @@
 import collections, datetime, json, logging, os, re, sys
 import pyarrow as pa, pyarrow.parquet as pq
 from . import pg
+from .video import family as spot_family
 log = logging.getLogger('ingest.export')
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -46,6 +47,33 @@ def party_label(p, category):
     if "libertarian" in s: return "Libertarian"
     if "green" in s: return "Green"
     return p.strip()
+
+
+VIDEO_KEYS = ("video_url", "embed_url", "thumb_url", "confidence", "source")
+
+
+def load_videos(con):
+    """creative_video -> ({ad_id: best}, {ad_id: runner-up}); built by ingest.video, overrides already applied there."""
+    best, runner = {}, {}
+    for ad, rank, source, vurl, eurl, turl, title, dur, pub, conf, mb in con.execute(
+            "SELECT ad_id, rank, source, video_url, embed_url, thumb_url, title, duration_sec, published_at, confidence, matched_by FROM creative_video ORDER BY ad_id, rank"):
+        d = {"video_url": vurl, "embed_url": eurl, "thumb_url": turl, "title": title, "duration": dur, "published": str(pub) if pub else None,
+             "confidence": round(conf, 2) if conf is not None else None, "source": source, "matched_by": mb}
+        (best if rank == 1 else runner)[ad] = d
+    return best, runner
+
+
+def video_brief(v):
+    """The five fields every creative list carries when a video is matched (nothing when it is not)."""
+    return {k: v[k] for k in VIDEO_KEYS} if v else {}
+
+
+def load_channels(con):
+    """buyer slug -> {source: {...}}: the buyer's own channel (youtube/override) and link-out sources (google-ads)."""
+    out = collections.defaultdict(dict)
+    for sl, source, cid, url, title, conf, ups in con.execute("SELECT buyer_slug, source, channel_id, channel_url, title, confidence, uploads FROM buyer_channel"):
+        out[sl][source] = {"id": cid, "url": url, "title": title, "confidence": round(conf, 2) if conf is not None else None, "uploads": ups}
+    return out
 
 
 def export_stations(con, year, build):
@@ -110,8 +138,10 @@ def export_creatives(con):
                           FROM creative c LEFT JOIN buyer b ON b.buyer_id = c.buyer_id
                           JOIN (SELECT ad_id, facility_id, COUNT(*) n FROM spot GROUP BY 1,2) x ON x.ad_id = c.ad_id
                           GROUP BY 1,2,3,4,5,6,7,8 ORDER BY c.airings DESC""").fetchall()
-    out = [{"ad_id": r[0], "prefix": r[1], "airings": r[2], "first": str(r[3]), "last": str(r[4]), "buyer": r[5], "category": CAT_LABEL.get(r[6], r[6]),
-            "buyer_id": r[7], "facs": r[8]} for r in rows]       # facs: {facility_id: airings}
+    videos, _ = load_videos(con)
+    out = [{"ad_id": r[0], "prefix": r[1], "family": spot_family(r[0]), "airings": r[2], "first": str(r[3]), "last": str(r[4]), "buyer": r[5], "category": CAT_LABEL.get(r[6], r[6]),
+            "buyer_id": r[7], "facs": r[8], **video_brief(videos.get(r[0]))} for r in rows]       # facs: {facility_id: airings}; family: Ad-ID without the per-airing tail
+    log.info(f"  creatives/all.json: {sum(1 for c in out if c.get('video_url'))} with a video match")
     json.dump({"creatives": out}, open(os.path.join(WEB, "creatives", "all.json"), "w"), separators=(",", ":"))
     log.info(f"  creatives/all.json: {len(out)} creatives")
 
@@ -133,6 +163,8 @@ def export_details(con):
     creatives = collections.defaultdict(list)       # by (fac, buyer_id)
     for ad, fac, bid, n, first, last in con.execute("SELECT ad_id, facility_id, buyer_id, COUNT(*), MIN(aired_on), MAX(aired_on) FROM spot WHERE ad_id IS NOT NULL GROUP BY 1,2,3"):
         creatives[(fac, bid)].append({"ad_id": ad, "airings": n, "first": str(first), "last": str(last)})
+    videos, _ = load_videos(con)
+    channels = load_channels(con)
     daypart = collections.defaultdict(lambda: [[0] * 24 for _ in range(7)])   # (fac, bid) -> [weekday Mon=0][hour]
     for fac, bid, dow, t, n in con.execute("""SELECT facility_id, buyer_id, EXTRACT(ISODOW FROM aired_on)::int - 1, aired_time, COUNT(*)
                                              FROM spot WHERE aired_time IS NOT NULL GROUP BY 1,2,3,4"""):
@@ -171,8 +203,10 @@ def export_details(con):
                "fec_candidate_id": b[8], "fec_committee_id": b[9], "fec_committee_name": b[10], "method": b[11], "labels": sorted(b[12] or []),
                "booked": round(sum(s_["booked"] for s_ in stations)), "invoiced": round(sum(s_["invoiced"] for s_ in stations)),
                "stations": stations, "weekly": series([(r[1], bid) for r in rows]), "daypart": grid([(r[1], bid) for r in rows]),
-               "creatives": sorted(({"ad_id": k, "airings": v["airings"], "stations": sorted(v["stations"]), "first": v["first"], "last": v["last"]} for k, v in cr.items()), key=lambda x: -x["airings"])[:60],
-               "agencies": sorted({a for s_ in stations for a in s_["agencies"]})}
+               "creatives": sorted(({"ad_id": k, "family": spot_family(k), "airings": v["airings"], "stations": sorted(v["stations"]), "first": v["first"], "last": v["last"], **video_brief(videos.get(k))} for k, v in cr.items()), key=lambda x: -x["airings"])[:60],
+               "agencies": sorted({a for s_ in stations for a in s_["agencies"]}),
+               "channel": channels.get(slug(b[2], b[1]), {}).get("override") or channels.get(slug(b[2], b[1]), {}).get("youtube"),
+               "links": {src: ch["url"] for src, ch in channels.get(slug(b[2], b[1]), {}).items() if src not in ("youtube", "override")}}
         json.dump(out, open(os.path.join(WEB, "buyers", out["slug"] + ".json"), "w"), separators=(",", ":")); n += 1
     log.info(f"  buyers/: {n} detail files")
     bname = {b[0]: (b[1], b[2]) for b in buyers}
@@ -187,7 +221,7 @@ def export_details(con):
                 e = cr[c["ad_id"]]; e["airings"] += c["airings"]; e["buyer"], cat = bname.get(r[0], (None, None)); e["slug"] = slug(cat, e["buyer"]) if e["buyer"] else None
                 e["category"] = CAT_LABEL.get(cat, cat); e["first"] = min(e["first"], c["first"]); e["last"] = max(e["last"], c["last"])
         out = {**info, "weekly": series([(fac, r[0]) for r in rows]), "daypart": grid([(fac, r[0]) for r in rows]),
-               "creatives": sorted(({"ad_id": k, **v} for k, v in cr.items()), key=lambda x: -x["airings"])[:80]}
+               "creatives": sorted(({"ad_id": k, "family": spot_family(k), **v, **video_brief(videos.get(k))} for k, v in cr.items()), key=lambda x: -x["airings"])[:80]}
         json.dump(out, open(os.path.join(WEB, "stations", f"{fac}.json"), "w"), separators=(",", ":")); m += 1
     log.info(f"  stations/: {m} detail files")
 
@@ -198,6 +232,7 @@ def export_creative_pages(con):
     st = {r[0]: (r[1], r[2]) for r in con.execute("SELECT facility_id, call, state FROM station")}
     rows = con.execute("""SELECT s.ad_id, s.facility_id, s.aired_on, s.aired_time, s.buyer_id FROM spot s WHERE s.ad_id IS NOT NULL ORDER BY 1""").fetchall()
     bname = {r[0]: (r[1], r[2]) for r in con.execute("SELECT buyer_id, canonical_name, category FROM buyer")}
+    videos, runners = load_videos(con)
     by = collections.defaultdict(lambda: {"by_station": collections.Counter(), "by_day": collections.Counter(), "by_hour": [0] * 24, "buyers": collections.Counter()})
     for ad, fac, day, t, bid in rows:
         e = by[ad]; e["by_station"][fac] += 1; e["by_day"][str(day)] += 1; e["buyers"][bid] += 1
@@ -210,7 +245,11 @@ def export_creative_pages(con):
         out = {"ad_id": ad, "prefix": ad[:4], "buyer": name, "slug": slug(cat, name) if name else None, "category": CAT_LABEL.get(cat, cat),
                "airings": sum(e["by_station"].values()), "first": min(e["by_day"]), "last": max(e["by_day"]),
                "by_station": sorted(({"fac": f, "call": st[f][0], "state": st[f][1], "airings": n} for f, n in e["by_station"].items()), key=lambda x: -x["airings"]),
-               "by_day": sorted(e["by_day"].items()), "by_hour": e["by_hour"]}
+               "by_day": sorted(e["by_day"].items()), "by_hour": e["by_hour"], "family": spot_family(ad)}
+        v = videos.get(ad)
+        if v:
+            out.update({k: v[k] for k in VIDEO_KEYS}, video_title=v["title"], video_duration=v["duration"], video_published=v["published"], matched_by=v["matched_by"],
+                       runner_up=({k: runners[ad][k] for k in ("video_url", "thumb_url", "title", "confidence")} if ad in runners else None))
         json.dump(out, open(os.path.join(WEB, "creatives", "id", f"{ad}.json"), "w"), separators=(",", ":"))
     log.info(f"  creatives/id/: {len(by)} files")
 
@@ -368,6 +407,8 @@ def main():
         parquet(con, "station_hex", "SELECT * FROM station_hex")
         parquet(con, "hex_total", "SELECT * FROM hex_total")
         parquet(con, "creative", "SELECT * FROM creative")
+        parquet(con, "creative_video", "SELECT ad_id, rank, source, video_url, embed_url, thumb_url, title, duration_sec, published_at, confidence, matched_by FROM creative_video")
+        parquet(con, "buyer_channel", "SELECT buyer_slug, buyer_id, source, channel_id, channel_url, title, matched_by, confidence, uploads FROM buyer_channel")
         parquet(con, "order_", "SELECT order_id, facility_id, order_no, buyer_id, agency_id, advertiser_text, product, flight_start, flight_end, status, gross, net, spots FROM order_")
         parquet(con, "agency", "SELECT * FROM agency")
         parquet(con, "spot", "SELECT spot_id, invoice_id, facility_id, buyer_id, aired_on, aired_time, ad_id FROM spot")
