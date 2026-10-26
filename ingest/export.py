@@ -2,7 +2,7 @@
 """Export serving artifacts from the marts.
 
   web/data/spend/<facility>.json, index.json   per-station buyers (what the map reads today)
-  web/data/hex/total_r<res>.json                money/ads reaching each cell (for the hex layers)
+  web/data/hex/total_r5.json                    money/ads reaching each national cell (finer res come from PMTiles, ingest.tiles)
   data/marts/*.parquet                          every mart, for DuckDB / the next UI / analysis
   web/data/build.json                           build id + timestamp (cache busting)
 
@@ -108,7 +108,8 @@ def export_stations(con, year, build):
 
 def export_hex(con):
     os.makedirs(os.path.join(WEB, "hex"), exist_ok=True)
-    for (res,) in con.execute("SELECT DISTINCT res FROM hex_total ORDER BY 1"):
+    # res 5 only: the app reads cells from PMTiles (ingest.tiles); res 7 grew to 1.3M cells with the national crawl and res 8 is ~500k
+    for (res,) in con.execute("SELECT DISTINCT res FROM hex_total WHERE res = 5 ORDER BY 1"):
         rows = con.execute("SELECT h3, booked, invoiced, spots_aired, pop, stations_with_buys FROM hex_total WHERE res=%s", (res,)).fetchall()
         cells = [[r[0], round(float(r[1] or 0)), round(float(r[2] or 0)), round(float(r[3] or 0)), round(float(r[4] or 0)), r[5]] for r in rows]
         json.dump({"res": res, "columns": ["h3", "booked", "invoiced", "spots_aired", "pop", "stations"], "cells": cells},
@@ -262,7 +263,9 @@ SOURCES = [
     {"name": "NewsON", "url": "https://www.newson.us/", "what": "free live and on-demand local newscast streams; station IDs collected from its public search"},
     {"name": "FEC bulk candidate and committee master files", "url": "https://www.fec.gov/data/browse-data/?tab=bulk-data", "what": "federal candidates and committees for the cycle, used to resolve buyer identity"},
     {"name": "Census cartographic boundary files (counties)", "url": "https://www.census.gov/geographies/mapping-files/time-series/geo/cartographic-boundary.html", "what": "county polygons"},
-    {"name": "Census county population estimates (2024 vintage)", "url": "https://www.census.gov/programs-surveys/popest.html", "what": "county population, spread into H3 cells by area share"},
+    {"name": "Census county population estimates (2024 vintage)", "url": "https://www.census.gov/programs-surveys/popest.html", "what": "county population totals; each county's tracts are rescaled to sum to its 2024 estimate"},
+    {"name": "Census cartographic boundary files (tracts)", "url": "https://www.census.gov/geographies/mapping-files/time-series/geo/cartographic-boundary.html", "what": "tract polygons (2023 vintage, 1:500k)"},
+    {"name": "ACS 2019-2023 5-year, table B01003 (total population)", "url": "https://www.census.gov/programs-surveys/acs/data/summary-file.html", "what": "tract population, spread into H3 cells by overlap area with each tract"},
     {"name": "Census Gazetteer ZCTA and place files", "url": "https://www.census.gov/geographies/reference-files/time-series/geo/gazetteer-files.html", "what": "ZIP and city search without an external geocoder"},
     {"name": "H3", "url": "https://h3geo.org/", "what": "hexagonal cells used for density layers"},
     {"name": "OpenFreeMap / OpenMapTiles / OpenStreetMap", "url": "https://openfreemap.org/", "what": "basemap tiles"},
@@ -280,6 +283,16 @@ def export_methods(con):
                                                                                  WHERE f.deleted_at IS NULL GROUP BY 1 ORDER BY 3 DESC""")]
     identity = {m or "raw": [n, int(l or 0)] for m, n, l in q("SELECT identity_method, COUNT(*), SUM(raw_labels) FROM buyer WHERE EXISTS (SELECT 1 FROM buyer_station bs WHERE bs.buyer_id=buyer.buyer_id) GROUP BY 1")}
     hexes = {str(r): n for r, n in q("SELECT res, COUNT(*) FROM hex GROUP BY 1 ORDER BY 1")}
+    from .geo import HEX_RES, METRO_DENSITY
+    import h3 as _h3
+    res_scopes = {str(r): {"scope": sc, "cells": hexes.get(str(r), 0), "km2": round(_h3.average_hexagon_area(r, "km^2"), 2),
+                           "where": {"national": "inside every station's contour", "active": "inside the contours of stations with political files",
+                                     "metro": f"the seven children of every res-7 cell with at least {METRO_DENSITY} people per km²"}[sc]}
+                  for r, sc in HEX_RES.items()}
+    tract_n, tract_acs, tract_pop = q("SELECT COUNT(*), COALESCE(SUM(pop_acs),0), COALESCE(SUM(pop),0) FROM tract")[0]
+    pop_res = {str(r): float(p or 0) for r, p in q("SELECT res, SUM(pop) FROM hex GROUP BY 1 ORDER BY 1")}
+    geo_run = q("SELECT counts FROM pipeline_run WHERE stage='geo' AND status='ok' ORDER BY started DESC LIMIT 1")
+    geo_counts = geo_run[0][0] if geo_run else {}
     modules = {}
     for m in ("crawl", "update", "ocr", "parse", "validate", "stations", "entities", "identity", "geo", "export", "tiles", "places", "status", "coverage", "batch", "runlog"):
         try:
@@ -322,7 +335,12 @@ def export_methods(con):
                      "buyers": sum(v[0] for v in identity.values()), "identity": identity, "manual_overrides": sum(1 for l in open(os.path.join(ROOT, "data", "buyer_overrides.yaml")) if ":" in l and not l.startswith("#")) if os.path.exists(os.path.join(ROOT, "data", "buyer_overrides.yaml")) else 0},
         "money": {"booked": float(q("SELECT COALESCE(SUM(gross),0) FROM order_ WHERE status='booked'")[0][0]), "invoiced": float(q("SELECT COALESCE(SUM(gross),0) FROM invoice")[0][0]),
                   "first_day": str(q("SELECT MIN(day) FROM spend_daily")[0][0]), "last_day": str(q("SELECT MAX(day) FROM spend_daily")[0][0])},
-        "geography": {"counties": q("SELECT COUNT(*) FROM county")[0][0], "hex_cells": hexes, "coverage_rows": q("SELECT COUNT(*) FROM station_hex")[0][0]},
+        "geography": {"counties": q("SELECT COUNT(*) FROM county")[0][0], "hex_cells": hexes, "coverage_rows": q("SELECT COUNT(*) FROM station_hex")[0][0],
+                      "resolutions": res_scopes, "metro_density": METRO_DENSITY,
+                      "population": {"source": "ACS 2019-2023 five-year total population (B01003) by Census tract, rescaled inside each county to the county's 2024 estimate",
+                                     "tracts": tract_n, "acs_total": int(tract_acs), "rescaled_total": round(float(tract_pop)), "county_total": int(q("SELECT COALESCE(SUM(pop),0) FROM county")[0][0]),
+                                     "cell_rule": "a cell's population is the sum over the tracts it intersects of tract population × overlap area / tract area",
+                                     "by_res": pop_res, "res5_county_based_check": geo_counts.get("pop_res5_county_based"), "res5_tract_based": geo_counts.get("pop_res5_tract_based")}},
         "sources": SOURCES, "modules": modules,
         "fcc_notice": "This product uses the FCC Data API but is not endorsed or certified by the FCC.",
     }

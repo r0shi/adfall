@@ -1013,3 +1013,78 @@ Limits: preemptions and make-goods are invisible until the invoice; a line whose
 has no window is dropped (7%); the files are large for big markets (KCCI 740 KB) because of the
 60-day confirmed window.
 
+
+## Tract population and resolution-8 cells (2026-10-26)
+
+Zoomed-in views were not finer than a county: cell population came from county totals spread by
+area, so every cell inside a county had the same density and the res-7 layer only redrew the county
+map at 5 km². Two changes, both in `ingest/geo.py`:
+
+- **Population from Census tracts.** `cb_2023_us_tract_500k` (85,186 tracts, 58 MB) plus ACS
+  2019-2023 five-year total population, table B01003, from the table-based summary file
+  (`acsdt5y2023-b01003.dat`, 18 MB, every geography in one pipe-delimited file; the Census API
+  wants a key for tract-wide pulls, this file does not). Both cached under `data/geo/`. ACS is a
+  period estimate (335.6M including Puerto Rico), the county table is the 2024 vintage (340.1M),
+  so each tract keeps its ACS share of its county and is rescaled to the county's 2024 total;
+  Puerto Rico has tracts but no county estimate and keeps its ACS counts. A cell's population is
+  the sum over the tracts it intersects of tract population × overlap area / tract area; tracts
+  wholly inside a cell and cells wholly inside a tract skip the polygon intersection, which is why
+  1.8 million cells allocate in about 30 s. Check logged by the stage: over counties with a 2024
+  estimate the res-5 national total is 337,830,067 by tracts against 334,683,719 by counties,
+  0.94% apart (the tract method keeps people that the county method lost in the empty land
+  outside any station contour; 341,084,952 with Puerto Rico's tracts). The county table stays for
+  names and labels.
+- **Resolution 8 ("metro" scope).** The seven children of every res-7 cell whose tract-derived
+  density is at least `METRO_DENSITY` = 150 people per km². The budget was ~500,000 cells; the
+  stage logs the density that would hit it exactly (140/km² today) so the constant can be retuned.
+  Result: 68,315 res-7 parents → 478,205 res-8 cells. Two surprises on the way: the first run used
+  30/km², chosen from the old 269k-cell res-7 layer, but the national crawl has made 1,098 stations
+  active and the res-7 layer is now 1,297,859 cells, so 30/km² meant 1.46 million res-8 cells and
+  the run was cancelled; and 150/km² is small-town density, not "metro" — inside crawled contours
+  a 500k budget cannot reach down to rural land, which is the point.
+- **Money at res 8** (`db/migrations/009_tract_res8.sql`, the `hex_total` mart): res 8 covers only
+  part of a station's footprint, so its spread is normalised by the station's complete res-7
+  population reach. Dollars per person is identical at res 7 and res 8; a res-8 cell holds only the
+  share of the station's money that reaches its people, and the rural remainder stays at res 7.
+- **Tiles as a mosaic.** `hex7` cells whose children exist carry `fine=1`; from zoom 9.3 the app
+  draws `hex8` on top of the `hex7` cells without that flag (`layersFor`/`filterFor` in
+  `app/src/lib/hexlayers.js`), so dense areas are 0.7 km² cells and the countryside around them
+  stays at 5 km² with no double painting and no holes (every res-8 cell is emitted, money or not).
+  Zooms: hex5 3–8, hex7 6–10 (was 6–11), hex8 9–13. `/map` gains a "Finest" chip when
+  `tiles/meta.json` lists res 8; legend maxima stay per resolution from that file.
+- `web/data/hex/total_r<res>.json` is now written for res 5 only: the app reads cells from PMTiles,
+  and the res-7 file would have grown from 9.5 MB to ~50 MB in git with the national crawl.
+
+Wall times and sizes on the M-series laptop, Homebrew Postgres (`make geo`, `make marts`,
+`python -m ingest.export --only hex,methods`, `make tiles`, `npm --prefix app run build`):
+
+| step | wall time | result |
+| --- | --- | --- |
+| geo: counties + tracts load | 14 s | 3,235 counties, 85,186 tracts |
+| geo: polyfill + population (res 5, 7, 8) | 79 s (allocation itself 31 s + 11 s) | 29,196 + 1,297,859 + 478,205 cells |
+| geo: station_hex | 121 s | 11,390,545 rows (was 1,514,897) — whole stage 3 m 35 s |
+| marts | 2 m 37 s (44 s with empty spend_daily, see below) | hex_total 1,805,249 rows |
+| export --only hex,methods | 2 s | methods.json, hex/total_r5.json |
+| tiles | 1 m 18 s | hex5 7.3 MB (23,968 cells), hex7 140.4 MB (1,110,818 cells with buys, 49 s), hex8 111.2 MB (478,205 cells, 25 s), contours 7.8 MB |
+| app build | 36–47 s | `app/build` 896 MB, almost all of it the copied `web/data` (tiles 267 MB) |
+
+Hosting note: Cloudflare Pages caps a single asset at 25 MB, so none of the hex PMTiles can ship
+with the static site; they belong in R2 (or any range-request host) with the app pointed at that
+origin instead of `location.origin` in `hexlayers.js`. The res-7 file alone is over the cap after
+the national crawl, independent of res 8.
+
+Two things to know when reading the result. $/person is flat inside a station's footprint at every
+resolution by construction, so the zoomed-in view only varies on Money, Spots and $/spot; the
+Des Moines z11 tile holds 316 res-8 cells with 0 to 2,221 people and $0 to $158k booked, the
+downtown half of them above the res-8 legend maximum ($46k, the 98.5th percentile of all
+478,205 cells nationwide), so a heavy market saturates the ramp in its core and the variation
+shows at the edges and in parks, river and airport cells. And a bug found while checking: both
+map pages learned the zoom only from `zoomend`, which a camera set from the URL hash before the
+map's load event never fires, so a shared link to zoom 11 drew res-5 cells; the pages now seed the
+zoom from the map when it is ready.
+
+Collision log for the same night: the daily job's hand run (scripts/daily.sh) reached its marts
+step one second after this session's `make marts` took the lock, so its marts and export-tiles
+steps failed with "already running", and this session's marts began one second before the daily
+job's entities rebuild committed, which left `spend_daily` empty until a second marts run at
+00:57. Nothing wrong in the stages themselves; two drivers on one database need one queue.

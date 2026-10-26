@@ -17,7 +17,7 @@
   import { tl, setRange } from '$lib/time.svelte.js';
   import { spendIndex, usd, num, CATS, get, stationDaily, hexWeights } from '$lib/data.js';
   import { toGeoJSON } from '$lib/geo.js';
-  import { installHexLayers, setHexLayer, METRICS } from '$lib/hexlayers.js';
+  import { installHexLayers, setHexLayer, resForZoom, layersFor, METRICS } from '$lib/hexlayers.js';
   import { Framer } from '$lib/frames.js';
   import { makeFrameLayer, frameScale, makePartyFrameLayer, partyFrameScale } from '$lib/framelayer.js';
   import { rampCss } from '$lib/palette.js';
@@ -34,8 +34,8 @@
   const LAYERS = [['coverage', 'Airshed'], ['booked', 'Money'], ['pp', '$ / person'], ['spots', 'Spots'], ['ps', '$ / spot'], ['animate', 'Over time ▶'], ['party', 'Party share'], ['bi', 'Booked − invoiced'], ['wk', 'Week vs last']];
   const isDiff = $derived(ui.layer in DIFFS);
   const isTile = $derived(!(ui.layer === 'coverage' || ui.layer === 'animate' || isDiff));
-  const res = $derived(zoom >= 6.3 ? 7 : 5);
-  function ready(a) { api = a; installHexLayers(a.map); a.onZoom(z => zoom = z); a.map.on('mousemove', e => { if (!isTile) return; const f = a.map.queryRenderedFeatures(e.point, { layers: [`hex${res}-fill`] })[0]; hover = f ? f.properties : null; }); }
+  const res = $derived(resForZoom(zoom, meta));          // 8 (where it exists) from zoom 9.3, 7 from 6.3, else 5
+  function ready(a) { api = a; installHexLayers(a.map); zoom = a.map.getZoom(); /* a camera from the URL hash lands before zoomend can fire */ a.onZoom(z => zoom = z); a.map.on('mousemove', e => { if (!isTile) return; const f = a.map.queryRenderedFeatures(e.point, { layers: layersFor(res) })[0]; hover = f ? f.properties : null; }); }
   $effect(() => { if (api?.map?.getLayer('hex5-fill')) setHexLayer(api.map, { visible: isTile, res, metric: isTile ? ui.layer : 'booked', meta }); });
   $effect(() => { if (api && loc.p) { api.setContours(toGeoJSON(loc.found)); api.setMarker(loc.p); if (api.map.getZoom() < 6 && Date.now() - ui.camApplied > 1000) api.flyTo(loc.p, 6.5); } else if (api) { api.setContours({ type: 'FeatureCollection', features: [] }); api.setMarker(null); } });
   $effect(() => { if (!api) return; if (locB.p) { api.setContoursB(toGeoJSON(locB.found)); api.setMarkerB(locB.p); } else { api.setContoursB({ type: 'FeatureCollection', features: [] }); api.setMarkerB(null); } });

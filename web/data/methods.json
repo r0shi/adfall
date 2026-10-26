@@ -3,57 +3,104 @@
  "pipeline": {
   "last_runs": {
    "crawl": {
-    "status": "running",
-    "started": "2026-10-26 04:14:45.422275+00:00",
-    "ended": null,
-    "counts": null,
-    "failures": 0,
-    "error": null,
-    "log": "data/logs/crawl-20261026-001445.log"
-   },
-   "entities": {
-    "status": "failed",
-    "started": "2026-10-26 03:59:11.940418+00:00",
-    "ended": "2026-10-26 04:13:26.059867+00:00",
+    "status": "ok",
+    "started": "2026-10-26 00:22:49.916163-04:00",
+    "ended": "2026-10-26 00:22:51.675375-04:00",
     "counts": {
-     "seconds": 854.1
+     "seconds": 1.8,
+     "verified": 5428,
+     "verify_bad": 0,
+     "download_mb": 0.0,
+     "downloads_ok": 0,
+     "still_pending": 1,
+     "downloads_gone": 0,
+     "downloads_failed": 0,
+     "stations_skipped": 10,
+     "downloads_pending": 0
     },
     "failures": 0,
-    "error": "ModuleNotFoundError: No module named '_strptime'",
-    "log": "data/logs/entities-20261025-235911.log"
+    "error": null,
+    "log": "data/logs/crawl-20261026-002249.log"
+   },
+   "entities": {
+    "status": "ok",
+    "started": "2026-10-26 00:53:24.840025-04:00",
+    "ended": "2026-10-26 00:54:53.176547-04:00",
+    "counts": {
+     "form": 102231,
+     "spot": 2022297,
+     "buyer": 6517,
+     "agency": 1742,
+     "order_": 124229,
+     "invoice": 62241,
+     "seconds": 88.3,
+     "creative": 24593,
+     "documents": 411100,
+     "order_line": 2133102,
+     "buyer_alias": 56939,
+     "order_revision": 195694
+    },
+    "failures": 0,
+    "error": null,
+    "log": "data/logs/entities-20261026-005324.log"
    },
    "export": {
     "status": "running",
-    "started": "2026-10-26 04:14:44.957103+00:00",
+    "started": "2026-10-26 00:55:37.360411-04:00",
     "ended": null,
     "counts": null,
     "failures": 0,
     "error": null,
-    "log": "data/logs/export-20261026-001444.log"
+    "log": "data/logs/export-20261026-005537.log"
+   },
+   "geo": {
+    "status": "ok",
+    "started": "2026-10-26 00:50:55.022481-04:00",
+    "ended": "2026-10-26 00:54:29.618031-04:00",
+    "counts": {
+     "hex": 1805260,
+     "tract": 85186,
+     "county": 3235,
+     "hex_r5": 29196,
+     "hex_r7": 1297859,
+     "hex_r8": 478205,
+     "seconds": 214.6,
+     "station_hex": 11390545,
+     "hexes_seconds": 200,
+     "metro_density": 150,
+     "metro_parents": 68315,
+     "tracts_seconds": 12,
+     "counties_seconds": 2,
+     "pop_res5_tract_based": 337830067,
+     "pop_res5_county_based": 334683719
+    },
+    "failures": 0,
+    "error": null,
+    "log": "data/logs/geo-20261026-005055.log"
    },
    "identity": {
     "status": "ok",
-    "started": "2026-10-26 03:58:46.667079+00:00",
-    "ended": "2026-10-26 03:59:11.728819+00:00",
+    "started": "2026-10-26 00:53:00.222416-04:00",
+    "ended": "2026-10-26 00:53:24.696962-04:00",
     "counts": {
      "buyers": 6406,
-     "labels": 12936,
-     "merged": 2289,
-     "seconds": 25.1,
+     "labels": 12938,
+     "merged": 2287,
+     "seconds": 24.5,
      "method_raw": 43,
      "method_manual": 14,
-     "method_name-rule": 9064,
+     "method_name-rule": 9066,
      "method_fec-candidate": 2686,
      "method_fec-committee": 1129
     },
     "failures": 0,
     "error": null,
-    "log": "data/logs/identity-20261025-235846.log"
+    "log": "data/logs/identity-20261026-005300.log"
    },
    "load_pg": {
     "status": "ok",
-    "started": "2026-10-25 07:02:57+00:00",
-    "ended": "2026-10-25 07:04:17+00:00",
+    "started": "2026-10-25 03:02:57-04:00",
+    "ended": "2026-10-25 03:04:17-04:00",
     "counts": {
      "listing": 403,
      "seconds": 80.5,
@@ -68,24 +115,24 @@
    },
    "marts": {
     "status": "ok",
-    "started": "2026-10-26 03:36:05.810386+00:00",
-    "ended": "2026-10-26 03:39:02.825291+00:00",
+    "started": "2026-10-26 00:54:52.141005-04:00",
+    "ended": "2026-10-26 00:55:36.956339-04:00",
     "counts": {
-     "seconds": 177.1,
-     "hex_total": 298148,
-     "spend_daily": 728927,
-     "buyer_station": 19811,
-     "station_daily": 175887,
+     "seconds": 44.8,
+     "hex_total": 1805249,
+     "spend_daily": 0,
+     "buyer_station": 19851,
+     "station_daily": 0,
      "station_total": 2147
     },
     "failures": 0,
     "error": null,
-    "log": "data/logs/marts-20261025-233605.log"
+    "log": "data/logs/marts-20261026-005452.log"
    },
    "migrate_sqlite": {
     "status": "ok",
-    "started": "2026-10-25 15:00:28.484368+00:00",
-    "ended": "2026-10-25 15:01:50.912013+00:00",
+    "started": "2026-10-25 11:00:28.484368-04:00",
+    "ended": "2026-10-25 11:01:50.912013-04:00",
     "counts": {
      "ocr": 16958,
      "docs": 177460,
@@ -111,53 +158,64 @@
    },
    "ocr": {
     "status": "ok",
-    "started": "2026-10-26 03:42:52.328605+00:00",
-    "ended": "2026-10-26 03:42:52.481274+00:00",
+    "started": "2026-10-26 00:51:02.363476-04:00",
+    "ended": "2026-10-26 00:51:02.591342-04:00",
     "counts": {
      "ok": 0,
      "pages": 0,
-     "cached": 6,
-     "failed": 0,
-     "queued": 0,
+     "cached": 0,
+     "failed": 16,
+     "queued": 16,
      "seconds": 0.2,
-     "given_up": 16,
+     "given_up": 0,
      "pool_rebuilds": 0
     },
-    "failures": 0,
+    "failures": 16,
     "error": null,
-    "log": "data/logs/ocr-20261025-234252.log"
+    "log": "data/logs/ocr-20261026-005102.log"
    },
    "parse": {
     "status": "ok",
-    "started": "2026-10-26 03:42:52.713763+00:00",
-    "ended": "2026-10-26 03:42:59.983747+00:00",
+    "started": "2026-10-26 00:51:02.741803-04:00",
+    "ended": "2026-10-26 00:51:12.198377-04:00",
     "counts": {
-     "ok": 419,
-     "queued": 2547,
-     "crashes": 0,
-     "seconds": 7.3,
+     "ok": 3403,
+     "queued": 66107,
+     "crashes": 1,
+     "seconds": 9.5,
      "needs_ocr": 0,
-     "order/eport/failed": 2,
-     "order/katz/partial": 4,
-     "form/nab-text/failed": 71,
-     "other/-/unrecognized": 1203,
-     "other/nab-supplement/ok": 419,
-     "order/wideorbit-order/partial": 19,
-     "invoice/sinclair-invoice/partial": 676,
-     "order/wideorbit-contract/partial": 2,
-     "invoice/wideorbit-invoice/partial": 21,
-     "order/wideorbit-order-ocr/partial": 21,
-     "order/wideorbit-contract-ocr/failed": 7,
-     "order/wideorbit-contract-ocr/partial": 102
+     "other/-/failed": 1,
+     "order/eport/failed": 9,
+     "order/katz/partial": 67,
+     "order/eport/partial": 203,
+     "form/nab-text/failed": 4912,
+     "other/-/unrecognized": 31895,
+     "order/katz-ecr/failed": 232,
+     "order/katz-ecr/partial": 3474,
+     "other/nab-supplement/ok": 3403,
+     "form/nab-acroform/failed": 278,
+     "order/wideorbit-order/failed": 405,
+     "order/wideorbit-order/partial": 810,
+     "invoice/sinclair-invoice/failed": 1618,
+     "order/wideorbit-contract/failed": 4,
+     "invoice/sinclair-invoice/partial": 9880,
+     "invoice/wideorbit-invoice/failed": 211,
+     "order/locality-worksheet/partial": 29,
+     "order/wideorbit-contract/partial": 1166,
+     "order/wideorbit-order-ocr/failed": 229,
+     "invoice/wideorbit-invoice/partial": 2263,
+     "order/wideorbit-order-ocr/partial": 951,
+     "order/wideorbit-contract-ocr/failed": 197,
+     "order/wideorbit-contract-ocr/partial": 3870
     },
-    "failures": 0,
+    "failures": 1,
     "error": null,
-    "log": "data/logs/parse-20261025-234252.log"
+    "log": "data/logs/parse-20261026-005102.log"
    },
    "pipeline": {
     "status": "ok",
-    "started": "2026-10-26 03:39:09.672138+00:00",
-    "ended": "2026-10-26 04:13:30.287546+00:00",
+    "started": "2026-10-25 23:39:09.672138-04:00",
+    "ended": "2026-10-26 00:13:30.287546-04:00",
     "counts": {
      "seconds": 2060.6,
      "states_ok": 2,
@@ -170,363 +228,368 @@
    },
    "tiles": {
     "status": "ok",
-    "started": "2026-10-25 16:01:43.928562+00:00",
-    "ended": "2026-10-25 16:01:57.710236+00:00",
+    "started": "2026-10-26 00:19:14.535060-04:00",
+    "ended": "2026-10-26 00:19:30.411731-04:00",
     "counts": {
-     "seconds": 13.8,
-     "hex5_cells": 9917,
+     "seconds": 15.9,
+     "hex5_cells": 23983,
      "hex7_cells": 231564
     },
     "failures": 0,
     "error": null,
-    "log": "data/logs/tiles-20261025-120143.log"
+    "log": "data/logs/tiles-20261026-001914.log"
    },
    "update": {
-    "status": "ok",
-    "started": "2026-10-25 02:53:59+00:00",
-    "ended": "2026-10-25 03:17:35+00:00",
+    "status": "failed",
+    "started": "2026-10-26 00:29:33.803171-04:00",
+    "ended": "2026-10-26 00:50:51.264142-04:00",
     "counts": {
-     "seconds": 1416.1
+     "seconds": 1277.5,
+     "download_mb": 0.0,
+     "downloads_ok": 0,
+     "downloads_gone": 0,
+     "downloads_failed": 2,
+     "downloads_pending": 2
     },
-    "failures": 1,
-    "error": null,
-    "log": "data/logs/update-20261024-225359.log"
+    "failures": 3,
+    "error": "3 failures exceed threshold 0 (max_fail_rate=0.02, attempted=3)",
+    "log": "data/logs/update-20261026-002933.log"
    },
    "video": {
     "status": "ok",
-    "started": "2026-10-25 16:02:03.775037+00:00",
-    "ended": "2026-10-25 16:15:08.429171+00:00",
+    "started": "2026-10-26 00:19:30.870908-04:00",
+    "ended": "2026-10-26 00:20:41.324815-04:00",
     "counts": {
-     "seconds": 784.7,
-     "families_low": 370,
+     "seconds": 70.5,
+     "families_low": 373,
      "channel_blocked": 5,
-     "families_matched": 629,
-     "families_unmatched": 170,
-     "buyers_without_channel": 158
+     "families_matched": 524,
+     "families_unmatched": 159,
+     "buyers_without_channel": 224
     },
     "failures": 0,
     "error": null,
-    "log": "data/logs/video-20261025-120203.log"
+    "log": "data/logs/video-20261026-001930.log"
    }
   },
   "batches": [
    {
     "state": "AK",
     "status": "ok",
-    "started": "2026-10-25 23:52:35.466804+00:00",
-    "ended": "2026-10-26 00:15:45.324552+00:00"
+    "started": "2026-10-25 19:52:35.466804-04:00",
+    "ended": "2026-10-25 20:15:45.324552-04:00"
    },
    {
     "state": "AL",
     "status": "ok",
-    "started": "2026-10-25 18:39:42.901678+00:00",
-    "ended": "2026-10-25 19:10:38.001722+00:00"
+    "started": "2026-10-25 14:39:42.901678-04:00",
+    "ended": "2026-10-25 15:10:38.001722-04:00"
    },
    {
     "state": "AR",
     "status": "ok",
-    "started": "2026-10-26 01:38:04.457245+00:00",
-    "ended": "2026-10-26 01:46:20.021397+00:00"
+    "started": "2026-10-25 21:38:04.457245-04:00",
+    "ended": "2026-10-25 21:46:20.021397-04:00"
    },
    {
     "state": "AZ",
     "status": "ok",
-    "started": "2026-10-25 22:25:21.226221+00:00",
-    "ended": "2026-10-25 22:25:25.172706+00:00"
+    "started": "2026-10-25 18:25:21.226221-04:00",
+    "ended": "2026-10-25 18:25:25.172706-04:00"
    },
    {
     "state": "CA",
     "status": "ok",
-    "started": "2026-10-26 03:39:09.779434+00:00",
-    "ended": "2026-10-26 03:42:34.059173+00:00"
+    "started": "2026-10-25 23:39:09.779434-04:00",
+    "ended": "2026-10-25 23:42:34.059173-04:00"
    },
    {
     "state": "CO",
     "status": "ok",
-    "started": "2026-10-25 22:04:09.913034+00:00",
-    "ended": "2026-10-25 22:25:21.148492+00:00"
+    "started": "2026-10-25 18:04:09.913034-04:00",
+    "ended": "2026-10-25 18:25:21.148492-04:00"
    },
    {
     "state": "CT",
     "status": "ok",
-    "started": "2026-10-26 02:42:05.279757+00:00",
-    "ended": "2026-10-26 02:44:20.091130+00:00"
+    "started": "2026-10-25 22:42:05.279757-04:00",
+    "ended": "2026-10-25 22:44:20.091130-04:00"
    },
    {
     "state": "DC",
     "status": "ok",
-    "started": "2026-10-26 01:46:20.101437+00:00",
-    "ended": "2026-10-26 01:54:42.700225+00:00"
+    "started": "2026-10-25 21:46:20.101437-04:00",
+    "ended": "2026-10-25 21:54:42.700225-04:00"
    },
    {
     "state": "DE",
     "status": "ok",
-    "started": "2026-10-26 02:52:06.981432+00:00",
-    "ended": "2026-10-26 02:52:16.536157+00:00"
+    "started": "2026-10-25 22:52:06.981432-04:00",
+    "ended": "2026-10-25 22:52:16.536157-04:00"
    },
    {
     "state": "FL",
     "status": "ok",
-    "started": "2026-10-25 16:20:27.348452+00:00",
-    "ended": "2026-10-25 17:02:23.733655+00:00"
+    "started": "2026-10-25 12:20:27.348452-04:00",
+    "ended": "2026-10-25 13:02:23.733655-04:00"
    },
    {
     "state": "GA",
     "status": "ok",
-    "started": "2026-10-25 17:02:23.805336+00:00",
-    "ended": "2026-10-25 17:02:28.952787+00:00"
+    "started": "2026-10-25 13:02:23.805336-04:00",
+    "ended": "2026-10-25 13:02:28.952787-04:00"
    },
    {
     "state": "GU",
     "status": "ok",
-    "started": "2026-10-25 03:26:32+00:00",
-    "ended": "2026-10-25 03:27:27+00:00"
+    "started": "2026-10-24 23:26:32-04:00",
+    "ended": "2026-10-24 23:27:27-04:00"
    },
    {
     "state": "HI",
     "status": "ok",
-    "started": "2026-10-26 00:37:22.597849+00:00",
-    "ended": "2026-10-26 00:46:25.269765+00:00"
+    "started": "2026-10-25 20:37:22.597849-04:00",
+    "ended": "2026-10-25 20:46:25.269765-04:00"
    },
    {
     "state": "IA",
     "status": "ok",
-    "started": "2026-10-26 03:42:34.132808+00:00",
-    "ended": "2026-10-26 03:43:00.071006+00:00"
+    "started": "2026-10-25 23:42:34.132808-04:00",
+    "ended": "2026-10-25 23:43:00.071006-04:00"
    },
    {
     "state": "ID",
     "status": "ok",
-    "started": "2026-10-26 02:39:20.081790+00:00",
-    "ended": "2026-10-26 02:42:05.202430+00:00"
+    "started": "2026-10-25 22:39:20.081790-04:00",
+    "ended": "2026-10-25 22:42:05.202430-04:00"
    },
    {
     "state": "IL",
     "status": "ok",
-    "started": "2026-10-25 20:23:40.423168+00:00",
-    "ended": "2026-10-25 20:45:25.219059+00:00"
+    "started": "2026-10-25 16:23:40.423168-04:00",
+    "ended": "2026-10-25 16:45:25.219059-04:00"
    },
    {
     "state": "IN",
     "status": "ok",
-    "started": "2026-10-26 01:27:59.993053+00:00",
-    "ended": "2026-10-26 01:38:04.380078+00:00"
+    "started": "2026-10-25 21:27:59.993053-04:00",
+    "ended": "2026-10-25 21:38:04.380078-04:00"
    },
    {
     "state": "KS",
     "status": "ok",
-    "started": "2026-10-25 17:29:37.850725+00:00",
-    "ended": "2026-10-25 18:39:20.540448+00:00"
+    "started": "2026-10-25 13:29:37.850725-04:00",
+    "ended": "2026-10-25 14:39:20.540448-04:00"
    },
    {
     "state": "KY",
     "status": "ok",
-    "started": "2026-10-25 22:49:20.651276+00:00",
-    "ended": "2026-10-25 23:00:13.453078+00:00"
+    "started": "2026-10-25 18:49:20.651276-04:00",
+    "ended": "2026-10-25 19:00:13.453078-04:00"
    },
    {
     "state": "LA",
     "status": "ok",
-    "started": "2026-10-26 00:15:45.402400+00:00",
-    "ended": "2026-10-26 00:37:22.522548+00:00"
+    "started": "2026-10-25 20:15:45.402400-04:00",
+    "ended": "2026-10-25 20:37:22.522548-04:00"
    },
    {
     "state": "MA",
     "status": "ok",
-    "started": "2026-10-26 01:12:01.760380+00:00",
-    "ended": "2026-10-26 01:20:06.431731+00:00"
+    "started": "2026-10-25 21:12:01.760380-04:00",
+    "ended": "2026-10-25 21:20:06.431731-04:00"
    },
    {
     "state": "MD",
     "status": "ok",
-    "started": "2026-10-26 02:46:14.958586+00:00",
-    "ended": "2026-10-26 02:49:19.281111+00:00"
+    "started": "2026-10-25 22:46:14.958586-04:00",
+    "ended": "2026-10-25 22:49:19.281111-04:00"
    },
    {
     "state": "ME",
     "status": "ok",
-    "started": "2026-10-25 17:02:47.882250+00:00",
-    "ended": "2026-10-25 17:29:37.778140+00:00"
+    "started": "2026-10-25 13:02:47.882250-04:00",
+    "ended": "2026-10-25 13:29:37.778140-04:00"
    },
    {
     "state": "MI",
     "status": "ok",
-    "started": "2026-10-25 06:47:01+00:00",
-    "ended": "2026-10-25 06:47:34+00:00"
+    "started": "2026-10-25 02:47:01-04:00",
+    "ended": "2026-10-25 02:47:34-04:00"
    },
    {
     "state": "MN",
     "status": "ok",
-    "started": "2026-10-25 19:33:51.626572+00:00",
-    "ended": "2026-10-25 19:54:39.984872+00:00"
+    "started": "2026-10-25 15:33:51.626572-04:00",
+    "ended": "2026-10-25 15:54:39.984872-04:00"
    },
    {
     "state": "MO",
     "status": "ok",
-    "started": "2026-10-25 20:45:25.295177+00:00",
-    "ended": "2026-10-25 21:12:20.883783+00:00"
+    "started": "2026-10-25 16:45:25.295177-04:00",
+    "ended": "2026-10-25 17:12:20.883783-04:00"
    },
    {
     "state": "MS",
     "status": "ok",
-    "started": "2026-10-26 02:29:01.259688+00:00",
-    "ended": "2026-10-26 02:35:40.910533+00:00"
+    "started": "2026-10-25 22:29:01.259688-04:00",
+    "ended": "2026-10-25 22:35:40.910533-04:00"
    },
    {
     "state": "MT",
     "status": "ok",
-    "started": "2026-10-26 01:20:09.735901+00:00",
-    "ended": "2026-10-26 01:27:59.916335+00:00"
+    "started": "2026-10-25 21:20:09.735901-04:00",
+    "ended": "2026-10-25 21:27:59.916335-04:00"
    },
    {
     "state": "NC",
     "status": "ok",
-    "started": "2026-10-25 18:39:20.611870+00:00",
-    "ended": "2026-10-25 18:39:42.829410+00:00"
+    "started": "2026-10-25 14:39:20.611870-04:00",
+    "ended": "2026-10-25 14:39:42.829410-04:00"
    },
    {
     "state": "ND",
     "status": "ok",
-    "started": "2026-10-26 01:54:42.773358+00:00",
-    "ended": "2026-10-26 02:13:53.601132+00:00"
+    "started": "2026-10-25 21:54:42.773358-04:00",
+    "ended": "2026-10-25 22:13:53.601132-04:00"
    },
    {
     "state": "NE",
     "status": "ok",
-    "started": "2026-10-25 21:12:20.958962+00:00",
-    "ended": "2026-10-25 21:41:39.281155+00:00"
+    "started": "2026-10-25 17:12:20.958962-04:00",
+    "ended": "2026-10-25 17:41:39.281155-04:00"
    },
    {
     "state": "NH",
     "status": "ok",
-    "started": "2026-10-26 02:44:20.163861+00:00",
-    "ended": "2026-10-26 02:46:14.882732+00:00"
+    "started": "2026-10-25 22:44:20.163861-04:00",
+    "ended": "2026-10-25 22:46:14.882732-04:00"
    },
    {
     "state": "NJ",
     "status": "ok",
-    "started": "2026-10-26 02:49:19.356509+00:00",
-    "ended": "2026-10-26 02:50:34.996648+00:00"
+    "started": "2026-10-25 22:49:19.356509-04:00",
+    "ended": "2026-10-25 22:50:34.996648-04:00"
    },
    {
     "state": "NM",
     "status": "ok",
-    "started": "2026-10-25 22:25:25.247916+00:00",
-    "ended": "2026-10-25 22:49:20.574320+00:00"
+    "started": "2026-10-25 18:25:25.247916-04:00",
+    "ended": "2026-10-25 18:49:20.574320-04:00"
    },
    {
     "state": "NV",
     "status": "ok",
-    "started": "2026-10-26 01:20:06.504139+00:00",
-    "ended": "2026-10-26 01:20:09.663031+00:00"
+    "started": "2026-10-25 21:20:06.504139-04:00",
+    "ended": "2026-10-25 21:20:09.663031-04:00"
    },
    {
     "state": "NY",
     "status": "ok",
-    "started": "2026-10-25 19:10:42.816708+00:00",
-    "ended": "2026-10-25 19:33:51.553238+00:00"
+    "started": "2026-10-25 15:10:42.816708-04:00",
+    "ended": "2026-10-25 15:33:51.553238-04:00"
    },
    {
     "state": "OH",
     "status": "ok",
-    "started": "2026-10-25 05:50:44+00:00",
-    "ended": "2026-10-25 06:47:01+00:00"
+    "started": "2026-10-25 01:50:44-04:00",
+    "ended": "2026-10-25 02:47:01-04:00"
    },
    {
     "state": "OK",
     "status": "ok",
-    "started": "2026-10-25 21:41:39.361446+00:00",
-    "ended": "2026-10-25 22:04:09.838168+00:00"
+    "started": "2026-10-25 17:41:39.361446-04:00",
+    "ended": "2026-10-25 18:04:09.838168-04:00"
    },
    {
     "state": "OR",
     "status": "ok",
-    "started": "2026-10-26 00:46:25.344500+00:00",
-    "ended": "2026-10-26 00:56:32.374099+00:00"
+    "started": "2026-10-25 20:46:25.344500-04:00",
+    "ended": "2026-10-25 20:56:32.374099-04:00"
    },
    {
     "state": "PA",
     "status": "ok",
-    "started": "2026-10-25 19:10:38.079608+00:00",
-    "ended": "2026-10-25 19:10:42.742748+00:00"
+    "started": "2026-10-25 15:10:38.079608-04:00",
+    "ended": "2026-10-25 15:10:42.742748-04:00"
    },
    {
     "state": "RI",
     "status": "ok",
-    "started": "2026-10-26 02:13:53.675934+00:00",
-    "ended": "2026-10-26 02:16:24.783891+00:00"
+    "started": "2026-10-25 22:13:53.675934-04:00",
+    "ended": "2026-10-25 22:16:24.783891-04:00"
    },
    {
     "state": "SC",
     "status": "ok",
-    "started": "2026-10-25 19:54:40.057283+00:00",
-    "ended": "2026-10-25 20:23:40.351806+00:00"
+    "started": "2026-10-25 15:54:40.057283-04:00",
+    "ended": "2026-10-25 16:23:40.351806-04:00"
    },
    {
     "state": "SD",
     "status": "ok",
-    "started": "2026-10-25 23:00:13.528280+00:00",
-    "ended": "2026-10-25 23:14:42.556601+00:00"
+    "started": "2026-10-25 19:00:13.528280-04:00",
+    "ended": "2026-10-25 19:14:42.556601-04:00"
    },
    {
     "state": "TN",
     "status": "ok",
-    "started": "2026-10-25 23:30:42.497171+00:00",
-    "ended": "2026-10-25 23:52:35.390531+00:00"
+    "started": "2026-10-25 19:30:42.497171-04:00",
+    "ended": "2026-10-25 19:52:35.390531-04:00"
    },
    {
     "state": "TX",
     "status": "ok",
-    "started": "2026-10-25 03:47:37+00:00",
-    "ended": "2026-10-25 05:50:44+00:00"
+    "started": "2026-10-24 23:47:37-04:00",
+    "ended": "2026-10-25 01:50:44-04:00"
    },
    {
     "state": "UT",
     "status": "ok",
-    "started": "2026-10-26 02:50:35.072319+00:00",
-    "ended": "2026-10-26 02:51:43.815243+00:00"
+    "started": "2026-10-25 22:50:35.072319-04:00",
+    "ended": "2026-10-25 22:51:43.815243-04:00"
    },
    {
     "state": "VA",
     "status": "ok",
-    "started": "2026-10-25 23:14:42.634704+00:00",
-    "ended": "2026-10-25 23:30:42.415413+00:00"
+    "started": "2026-10-25 19:14:42.634704-04:00",
+    "ended": "2026-10-25 19:30:42.415413-04:00"
    },
    {
     "state": "VI",
     "status": "ok",
-    "started": "2026-10-26 02:51:43.891419+00:00",
-    "ended": "2026-10-26 02:52:06.907458+00:00"
+    "started": "2026-10-25 22:51:43.891419-04:00",
+    "ended": "2026-10-25 22:52:06.907458-04:00"
    },
    {
     "state": "VT",
     "status": "ok",
-    "started": "2026-10-26 02:35:40.984216+00:00",
-    "ended": "2026-10-26 02:39:19.994037+00:00"
+    "started": "2026-10-25 22:35:40.984216-04:00",
+    "ended": "2026-10-25 22:39:19.994037-04:00"
    },
    {
     "state": "WA",
     "status": "ok",
-    "started": "2026-10-26 02:16:24.856645+00:00",
-    "ended": "2026-10-26 02:23:54.295178+00:00"
+    "started": "2026-10-25 22:16:24.856645-04:00",
+    "ended": "2026-10-25 22:23:54.295178-04:00"
    },
    {
     "state": "WI",
     "status": "ok",
-    "started": "2026-10-25 17:02:29.028417+00:00",
-    "ended": "2026-10-25 17:02:47.805388+00:00"
+    "started": "2026-10-25 13:02:29.028417-04:00",
+    "ended": "2026-10-25 13:02:47.805388-04:00"
    },
    {
     "state": "WV",
     "status": "ok",
-    "started": "2026-10-26 00:56:32.447974+00:00",
-    "ended": "2026-10-26 01:12:01.685333+00:00"
+    "started": "2026-10-25 20:56:32.447974-04:00",
+    "ended": "2026-10-25 21:12:01.685333-04:00"
    },
    {
     "state": "WY",
     "status": "ok",
-    "started": "2026-10-26 02:23:54.370745+00:00",
-    "ended": "2026-10-26 02:29:01.185559+00:00"
+    "started": "2026-10-25 22:23:54.370745-04:00",
+    "ended": "2026-10-25 22:29:01.185559-04:00"
    }
   ],
   "listing": {
@@ -534,21 +597,21 @@
   },
   "ocr_engines": {
    "cached": 1893,
-   "vision": 76860,
+   "vision": 76866,
    "legacy-tesseract": 24665
   },
   "templates": {
-   "form/nab-text": 82983,
+   "form/nab-text": 82985,
    "order/wideorbit-contract": 82580,
    "order/wideorbit-order": 68778,
    "invoice/wideorbit-invoice": 53258,
-   "other/unrecognized": 31918,
+   "other/unrecognized": 31912,
    "form/nab-acroform": 19246,
    "order/katz": 17722,
-   "order/katz-ecr": 14317,
+   "order/katz-ecr": 14318,
    "invoice/sinclair-invoice": 12956,
-   "order/wideorbit-contract-ocr": 12522,
-   "order/wideorbit-order-ocr": 10449,
+   "order/wideorbit-contract-ocr": 12523,
+   "order/wideorbit-order-ocr": 10451,
    "other/nab-supplement": 3403,
    "order/locality-worksheet": 562,
    "order/eport": 289,
@@ -577,7 +640,7 @@
     "docs_national": 410345,
     "docs_listed": 411340,
     "docs_downloaded": 411100,
-    "docs_ok": 348376
+    "docs_ok": 348380
    }
   },
   "by_state": {
@@ -902,7 +965,7 @@
      "stations_with_docs": 21,
      "docs_national": 12388,
      "docs_downloaded": 12443,
-     "docs_ok": 11004
+     "docs_ok": 11006
     }
    },
    "KY": {
@@ -1136,7 +1199,7 @@
      "stations_with_docs": 25,
      "docs_national": 8481,
      "docs_downloaded": 8500,
-     "docs_ok": 7576
+     "docs_ok": 7577
     }
    },
    "NH": {
@@ -1388,7 +1451,7 @@
      "stations_with_docs": 25,
      "docs_national": 6475,
      "docs_downloaded": 6496,
-     "docs_ok": 5421
+     "docs_ok": 5422
     }
    },
    "TX": {
@@ -1838,79 +1901,116 @@
   "parsed": 411100,
   "by_kind_status": {
    "form/failed": 5190,
-   "form/ok": 97039,
    "invoice/failed": 1829,
+   "order/failed": 1076,
+   "other/failed": 17,
+   "form/ok": 97041,
    "invoice/ok": 52242,
-   "invoice/partial": 12143,
-   "order/failed": 1075,
-   "order/ok": 195692,
-   "order/partial": 10569,
-   "other/failed": 23,
+   "order/ok": 195694,
    "other/ok": 3403,
+   "invoice/partial": 12143,
+   "order/partial": 10570,
    "other/unrecognized": 31895
   },
   "templates": {
    "eport": 289,
    "katz": 17722,
-   "katz-ecr": 14317,
+   "katz-ecr": 14318,
    "locality-worksheet": 562,
    "sinclair-contract": 117,
    "sinclair-invoice": 12956,
    "wideorbit-contract": 82580,
-   "wideorbit-contract-ocr": 12522,
+   "wideorbit-contract-ocr": 12523,
    "wideorbit-invoice": 53258,
    "wideorbit-order": 68778,
-   "wideorbit-order-ocr": 10449
+   "wideorbit-order-ocr": 10451
   },
-  "ocr": 103418,
+  "ocr": 103424,
   "first_upload": "2025-12-19",
-  "last_upload": "2026-10-26"
+  "last_upload": "2026-10-25"
  },
  "entities": {
-  "orders": 124049,
-  "orders_with_lines": 88973,
-  "invoices": 62195,
-  "invoices_linked": 45664,
-  "spots": 2022276,
+  "orders": 124229,
+  "orders_with_lines": 88969,
+  "invoices": 62241,
+  "invoices_linked": 45732,
+  "spots": 2022297,
   "creatives": 24593,
-  "buyers": 5403,
+  "buyers": 5415,
   "identity": {
    "name-rule": [
-    4381,
-    7800
+    4400,
+    7850
    ],
    "fec-committee": [
-    398,
-    1123
+    400,
+    1127
    ],
    "manual": [
     1,
     1
    ],
    "raw": [
-    53,
+    42,
     0
    ],
    "fec-candidate": [
-    570,
-    2752
+    572,
+    2767
    ]
   },
   "manual_overrides": 17
  },
  "money": {
-  "booked": 4431462984.35,
-  "invoiced": 1514991208.53,
-  "first_day": "2020-03-15",
-  "last_day": "2028-10-11"
+  "booked": 4437584287.53,
+  "invoiced": 1516293790.73,
+  "first_day": "None",
+  "last_day": "None"
  },
  "geography": {
   "counties": 3235,
   "hex_cells": {
    "5": 29196,
-   "7": 268952
+   "7": 1297859,
+   "8": 478205
   },
-  "coverage_rows": 1514897
+  "coverage_rows": 11390545,
+  "resolutions": {
+   "5": {
+    "scope": "national",
+    "cells": 29196,
+    "km2": 252.9,
+    "where": "inside every station's contour"
+   },
+   "7": {
+    "scope": "active",
+    "cells": 1297859,
+    "km2": 5.16,
+    "where": "inside the contours of stations with political files"
+   },
+   "8": {
+    "scope": "metro",
+    "cells": 478205,
+    "km2": 0.74,
+    "where": "the seven children of every res-7 cell with at least 150 people per km\u00b2"
+   }
+  },
+  "metro_density": 150,
+  "population": {
+   "source": "ACS 2019-2023 five-year total population (B01003) by Census tract, rescaled inside each county to the county's 2024 estimate",
+   "tracts": 85186,
+   "acs_total": 335559225,
+   "rescaled_total": 343365873,
+   "county_total": 340110988,
+   "cell_rule": "a cell's population is the sum over the tracts it intersects of tract population \u00d7 overlap area / tract area",
+   "by_res": {
+    "5": 341084951.80964905,
+    "7": 335911841.23741233,
+    "8": 257256763.71981803
+   },
+   "res5_county_based_check": 334683719,
+   "res5_tract_based": 337830067
+  }
  },
  "sources": [
   {
@@ -1947,7 +2047,17 @@
   {
    "name": "Census county population estimates (2024 vintage)",
    "url": "https://www.census.gov/programs-surveys/popest.html",
-   "what": "county population, spread into H3 cells by area share"
+   "what": "county population totals; each county's tracts are rescaled to sum to its 2024 estimate"
+  },
+  {
+   "name": "Census cartographic boundary files (tracts)",
+   "url": "https://www.census.gov/geographies/mapping-files/time-series/geo/cartographic-boundary.html",
+   "what": "tract polygons (2023 vintage, 1:500k)"
+  },
+  {
+   "name": "ACS 2019-2023 5-year, table B01003 (total population)",
+   "url": "https://www.census.gov/programs-surveys/acs/data/summary-file.html",
+   "what": "tract population, spread into H3 cells by overlap area with each tract"
   },
   {
    "name": "Census Gazetteer ZCTA and place files",
@@ -1979,9 +2089,9 @@
   "stations": "Load stations (web/data/stations.json) into the Postgres `station` table.\n\nIdempotent: rows are upserted by facility_id. Run once after a stations.json refresh (`make stations`);\nthe crawl refuses stations that are not in this table, so the licensed-station list stays the one\nsource of what gets crawled.\n  python3 -m ingest.stations\n\nstation_group is derived from the licensee string with the rules in GROUPS (checked against every licensee\nin the station table: the large groups use dozens of licensee entities, e.g. Sinclair's \"<CALL> Licensee, LLC\",\nAllen Media's \"<City> TV License Company, LLC\", Tegna's legacy Belo/Gannett companies). Stations no rule\nmatches get \"Independent\", public and religious broadcasters are grouped as such; NULL means unknown.",
   "entities": "Rebuild domain entities from `document.raw` + `opif_file.folder_path`.\n\nDeterministic and total: it truncates the entity tables and rebuilds them, so a parser\nimprovement or an alias change only needs `parse` + `entities`, never a recrawl.\nManual buyer merges live in data/buyer_overrides.yaml (alias -> canonical name) and are\napplied on top of the automatic folder-based identity.\n  python3 -m ingest.entities",
   "identity": "Buyer identity: merge the stations' own folder labels into canonical buyers and match them\nto FEC candidates and committees.\n\nInputs: buyer_alias rows of source 'folder' (one per station label) with the station's state,\nFEC bulk master files in data/fec (cn.txt candidates, cm.txt committees, ccl.txt linkage),\nand data/buyer_overrides.yaml (manual: `raw label: Canonical Name`, or `category|raw label: ...`).\nOutput: data/buyer_identity.json, read by ingest.entities on its next run.\n\n  python3 -m ingest.identity          # then: python3 -m ingest.entities",
-  "geo": "Geography: counties with population, H3 cells with population, and station coverage shares.\n\n  python3 -m ingest.geo            # everything (downloads Census files to data/geo on first run)\n\nResolutions come from HEX_RES. Coarse resolutions are built nationwide; fine ones only inside\nthe contours of stations that have political files loaded (\"active\"), so the fine layers grow\nwith the crawl. Adding a resolution is a one-line change here plus a rerun.",
-  "export": "Export serving artifacts from the marts.\n\nweb/data/spend/<facility>.json, index.json   per-station buyers (what the map reads today)\nweb/data/hex/total_r<res>.json                money/ads reaching each cell (for the hex layers)\ndata/marts/*.parquet                          every mart, for DuckDB / the next UI / analysis\nweb/data/build.json                           build id + timestamp (cache busting)\n\npython3 -m ingest.export",
-  "tiles": "Vector tiles (PMTiles) for the map: hex money layers and station contours, via tippecanoe.\n\npython3 -m ingest.tiles        -> web/data/tiles/hex5.pmtiles, hex7.pmtiles, contours.pmtiles, meta.json",
+  "geo": "Geography: counties (names, 2024 population), Census tracts (population), H3 cells with population, and station coverage shares.\n\n  python3 -m ingest.geo            # everything (downloads Census files to data/geo on first run)\n\nResolutions come from HEX_RES. Res 5 (\"national\") is built inside every station's contour; res 7 (\"active\")\nonly inside the contours of stations that have political files loaded, so it grows with the crawl; res 8\n(\"metro\") is the seven children of every res-7 cell whose population density is at least METRO_DENSITY\npeople per km\u00b2, so the finest cells exist where people are dense enough for a 0.7 km\u00b2 cell to mean something.\nCell population is the sum over intersecting Census tracts of tract population \u00d7 (overlap area / tract area);\ntract population is the ACS 2019-2023 five-year total (B01003) rescaled inside each county so the tracts sum\nto the county's 2024 estimate. Coverage shares are contour\u2229cell area / cell area per station and cell.",
+  "export": "Export serving artifacts from the marts.\n\nweb/data/spend/<facility>.json, index.json   per-station buyers (what the map reads today)\nweb/data/hex/total_r5.json                    money/ads reaching each national cell (finer res come from PMTiles, ingest.tiles)\ndata/marts/*.parquet                          every mart, for DuckDB / the next UI / analysis\nweb/data/build.json                           build id + timestamp (cache busting)\n\npython3 -m ingest.export",
+  "tiles": "Vector tiles (PMTiles) for the map: hex money layers and station contours, via tippecanoe.\n\n  python3 -m ingest.tiles        -> web/data/tiles/hex5.pmtiles, hex7.pmtiles, hex8.pmtiles, contours.pmtiles, meta.json\n\nRes 8 exists only in metro cells (ingest.geo METRO_DENSITY), so every res-7 cell whose children exist at res 8\ncarries fine=1: above the switch zoom the app draws hex8 plus the hex7 cells without that flag, a seamless mosaic\nwith no double painting. Res-8 features are emitted for every cell, money or not, so the mosaic has no holes.",
   "places": "Static place index for search: ZIP centroids and populated places from the Census Gazetteer files.\nWrites web/data/places.json so the app can resolve \"50309\", \"Des Moines\" or \"Des Moines, IA\" with no\nexternal geocoder. Street addresses still fall back to Nominatim in the app.\n\n  python3 -m ingest.places",
   "status": "Pipeline status: what has been listed, downloaded, OCR'd, parsed and built into entities, per station and\noverall, which stages are running or failed last, and what is stuck.\n\n  python3 -m ingest.status                 # overall + per-stage last runs + problem list\n  python3 -m ingest.status --stations      # add a per-station table (sorted by pending work)\n  python3 -m ingest.status --state PA      # per-station table for one state\n  python3 -m ingest.status --json          # machine-readable (used by ingest.batch and the About page export)\nReads Postgres (plain SELECTs; never blocks a running stage) plus the lock files in data/locks/.",
   "coverage": "Coverage report: what has been crawled versus the national political-file totals.\n\nThe denominator is data/political_doc_counts.csv: per-station document counts for 2024 and 2026 for all\n1,750 licensed full-power stations (one FCC folder call each, taken 2026-10-23). The numerator is\nPostgres (opif_file listed, downloaded, document parsed ok). Reported per state and per year, plus the gap list.\n\n  python3 -m ingest.coverage              # table by state\n  python3 -m ingest.coverage --json       # for export_methods / the About page\n  python3 -m ingest.coverage --missing    # stations not yet crawled, biggest first",
