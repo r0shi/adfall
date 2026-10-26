@@ -74,7 +74,7 @@
   .poptabs { display: flex; gap: 2px; padding: 6px 8px 0; border-bottom: 1px solid var(--line); }
   .tab { background: none; color: var(--muted); font-weight: 600; padding: 6px 10px; border-radius: 8px 8px 0 0; }
   .tab.on { color: var(--fg); background: var(--chip); }
-  .popbody { overflow: auto; padding: 10px 12px; min-height: 0; }
+  .popbody { overflow: auto; overscroll-behavior: contain; padding: 10px 12px; min-height: 0; }
   @media (max-width: 800px) {
     .pop { left: 0 !important; top: auto !important; bottom: 0; width: 100%; max-height: 58vh; border-radius: 14px 14px 0 0; }
     .pop.collapsed { width: 100%; }

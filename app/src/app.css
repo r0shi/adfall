@@ -14,7 +14,7 @@
 :root[data-theme="dark"] { --bg: #15161a; --fg: #ececf0; --muted: #9a9ea9; --line: #2b2d33; --chip: #22242a; --accent: #8b96ff; --accent-soft: #23264a;
   --federal: #b0b3f5; --state: #7a7ee0; --local: #4e52a8; --issue: #b39b55; --dem: #5b8fe6; --rep: #e04a5f; --unknown: repeating-linear-gradient(135deg, #7c808b 0 3px, #3a3d45 3px 6px); --warm: #e8893a; --cool: #3fb0c2; }
 * { box-sizing: border-box; }
-html, body { height: 100%; margin: 0; }
+html, body { height: 100%; margin: 0; overflow: hidden; }   /* panels and popovers scroll themselves; the document never does, so the nav stays put */
 body { font: 15px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; color: var(--fg); background: var(--bg); }
 a { color: inherit; }
 nav.top { height: var(--nav-h); display: flex; align-items: center; gap: 4px; padding: 0 12px; border-bottom: 1px solid var(--line); position: relative; z-index: 5; background: var(--bg); }
