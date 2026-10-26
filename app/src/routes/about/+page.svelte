@@ -4,6 +4,8 @@
   import { get, usd, num } from '$lib/data.js';
   let m = $state(null);
   get('methods.json').then(x => m = x);
+  let h = $state(null);                      // web/data/health.json from scripts/health.sh (hourly); absent on a fresh checkout
+  get('health.json').then(x => h = x).catch(() => {});
   const pct = (a, b) => b ? `${Math.round(100 * a / b)}%` : '–';
   const kinds = $derived.by(() => {
     if (!m) return [];
@@ -20,6 +22,7 @@
     <h1>About the data and methods</h1>
     <p class="tag">What this site shows, where every number comes from, how documents become dollars, and what it gets wrong. Figures update with each data build.</p>
     {#if m}<div class="muted small">Data build {m.generated} · uploads from {m.documents.first_upload} to {m.documents.last_upload} · spending dated {m.money.first_day} to {m.money.last_day}</div>{/if}
+    {#if h}<div class="muted small">Pipeline health {h.ok ? 'ok' : 'failing'} at {h.checked_at.slice(0, 16).replace('T', ' ')}: {Object.entries(h.checks).map(([k, c]) => `${k} ${c.ok ? 'ok' : 'FAIL'} (${c.detail})`).join(' · ')}</div>{/if}
   </header>
   {#if !m}<section class="muted">Loading…</section>{:else}
   <section>

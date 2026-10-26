@@ -31,3 +31,4 @@ data/ocr/*.tesseract
 data/video_cache/
 data/google_political_ads/
 web/data/newscasts/
+web/data/health.json

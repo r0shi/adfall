@@ -205,6 +205,43 @@ and log path) and `document` (kind, template, parse status and the parsed fields
 in `raw`). `docs/research.md` keeps the running account of coverage and parser
 quality.
 
+### Run it every day
+
+```bash
+scripts/daily.sh                 # update → parse → ocr → parse → refresh → export + tiles → build; add --video for the YouTube re-alignment (Sundays do it anyway)
+scripts/health.sh                # database answers, newest ok update and export under 30 h old → web/data/health.json, exit 1 on failure
+```
+
+`scripts/daily.sh` runs every stage in order, logs one timestamp line per step to
+`data/logs/daily-<date>.log` (the stages' own logs stay in `data/logs/<stage>-<timestamp>.log`),
+skips the steps that depend on a failed one, and always exports and builds so the
+site reflects whatever the database holds. It steps aside when a batch driver holds
+the `pipeline` lock, and a second copy of itself exits at once (`data/locks/daily.lock`).
+`scripts/health.sh` writes `web/data/health.json`, which the About page shows under
+the build line.
+
+Two launchd agents in `scripts/launchd/` schedule them: `com.adfall.daily` at 05:10
+local time and `com.adfall.health` hourly at :30 (and once on load). They are not
+installed by the repository; the paths inside them are absolute, so edit them if the
+checkout is not at `/Users/alex/tv_wormhole`, then:
+
+```bash
+cp scripts/launchd/com.adfall.*.plist ~/Library/LaunchAgents/
+launchctl load -w ~/Library/LaunchAgents/com.adfall.daily.plist
+launchctl load -w ~/Library/LaunchAgents/com.adfall.health.plist
+launchctl list | grep adfall           # a third column of 0 is the last exit status; - means never run
+launchctl start com.adfall.daily       # run the daily job now instead of waiting for 05:10
+launchctl unload -w ~/Library/LaunchAgents/com.adfall.daily.plist   # stop scheduling it
+```
+
+launchd's own capture of each job's stdout and stderr goes to `data/logs/launchd-daily.log`
+and `data/logs/launchd-health.log`. Agents run only while this user is logged in, and
+a run scheduled while the Mac sleeps happens at the next wake, so for a run at 05:10
+the Mac has to be awake: `sudo pmset repeat wakeorpoweron MTWRFSU 05:05:00` wakes it
+every day at 05:05 (`pmset -g sched` shows the schedule; `sudo pmset repeat cancel`
+removes it). PostGIS must already be up (`make db-up`); the health check reports when
+it is not.
+
 ### Maintenance
 
 ```bash
