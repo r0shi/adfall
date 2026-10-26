@@ -28,7 +28,12 @@
       map.addLayer({ id: 'markerB', type: 'circle', source: 'markerB', paint: { 'circle-radius': 7, 'circle-color': PIN_B, 'circle-stroke-color': '#fff', 'circle-stroke-width': 2 } });
       onready && onready(api);
     });
-    return () => map.remove();
+    // On client-side navigation the container can still be mid-layout when MapLibre measures it, and the map then
+    // sits blank until something resizes the window. Measure again on the next frame and whenever the container changes.
+    const ro = new ResizeObserver(() => map && map.resize());
+    ro.observe(el);
+    requestAnimationFrame(() => map && map.resize());
+    return () => { ro.disconnect(); map.remove(); };
   });
   $effect(() => { const r = ui.camRequest; if (!r || !map) return; map.jumpTo({ zoom: r[0], center: [r[2], r[1]] }); ui.camApplied = Date.now(); ui.camRequest = null; });
   const api = {
