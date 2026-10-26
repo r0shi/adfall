@@ -1,5 +1,5 @@
 // Difference layers: per-station signed values spread over cells by population share (same weights as the frames).
-import { WARM, COOL, DEM, REP, MID } from './palette.js';
+import { WARM, COOL, DEM, REP, partyRGBA } from './palette.js';
 export const DIFFS = {
   party: { label: 'Party share', desc: 'Candidate dollars reaching each cell, colored by the Democratic (blue) or Republican (red) share; fainter cells carry less candidate money. Issue-group money has no party and is left out', pos: 'Democratic', neg: 'Republican', posColor: DEM, negColor: REP },
   bi: { label: 'Booked − invoiced', desc: 'Dollars booked but not yet billed (the pipeline still to air), minus nothing where invoices have caught up', pos: 'still to air', neg: 'billed above booking', posColor: WARM, negColor: COOL },
@@ -52,13 +52,11 @@ export function composeParty(weights, idx) {
 export function makePartyLayer(H3HexagonLayer, weights, p, scale, { onHover, onClick, triggers }) {
   const cells = weights.cells;
   weights._index ||= Array.from(cells, (_, i) => i);
-  const mix = (a, b, t) => [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t, a[2] + (b[2] - a[2]) * t];
   return new H3HexagonLayer({
     id: 'party', data: weights._index, getHexagon: i => cells[i], filled: true, extruded: false, stroked: false, pickable: true, opacity: 0.9,
     getFillColor: i => {
       const t = p.total[i]; if (!t) return [0, 0, 0, 0];
-      const s = p.share[i], c = s >= 0.5 ? mix(MID, DEM, (s - 0.5) * 2) : mix(MID, REP, (0.5 - s) * 2);   // gray at an even split
-      return [c[0], c[1], c[2], Math.round(255 * Math.min(1, Math.sqrt(t / scale)))];
+      return partyRGBA(p.share[i], Math.sqrt(t / scale));
     },
     onHover: ({ object }) => onHover && onHover(object == null ? null : { h3: cells[object], share: p.share[object], total: p.total[object], unk: p.unk[object] }),
     onClick: ({ object }) => object != null && onClick && onClick(cells[object]),

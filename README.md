@@ -140,6 +140,7 @@ TVW_TILES=1 scripts/safe_export.sh --only creatives,pages,details    # subset ex
 make tiles                       # PMTiles for hex layers and contours
 make video                       # buyer → YouTube channel → upload per creative (TOP=300 buyers by airings)
 make pipeline                    # stations → entities → identity → entities → marts → export → tiles
+nohup scripts/post_batch.sh --rerun > data/logs/post_batch.log 2>&1 &   # after a batch: wait for the driver, rerun failed states, export + tiles, video, build
 ```
 
 Export sections for `--only`: `methods, stations, hex, buyers, creatives, time,

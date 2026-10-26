@@ -354,11 +354,19 @@ def export_weights(con, res=5):
 
 
 def export_time(con):
+    # booked $ by party per station per day, for the party-share animation (candidate money only; issue groups and
+    # unknown-party candidates carry no party and are left out of both columns)
+    plab = {bid: party_label(p, cat) for bid, p, cat in con.execute("SELECT buyer_id, party, category FROM buyer")}
+    party = collections.defaultdict(lambda: [0.0, 0.0])
+    for fac, bid, day, booked in con.execute("SELECT facility_id, buyer_id, day, booked FROM spend_daily WHERE booked > 0"):
+        pl = plab.get(bid)
+        if pl == "Democratic": party[(fac, str(day))][0] += float(booked)
+        elif pl == "Republican": party[(fac, str(day))][1] += float(booked)
     rows = con.execute("SELECT facility_id, day, booked, invoiced, spots_aired FROM station_daily ORDER BY 1,2").fetchall()
-    json.dump({"columns": ["fac", "day", "booked", "invoiced", "spots_aired"],
-               "rows": [[r[0], str(r[1]), round(float(r[2])), round(float(r[3])), int(r[4])] for r in rows]},
+    json.dump({"columns": ["fac", "day", "booked", "invoiced", "spots_aired", "dem", "rep"],
+               "rows": [[r[0], str(r[1]), round(float(r[2])), round(float(r[3])), int(r[4]), *map(round, party.get((r[0], str(r[1])), (0, 0)))] for r in rows]},
               open(os.path.join(WEB, "station_daily.json"), "w"), separators=(",", ":"))
-    log.info(f"  station_daily.json: {len(rows)} rows")
+    log.info(f"  station_daily.json: {len(rows)} rows ({len(party)} with party dollars)")
     rows = con.execute("""
         WITH w AS (SELECT sh.facility_id, sh.h3, COALESCE(h.pop,0)*sh.coverage_share AS w, SUM(COALESCE(h.pop,0)*sh.coverage_share) OVER (PARTITION BY sh.facility_id) wsum
                    FROM station_hex sh JOIN hex h USING (h3) WHERE h.res = 5),

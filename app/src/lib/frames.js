@@ -5,7 +5,7 @@ export class Framer {
     this.cells = weights.cells; this.w = weights.stations; this.idx = metricIndex; // station_daily columns: fac, day, booked, invoiced, spots
     this.byStation = new Map();                       // fac -> Map(day -> value)
     this.days = new Set();
-    for (const r of daily.rows) { const m = this.byStation.get(r[0]) || new Map(); m.set(r[1], r[metricIndex]); this.byStation.set(r[0], m); this.days.add(r[1]); }
+    for (const r of daily.rows) { const m = this.byStation.get(r[0]) || new Map(); m.set(r[1], r[metricIndex] || 0); this.byStation.set(r[0], m); this.days.add(r[1]); }
     this.dayList = [...this.days].sort();
     this.cum = new Map();                              // fac -> Map(day -> cumulative through that day)
     for (const [fac, m] of this.byStation) { let acc = 0; const c = new Map(); for (const d of this.dayList) { acc += m.get(d) || 0; c.set(d, acc); } this.cum.set(fac, c); }

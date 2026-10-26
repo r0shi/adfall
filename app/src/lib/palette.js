@@ -37,6 +37,9 @@ export const COOL = [26, 143, 160];
 export const DEM = [47, 111, 214];
 export const REP = [200, 16, 46];
 export const MID = [158, 160, 168];
+const mix = (a, b, t) => [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t, a[2] + (b[2] - a[2]) * t];
+/** Party value-by-alpha color: hue from the Democratic share (gray at an even split), alpha in [0,1] from the amount. */
+export function partyRGBA(share, alpha) { const c = share >= 0.5 ? mix(MID, DEM, (share - 0.5) * 2) : mix(MID, REP, (0.5 - share) * 2); return [c[0], c[1], c[2], Math.round(255 * Math.max(0, Math.min(1, alpha)))]; }
 
 /** Pins and contours: A is ink, B is amber, on the light basemap. */
 export const PIN_A = '#1b1b1f';
