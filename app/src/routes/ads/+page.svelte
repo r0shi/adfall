@@ -1,7 +1,9 @@
 <script>
   import Chart from '$lib/Chart.svelte';
   import { loc } from '$lib/location.svelte.js';
-  import { creatives, num, CATS, catShort, slugOf, PLOT_COLORS } from '$lib/data.js';
+  import { creatives, num, CATS, catShort, slugOf } from '$lib/data.js';
+  import { colorOf, keyOf, plotColor, view } from '$lib/color.svelte.js';
+  import Legend from '$lib/Legend.svelte';
   let all = $state([]), scope = $state('here'), cat = $state('All'), q = $state(''), mode = $state('cloud');
   creatives().then(c => all = c);
   const facsHere = $derived(new Set(loc.found.map(s => s.fac)));
@@ -45,25 +47,25 @@
       {#if mode === 'cloud'}
         <div class="cloud" style="margin:12px 0">
           {#each cloud as b (b.buyer)}
-            <a href={b.slug ? `/buyers/${b.slug}` : `/ads/${b.top}`} style="font-size:{size(b.airings, maxB).toFixed(0)}px;color:{CATS[b.category] || CATS.Other};text-decoration:none" title="{b.buyer} · {num(b.airings)} airings · {b.creatives} creative{b.creatives === 1 ? '' : 's'}">{b.buyer}</a>
+            <a href={b.slug ? `/buyers/${b.slug}` : `/ads/${b.top}`} style="font-size:{size(b.airings, maxB).toFixed(0)}px;color:{colorOf(b)};text-decoration:none" title="{b.buyer} · {num(b.airings)} airings · {b.creatives} creative{b.creatives === 1 ? '' : 's'}">{b.buyer}</a>
           {/each}
         </div>
-        <div class="legend">{#each Object.entries(CATS) as [c, col]}<span><span class="dot" style="background:{col}"></span>{catShort(c)}</span>{/each}<span>· sized by airings; switch to List for individual creatives</span></div>
+        <Legend other><span>· sized by airings; switch to List for individual creatives</span></Legend>
       {:else}
         {#each list.slice(0, 150) as c (c.ad_id)}
           <div class="card" style="padding:7px 12px">
-            <div class="row small"><span class="dot" style="background:{CATS[c.category] || CATS.Other}"></span><a href="/ads/{c.ad_id}" style="font-family:ui-monospace,monospace;font-weight:700;text-decoration:none">{c.ad_id}</a>{#if c.buyer}<a href="/buyers/{slugOf(c.category, c.buyer)}" class="muted" style="text-decoration:none">{c.buyer}</a>{:else}<span class="muted">unknown buyer</span>{/if}<span class="amt">{num(c.airings)}</span></div>
-            <div class="bar"><i style="width:{(100 * c.airings / maxA).toFixed(1)}%;background:{CATS[c.category] || CATS.Other}"></i></div>
+            <div class="row small"><span class="dot" style="background:{colorOf(c)}"></span><a href="/ads/{c.ad_id}" style="font-family:ui-monospace,monospace;font-weight:700;text-decoration:none">{c.ad_id}</a>{#if c.buyer}<a href="/buyers/{slugOf(c.category, c.buyer)}" class="muted" style="text-decoration:none">{c.buyer}</a>{:else}<span class="muted">unknown buyer</span>{/if}<span class="amt">{num(c.airings)}</span></div>
+            <div class="bar"><i style="width:{(100 * c.airings / maxA).toFixed(1)}%;background:{colorOf(c)}"></i></div>
             <div class="muted" style="font-size:11.5px">{c.first} → {c.last} · {Object.keys(c.facs).length} station{Object.keys(c.facs).length === 1 ? '' : 's'}</div>
           </div>
         {/each}
       {/if}
       <h2>Airings by buyer</h2>
       {#if byBuyer.length}
-        <Chart height={Math.max(160, 18 * Math.min(20, byBuyer.length) + 40)} make={(Plot, width, height) => Plot.plot({
+        <Chart key={view.by} height={Math.max(160, 18 * Math.min(20, byBuyer.length) + 40)} make={(Plot, width, height) => Plot.plot({
           width, height, marginLeft: 220, x: { label: 'Spots aired', grid: true }, y: { label: null },
-          color: PLOT_COLORS,
-          marks: [Plot.barX(byBuyer.slice(0, 20), { x: 'airings', y: 'buyer', fill: 'category', sort: { y: '-x' }, tip: true, title: d => `${d.buyer}\n${num(d.airings)} airings · ${d.creatives} creatives` })]
+          color: plotColor(),
+          marks: [Plot.barX(byBuyer.slice(0, 20), { x: 'airings', y: 'buyer', fill: d => keyOf(d), sort: { y: '-x' }, tip: true, title: d => `${d.buyer}\n${num(d.airings)} airings · ${d.creatives} creatives` })]
         })} />
       {/if}
     </section>

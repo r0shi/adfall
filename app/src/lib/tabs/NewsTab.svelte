@@ -4,6 +4,7 @@
   // confirmed airings with their Ad-IDs. Data: web/data/newscasts/<fac>.json (ingest.newscasts).
   import { newscasts, newscastIndex, creatives, CATS, num, slugOf } from '../data.js';
   import Coverage from '../Coverage.svelte';
+  import { colorOf } from '../color.svelte.js';
   let { found, idx = null } = $props();
   const iso = (d) => d.toISOString().slice(0, 10);
   const today = iso(new Date(Date.now() - new Date().getTimezoneOffset() * 60000));
@@ -82,7 +83,7 @@
         <div class="card" style="padding:8px 10px">
           <div class="row small"><b>{r.station.call}</b><span class="muted">{r.block.time}{r.block.network ? ' · network' : ''} · {r.confirmed ? 'confirmed' : 'scheduled'}</span><span class="amt">{r.confirmed ? num(r.total) : '≈' + num(r.total)} spots</span></div>
           {#each r.buyers as e (e.buyer?.id)}
-            <div class="row small" style="margin-top:4px"><span class="dot" style="background:{CATS[e.buyer?.category] || CATS.Other}"></span>
+            <div class="row small" style="margin-top:4px"><span class="dot" style="background:{colorOf(e.buyer)}"></span>
               {#if e.buyer?.slug}<a href="/buyers/{e.buyer.slug}" style="text-decoration:none">{e.buyer.name}</a>{:else}<span>{e.buyer?.name || 'unknown'}</span>{/if}
               <span class="muted" style="margin-left:auto;font-variant-numeric:tabular-nums">{r.confirmed ? e.n : '≈' + (Math.round(e.n * 10) / 10)}</span></div>
             {#if e.aired}

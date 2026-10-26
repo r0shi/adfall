@@ -232,3 +232,22 @@ and visual impression, nothing decorative, so the data-journalism audience is no
 - Pin A is ink, pin B is amber, so contours stop competing with the blue data layers.
 - Small charts (daypart heatmaps, explore cells) switched from the red scheme to blues to match the map.
 
+### Color by office level or party (2026-10-25, evening)
+
+Alex: in a political product any blue or red tile is read as a party signal, so category colors must
+not look partisan, and a real party coloring should be a deliberate switch. Done as a global toggle in
+the nav ("Color by: Office level | Party", remembered per browser) behind one helper,
+`app/src/lib/color.svelte.js`, that every buyer-level mark uses: treemap tiles, bars, dots, the share
+bars under a station, the video wall, the Plot charts (`plotColor()` + `keyOf`) and the `Legend`
+component.
+
+- Office level is one indigo ramp: federal darkest, state, local lightest (validated as an ordinal
+  ramp in both modes); issue groups are sand; other is gray. Nothing blue-blue or red.
+- Party uses blue and red, sand for issue groups (the form asks only candidates), gray for the rare
+  independents and nonpartisan races, and a hatched gray for unknown (blank forms), so an unknown can
+  never pass for a class. The four real classes pass the validator in both modes; the two grays are
+  always next to their labels and are under 1% of money.
+- Coverage when this was built: federal candidates 97% labeled by dollars, state candidates 65%,
+  issue groups 51% of all money with no party by design. A curated "leaning" list for the top issue
+  buyers is the obvious next step and is not in the data yet.
+

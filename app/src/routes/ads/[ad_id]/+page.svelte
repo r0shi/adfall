@@ -2,11 +2,12 @@
   import { page } from '$app/state';
   import Chart from '$lib/Chart.svelte';
   import { get, usd, num, CATS, catShort } from '$lib/data.js';
+  import { colorOf } from '$lib/color.svelte.js';
   import Player from '$lib/video/Player.svelte';            // video chain (ingest.video)
   import Badge from '$lib/video/Badge.svelte';
   let d = $state(null), err = $state(null);
   $effect(() => { const id = page.params.ad_id; d = null; get(`creatives/id/${id}.json`).then(x => d = x).catch(e => err = e.message); });
-  const color = $derived(d ? (CATS[d.category] || CATS.Other) : 'var(--muted)');
+  const color = $derived(d ? colorOf(d) : 'var(--muted)');
   const hours = $derived(d ? d.by_hour.map((n, h) => ({ hour: h, n, label: `${h % 12 || 12}${h < 12 ? 'a' : 'p'}` })) : []);
 </script>
 <svelte:head><title>{d ? d.ad_id : 'Creative'} · Adfall</title></svelte:head>

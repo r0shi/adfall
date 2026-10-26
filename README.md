@@ -76,7 +76,7 @@ Routes:
 
 | Route | What it shows |
 |---|---|
-| `/` | Map-first home. Click or search to drop a pin; the popover lists stations reaching it with newscast and FCC links, money by buyer, aired ads, the political spots in tonight's and last night's newscasts, and a timeline. A second pin (B) turns on comparison and difference layers. |
+| `/` | Map-first home. Click or search to drop a pin; the popover lists stations reaching it with newscast and FCC links, money by buyer, aired ads, the political spots in tonight's and last night's newscasts, and a timeline. The nav's "Color by" switch colors every buyer mark by office level or by party. A second pin (B) turns on comparison and difference layers. |
 | `/map` | The coverage map on its own, without the money layers. |
 | `/time` | Money moving across the hex grid day by day, with trails or accumulate, driven by the global timeline bar. |
 | `/buyers`, `/buyers/<slug>` | Who is buying: treemap by category, per-buyer stations, flights, dayparts, creatives. |

@@ -1,6 +1,7 @@
 <script>
   import { creativesHere } from '../here.js';
   import { num, CATS, catShort, slugOf } from '../data.js';
+  import { colorOf } from '../color.svelte.js';
   let { found, idx = null } = $props();
   import Coverage from '../Coverage.svelte';
   import Heatmap from '../Heatmap.svelte';
@@ -43,12 +44,12 @@
   <div class="muted small" style="margin-bottom:4px">When political spots aired on these stations (invoiced airings with a known time).</div>
   <Heatmap {grid} />
 {:else if mode === 'cloud'}
-  <div class="cloud">{#each byBuyer.slice(0, 80) as b (b.buyer)}<a href={b.slug ? `/buyers/${b.slug}` : `/ads/${b.top}`} style="font-size:{size(b.airings, maxB).toFixed(0)}px;color:{CATS[b.category] || CATS.Other};text-decoration:none" title="{b.buyer} · {num(b.airings)} airings · {b.creatives} creatives">{b.buyer}</a>{/each}</div>
+  <div class="cloud">{#each byBuyer.slice(0, 80) as b (b.buyer)}<a href={b.slug ? `/buyers/${b.slug}` : `/ads/${b.top}`} style="font-size:{size(b.airings, maxB).toFixed(0)}px;color:{colorOf(b)};text-decoration:none" title="{b.buyer} · {num(b.airings)} airings · {b.creatives} creatives">{b.buyer}</a>{/each}</div>
 {:else}
   {#each list.slice(0, 60) as c (c.ad_id)}
     <div style="padding:4px 0;border-bottom:1px solid var(--line)">
-      <div class="row small"><span class="dot" style="background:{CATS[c.category] || CATS.Other}"></span><a href="/ads/{c.ad_id}" style="font-family:ui-monospace,monospace;font-weight:700;text-decoration:none">{c.ad_id}</a><span class="muted">{c.buyer || 'unknown'}</span><span class="amt">{num(c.airings)}</span></div>
-      <div class="bar"><i style="width:{(100 * c.airings / maxA).toFixed(1)}%;background:{CATS[c.category] || CATS.Other}"></i></div>
+      <div class="row small"><span class="dot" style="background:{colorOf(c)}"></span><a href="/ads/{c.ad_id}" style="font-family:ui-monospace,monospace;font-weight:700;text-decoration:none">{c.ad_id}</a><span class="muted">{c.buyer || 'unknown'}</span><span class="amt">{num(c.airings)}</span></div>
+      <div class="bar"><i style="width:{(100 * c.airings / maxA).toFixed(1)}%;background:{colorOf(c)}"></i></div>
     </div>
   {/each}
 {/if}

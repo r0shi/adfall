@@ -4,9 +4,10 @@
   import Treemap from '$lib/Treemap.svelte';
   import Heatmap from '$lib/Heatmap.svelte';
   import { buyerDetail, usd, num, CATS, catShort, PLOT_COLORS } from '$lib/data.js';
+  import { colorOf } from '$lib/color.svelte.js';
   let d = $state(null), err = $state(null);
   $effect(() => { const slug = page.params.slug; d = null; buyerDetail(slug).then(x => d = x).catch(e => err = e.message); });
-  const color = $derived(d ? (CATS[d.category] || CATS.Other) : 'var(--muted)');
+  const color = $derived(d ? colorOf(d) : 'var(--muted)');
 </script>
 <svelte:head><title>{d ? d.name : 'Buyer'} · Adfall</title></svelte:head>
 <div class="shell wide"><aside class="panel" style="border:0">

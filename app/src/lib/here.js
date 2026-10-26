@@ -35,7 +35,7 @@ export function partyLabel(p, category) {
   if (/green/.test(s)) return 'Green';
   return p.trim();
 }
-export const PARTY_COLORS = { Democratic: '#2f6fd6', Republican: '#c8102e', 'Issue groups': 'var(--issue)', Nonpartisan: '#8a8f99', Independent: '#7a4fb5', Unknown: 'var(--other)' };
+export const PARTY_COLORS = { Democratic: 'var(--dem)', Republican: 'var(--rep)', 'Issue groups': 'var(--issue)', Nonpartisan: 'var(--other)', Independent: 'var(--other)', Unknown: 'var(--unknown)' };
 
 /** Pivot a buyer list by a key: 'buyer' | 'party' | 'category' | 'agency' | 'kind' */
 export function pivot(buyers, by) {

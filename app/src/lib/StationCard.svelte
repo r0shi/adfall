@@ -1,5 +1,7 @@
 <script>
   import { usd, CATS, catShort, stationSpend } from './data.js';
+  import { colorOf, shares } from './color.svelte.js';
+  import Legend from './Legend.svelte';
   import { miles } from './geo.js';
   let { s, p, spend = null, year, onhover = () => {}, onzoom = () => {} } = $props();
   let open = $state(false), detail = $state(null);
@@ -16,19 +18,19 @@
       <div class="small" style="margin-top:8px">
         <div class="row"><b>{usd(spend.total)}</b> political ad buys · {spend.buyers} buyers · {year}
           <span style="margin-left:auto;color:var(--accent);cursor:pointer;font-size:12px" onclick={toggle} role="button" tabindex="0" onkeydown={e => e.key === 'Enter' && toggle(e)}>buyers {open ? '▴' : '▾'}</span></div>
-        <div class="catbar">{#each Object.entries(spend.by_category).sort((a, b) => b[1] - a[1]) as [c, v]}<i style="width:{(100 * v / spend.total).toFixed(1)}%;background:{CATS[c] || CATS.Other}" title="{c}: {usd(v)}"></i>{/each}</div>
+        <div class="catbar">{#each shares(spend) as [c, v, col]}<i style="width:{(100 * v / spend.total).toFixed(1)}%;background:{col}" title="{c}: {usd(v)}"></i>{/each}</div>
         {#if open}
           <div style="margin-top:8px;border-top:1px solid var(--line);padding-top:6px" onclick={e => e.stopPropagation()} role="presentation">
             {#if !detail}<span class="muted">Loading…</span>{:else}
               {#each detail.buyers.slice(0, 25) as b}
                 <div style="margin:6px 0">
-                  <div class="row small"><span class="dot" style="background:{CATS[b.category] || CATS.Other}"></span>{#if b.slug}<a href="/buyers/{b.slug}" style="text-decoration:none">{b.name}</a>{:else}{b.name}{/if}<span class="amt">{usd(b.gross)}</span></div>
-                  <div class="bar"><i style="width:{(100 * b.gross / (detail.buyers[0]?.gross || 1)).toFixed(1)}%;background:{CATS[b.category] || CATS.Other}"></i></div>
+                  <div class="row small"><span class="dot" style="background:{colorOf(b)}"></span>{#if b.slug}<a href="/buyers/{b.slug}" style="text-decoration:none">{b.name}</a>{:else}{b.name}{/if}<span class="amt">{usd(b.gross)}</span></div>
+                  <div class="bar"><i style="width:{(100 * b.gross / (detail.buyers[0]?.gross || 1)).toFixed(1)}%;background:{colorOf(b)}"></i></div>
                   <div class="muted" style="font-size:11.5px">{b.orders} order{b.orders === 1 ? '' : 's'}{b.invoiced ? ` · ${usd(b.invoiced)} invoiced` : ''}{b.ad_ids ? ` · ${b.ad_ids} creative${b.ad_ids === 1 ? '' : 's'}` : ''}{b.agencies?.length ? ` · via ${b.agencies.slice(0, 2).join(', ')}` : ''}</div>
                 </div>
               {/each}
               {#if detail.buyers.length > 25}<div class="muted" style="font-size:11.5px">…and {detail.buyers.length - 25} more</div>{/if}
-              <div class="legend">{#each Object.entries(CATS) as [c, col]}<span><span class="dot" style="background:{col}"></span>{catShort(c)}</span>{/each}<span>· {detail.docs} documents, {Math.round(100 * (detail.parse_status?.ok || 0) / detail.docs)}% parsed</span></div>
+              <Legend other><span>· {detail.docs} documents, {Math.round(100 * (detail.parse_status?.ok || 0) / detail.docs)}% parsed</span></Legend>
             {/if}
           </div>
         {/if}

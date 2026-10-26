@@ -9,6 +9,7 @@
   import AdsTab from '$lib/tabs/AdsTab.svelte';
   import TimeTab from '$lib/tabs/TimeTab.svelte';
   import NewsTab from '$lib/tabs/NewsTab.svelte';
+  import { shares } from '$lib/color.svelte.js';
   import { loc, locB, setLocation, setLocationB, clearA, clearB } from '$lib/location.svelte.js';
   import { DIFFS, stationDiffs, composeDiff, makeDiffLayer, diffScale } from '$lib/difflayer.js';
   import { tl, setRange } from '$lib/time.svelte.js';
@@ -53,6 +54,7 @@
   const covered = $derived(loc.found.filter(s => idx.stations[s.fac]?.total));
   const total = $derived(covered.reduce((t, s) => t + idx.stations[s.fac].total, 0));
   const byCat = $derived.by(() => { const m = {}; for (const s of covered) for (const [c, v] of Object.entries(idx.stations[s.fac].by_category)) m[c] = (m[c] || 0) + v; return m; });
+  const byParty = $derived.by(() => { const m = {}; for (const s of covered) for (const [c, v] of Object.entries(idx.stations[s.fac].by_party || {})) m[c] = (m[c] || 0) + v; return m; });
   const TABS = [{ id: 'stations', label: 'Stations' }, { id: 'money', label: 'Money' }, { id: 'ads', label: 'Ads' }, { id: 'news', label: 'Newscasts' }, { id: 'time', label: 'Over time' }];
   const sumOf = (found) => found.reduce((t, s) => t + (idx.stations[s.fac]?.total || 0), 0);
   const totalB = $derived(sumOf(locB.found));
@@ -77,7 +79,7 @@
   {#if loc.p}
     <Popover {api} anchor={loc.p} badge={locB.p ? 'A' : ''} title={loc.label} sub="{loc.found.length} stations reach here{covered.length ? ` · ${covered.length} with filings · ${usd(total)} booked ${idx.year}` : ' · none crawled yet'}{cmpA}" tabs={TABS} bind:active={tab} bind:collapsed onclose={() => { clearA(); clearB(); }}
       oncompare={locB.p ? null : () => pickingB = true} compareLabel="Compare…">
-      {#if covered.length}<div class="catbar" style="margin:0 0 10px">{#each Object.entries(byCat).sort((a, b) => b[1] - a[1]) as [c, v]}<i style="width:{(100 * v / total).toFixed(1)}%;background:{CATS[c] || CATS.Other}" title="{c}: {usd(v)}"></i>{/each}</div>{/if}
+      {#if covered.length}<div class="catbar" style="margin:0 0 10px">{#each shares({ by_category: byCat, by_party: byParty }) as [c, v, col]}<i style="width:{(100 * v / total).toFixed(1)}%;background:{col}" title="{c}: {usd(v)}"></i>{/each}</div>{/if}
       {#if tab === 'stations'}<StationsTab found={loc.found} p={loc.p} {idx} {api} />
       {:else if tab === 'money'}<MoneyTab found={loc.found} all={loc.all} {idx} />
       {:else if tab === 'ads'}<AdsTab found={loc.found} {idx} />

@@ -1,6 +1,8 @@
 <script>
-  import { buyersHere, pivot, PARTY_COLORS } from '../here.js';
+  import { buyersHere, pivot } from '../here.js';
   import { usd, num, CATS, catShort } from '../data.js';
+  import { colorOf, PARTIES } from '../color.svelte.js';
+  import Legend from '../Legend.svelte';
   import Coverage from '../Coverage.svelte';
   import Treemap from '../Treemap.svelte';
   let { found, all, idx = null } = $props();
@@ -10,7 +12,7 @@
   const rows = $derived(pivot(filtered, by));
   const total = $derived(filtered.reduce((t, b) => t + b.booked, 0));
   const max = $derived(rows[0]?.booked || 1);
-  const color = (r) => by === 'party' ? (PARTY_COLORS[r.key] || 'var(--other)') : (CATS[r.category] || CATS.Other);
+  const color = (r) => by === 'party' ? (PARTIES[r.key] || PARTIES.Unknown) : colorOf(r);
 </script>
 <div class="chips" style="margin:0 0 6px"><span class="muted small">By:</span>
   {#each [['buyer', 'Buyer'], ['party', 'Party'], ['category', 'Category'], ['agency', 'Agency']] as [k, l]}<span class="chip" class:on={by === k} onclick={() => by = k} role="button" tabindex="0">{l}</span>{/each}
@@ -25,7 +27,7 @@
   <div class="muted small" style="margin-bottom:6px"><b>{usd(total)}</b> booked by {filtered.length} buyers on {found.length} stations · {rows.length} {by === 'buyer' ? 'buyers' : by === 'party' ? 'parties' : by === 'agency' ? 'agencies' : 'categories'}</div>
   {#if view === 'treemap'}
     <Treemap items={rows.map(r => ({ id: `${r.category}|${r.key}`, key: r.key, value: r.booked, color: color(r), href: r.slug ? `/buyers/${r.slug}` : null }))} height={280} format={usd} />
-    <div class="legend">{#each Object.entries(CATS).filter(([c]) => c !== 'Other') as [c, col]}<span><span class="dot" style="background:{col}"></span>{catShort(c)}</span>{/each}{#if by === 'party'}<span><span class="dot" style="background:#2f6fd6"></span>D</span><span><span class="dot" style="background:#c8102e"></span>R</span>{/if}<span>· area = booked $</span></div>
+    <Legend mode={by === 'party' ? 'party' : null}><span>· area = booked $</span></Legend>
   {:else}
   {#each rows.slice(0, 40) as r (r.id ?? r.key)}
     <div style="margin:5px 0">
