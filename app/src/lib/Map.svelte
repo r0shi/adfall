@@ -1,5 +1,6 @@
 <script>
   import { PIN_A, PIN_B } from './palette.js';
+  import { ui } from './url.svelte.js';
   // MapLibre map with an optional deck.gl overlay. Children layers are driven through the `api` prop callback.
   import { onMount } from 'svelte';
   import maplibregl from 'maplibre-gl';
@@ -12,6 +13,7 @@
     map = new maplibregl.Map({ container: el, style, center, zoom, attributionControl: { compact: true } });
     map.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'top-right');
     map.on('click', e => onclick && onclick([e.lngLat.lat, e.lngLat.lng]));
+    map.on('moveend', () => { const c = map.getCenter(); ui.cam = [map.getZoom(), c.lat, c.lng]; });
     map.on('load', () => {
       map.addSource('contours', { type: 'geojson', data: { type: 'FeatureCollection', features: [] } });
       map.addLayer({ id: 'contours-fill', type: 'fill', source: 'contours', paint: { 'fill-color': PIN_A, 'fill-opacity': 0.05 } });
@@ -28,6 +30,7 @@
     });
     return () => map.remove();
   });
+  $effect(() => { const r = ui.camRequest; if (!r || !map) return; map.jumpTo({ zoom: r[0], center: [r[2], r[1]] }); ui.camApplied = Date.now(); ui.camRequest = null; });
   const api = {
     get map() { return map; },
     setContours(geojson) { map.getSource('contours')?.setData(geojson); },

@@ -1,14 +1,37 @@
 <script>
   import '../app.css';
   import { page } from '$app/state';
-  import { onMount } from 'svelte';
-  import { loc, fromHash } from '$lib/location.svelte.js';
+  import { onMount, untrack } from 'svelte';
+  import { pushState, replaceState, afterNavigate } from '$app/navigation';
+  import { loc } from '$lib/location.svelte.js';
+  import { ui, serialize, apply, historyMode } from '$lib/url.svelte.js';
   import SearchAll from '$lib/SearchAll.svelte';
   import { view, setColorBy, loadParties, PARTY_NOTE } from '$lib/color.svelte.js';
   let { children } = $props();
-  onMount(() => { fromHash(); loadParties(); });
+  // URL -> state on load, Back/Forward (popstate), hash links and in-app navigation; state -> URL on every change.
+  // SvelteKit's page.url does not always follow a popstate between shallow entries, so the window events are the source.
+  let last = null, applying = false;
+  function sync() {
+    const h = location.hash;
+    if (h === last) return;
+    last = h; applying = true;
+    apply(h).finally(() => { applying = false; last = '#' + serialize(); });
+  }
+  onMount(() => {
+    loadParties(); sync();
+    addEventListener('popstate', sync); addEventListener('hashchange', sync);
+    return () => { removeEventListener('popstate', sync); removeEventListener('hashchange', sync); };
+  });
+  afterNavigate(() => sync());
+  $effect(() => { ui.path = page.url.pathname; });
+  $effect(() => {
+    const h = '#' + serialize();
+    if (applying || h === last) return;
+    const mode = historyMode(last, h); last = h;
+    untrack(() => { try { (mode === 'push' ? pushState : replaceState)(h, {}); } catch { /* before the router is ready */ } });
+  });
   const tabs = [['/', 'Map'], ['/buyers', 'Buyers'], ['/ads', 'Ads'], ['/explore', 'Explore'], ['/about', 'About']];
-  const hash = $derived(loc.p ? `#${loc.p[0].toFixed(4)},${loc.p[1].toFixed(4)}` : '');
+  const hash = $derived((loc.p || view.by !== 'category') ? '#' + serialize({ shared: true }) : '');
 </script>
 <nav class="top">
   <span class="brand">Adfall</span>

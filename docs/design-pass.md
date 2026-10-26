@@ -268,3 +268,20 @@ still means party; overlaid translucent layers blend to an unreadable purple). W
   other gap. The legend has two axes: hue for share, a gray alpha strip for amount.
 - The time animation stays unsplit by party; the daily series would need a by-party export first.
 
+### The URL is the view (2026-10-25, night)
+
+Alex: Back and Forward should act as undo and redo, any URL should be shareable, and the site stays
+static. All of it lives in the hash, written and read by `app/src/lib/url.svelte.js`:
+`#p=lat,lon&b=lat,lon&layer=party&tab=money&tabb=news&night=2026-10-14&day=…&win=…&metric=…&trails=0&color=party&map=zoom/lat/lon`.
+The old `#lat,lon;latB,lonB` links still parse.
+
+- Discrete changes (pin, layer, tab, night, color, timeline window) push a history entry; panning,
+  playback and rapid scrubbing replace the current one, so Back steps through decisions, not frames.
+- Restores run on load, `popstate`, `hashchange` and after in-app navigation. SvelteKit's `page.url`
+  turned out not to follow a Forward between shallow entries, so the window events are the source and
+  SvelteKit's `pushState`/`replaceState` only write.
+- A requested camera is applied by the map before the pins, and the pin's fly-to is skipped for a second
+  after that, so a shared link opens exactly where it was shared.
+- Nav links carry only the shared part of the state (pins, color) so a Buyers URL is not cluttered with
+  map-only keys. Panel-local choices (Money pivot, Ads mode, treemap/bars) are deliberately not in the URL.
+

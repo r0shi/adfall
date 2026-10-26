@@ -5,11 +5,13 @@
   import { newscasts, newscastIndex, creatives, CATS, num, slugOf } from '../data.js';
   import Coverage from '../Coverage.svelte';
   import { colorOf } from '../color.svelte.js';
+  import { ui } from '../url.svelte.js';
   let { found, idx = null } = $props();
   const iso = (d) => d.toISOString().slice(0, 10);
   const today = iso(new Date(Date.now() - new Date().getTimezoneOffset() * 60000));
   const shift = (d, n) => { const x = new Date(d + 'T00:00:00Z'); x.setUTCDate(x.getUTCDate() + n); return iso(x); };
-  let day = $state(today), files = $state.raw([]), cr = $state.raw(null), loading = $state(true);
+  const day = $derived(ui.newsDay || today);
+  let files = $state.raw([]), cr = $state.raw(null), loading = $state(true);
   $effect(() => {
     loading = true;
     const f0 = found;
@@ -62,11 +64,11 @@
   const likely = (e, fac) => (byBuyer.get(e.buyer?.slug) || []).filter(c => c.facs?.[fac]).sort((a, b) => (b.last || '').localeCompare(a.last || '')).slice(0, 3);
 </script>
 <div class="chips" style="margin:0 0 8px">
-  <span class="chip" class:on={day === today} onclick={() => day = today} role="button" tabindex="0">Tonight</span>
-  <span class="chip" class:on={day === shift(today, -1)} onclick={() => day = shift(today, -1)} role="button" tabindex="0">Last night</span>
-  <input type="date" bind:value={day} max={shift(today, 60)} style="font-size:12.5px;padding:3px 8px" />
-  <span class="chip" onclick={() => day = shift(day, -1)} role="button" tabindex="0" title="Previous night">‹</span>
-  <span class="chip" onclick={() => day = shift(day, 1)} role="button" tabindex="0" title="Next night">›</span>
+  <span class="chip" class:on={day === today} onclick={() => ui.newsDay = today} role="button" tabindex="0">Tonight</span>
+  <span class="chip" class:on={day === shift(today, -1)} onclick={() => ui.newsDay = shift(today, -1)} role="button" tabindex="0">Last night</span>
+  <input type="date" value={day} onchange={e => ui.newsDay = e.target.value} max={shift(today, 60)} style="font-size:12.5px;padding:3px 8px" />
+  <span class="chip" onclick={() => ui.newsDay = shift(day, -1)} role="button" tabindex="0" title="Previous night">‹</span>
+  <span class="chip" onclick={() => ui.newsDay = shift(day, 1)} role="button" tabindex="0" title="Next night">›</span>
 </div>
 {#if loading}<div class="muted small">Loading…</div>
 {:else if !files.length}<Coverage {found} {idx} what="newscast buys on record" />

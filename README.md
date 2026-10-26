@@ -85,7 +85,7 @@ Routes:
 | `/explore` | Pivot builder over the Parquet marts, in the browser via DuckDB-WASM. |
 | `/about` | Methods and provenance, generated from `web/data/methods.json` at export time. |
 
-The URL hash carries the pins (`#lat,lon;latB,lonB`), so any view is linkable.
+The URL hash carries the whole view (pins, layer, tab, newscast night, timeline, color mode, camera), so any view is linkable and Back/Forward step through your changes.
 
 ## The pipeline
 
