@@ -19,7 +19,7 @@
     setRange(days[0], days[days.length - 1]);
   });
   const facsHere = $derived(scope === 'here' && loc.p ? new Set(loc.found.map(s => s.fac)) : null);
-  const series = $derived(framer ? framer.series(tl.window === 'cumulative' ? 'cumulative' : 'day', facsHere).filter(s => !tl.last || s[0] <= tl.last) : []);
+  const series = $derived(framer ? framer.series(tl.window === 'cumulative' ? 'cumulative' : 'day', facsHere).filter(s => (!tl.first || s[0] >= tl.first) && (!tl.last || s[0] <= tl.last)) : []);
   // stable color scale per window/metric: 98th percentile of cell values over all frames (sampled every 7th day)
   const scaleMax = $derived.by(() => {
     if (!framer) return 1; const vals = []; const win = tl.window;

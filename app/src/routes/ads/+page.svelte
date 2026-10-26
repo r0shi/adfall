@@ -4,6 +4,7 @@
   import { creatives, num, CATS, catShort, slugOf } from '$lib/data.js';
   import { colorOf, keyOf, plotColor, view } from '$lib/color.svelte.js';
   import Legend from '$lib/Legend.svelte';
+  import { tip } from '$lib/tip.svelte.js';
   let all = $state([]), scope = $state('here'), cat = $state('All'), q = $state(''), mode = $state('cloud');
   creatives().then(c => all = c);
   const facsHere = $derived(new Set(loc.found.map(s => s.fac)));
@@ -47,7 +48,7 @@
       {#if mode === 'cloud'}
         <div class="cloud" style="margin:12px 0">
           {#each cloud as b (b.buyer)}
-            <a href={b.slug ? `/buyers/${b.slug}` : `/ads/${b.top}`} style="font-size:{size(b.airings, maxB).toFixed(0)}px;color:{colorOf(b)};text-decoration:none" title="{b.buyer} · {num(b.airings)} airings · {b.creatives} creative{b.creatives === 1 ? '' : 's'}">{b.buyer}</a>
+            <a href={b.slug ? `/buyers/${b.slug}` : `/ads/${b.top}`} style="font-size:{size(b.airings, maxB).toFixed(0)}px;color:{colorOf(b)};text-decoration:none" use:tip={{ html: true, text: `<b>${b.buyer}</b>\n${num(b.airings)} airings · ${b.creatives} creative${b.creatives === 1 ? '' : 's'}` }}>{b.buyer}</a>
           {/each}
         </div>
         <Legend other><span>· sized by airings; switch to List for individual creatives</span></Legend>

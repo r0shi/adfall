@@ -6,6 +6,7 @@
   import { loc } from '$lib/location.svelte.js';
   import { ui, serialize, apply, historyMode } from '$lib/url.svelte.js';
   import SearchAll from '$lib/SearchAll.svelte';
+  import Tip from '$lib/Tip.svelte';
   import { view, setColorBy, loadParties, PARTY_NOTE } from '$lib/color.svelte.js';
   let { children } = $props();
   // URL -> state on load, Back/Forward (popstate), hash links and in-app navigation; state -> URL on every change.
@@ -43,3 +44,4 @@
   <SearchAll />
 </nav>
 {@render children()}
+<Tip />

@@ -6,6 +6,7 @@
   import { families } from './video.js';
   import { CATS, num } from '../data.js';
   import { colorOf } from '../color.svelte.js';
+  import { tip } from '../tip.svelte.js';
   let { list, limit = 48, min = 84, max = 156 } = $props();
   const fams = $derived(families(list).slice(0, limit));
   const maxA = $derived(fams[0]?.airings || 1);
@@ -22,14 +23,14 @@
         <div class="cap small"><a href="/ads/{f.ad_id}" style="font-family:ui-monospace,monospace;text-decoration:none">{f.key}</a><span class="muted">{f.buyer || 'unknown buyer'}</span></div>
       </div>
     {:else if f.video}
-      <button class="tile thumb" style="width:{width(f.airings)}px;--cat:{colorOf(f)}" onclick={() => playing = f.key} title="{f.buyer || f.key} · {num(f.airings)} airings · {f.first} → {f.last}">
+      <button class="tile thumb" style="width:{width(f.airings)}px;--cat:{colorOf(f)}" onclick={() => playing = f.key} use:tip={`${f.buyer || f.key}\n${num(f.airings)} airings · ${f.first} → ${f.last}`}>
         <img src={f.video.thumb_url} alt="" loading="lazy" />
         <span class="play">▶</span>
         <span class="tag"><Badge confidence={f.video.confidence} source={f.video.source} /></span>
         <span class="label"><b>{f.buyer || f.key}</b><span>{num(f.airings)}</span></span>
       </button>
     {:else}
-      <a class="tile text" href="/ads/{f.ad_id}" style="width:{width(f.airings)}px;--cat:{colorOf(f)}" title="{f.buyer || 'unknown buyer'} · {num(f.airings)} airings · no video match yet">
+      <a class="tile text" href="/ads/{f.ad_id}" style="width:{width(f.airings)}px;--cat:{colorOf(f)}" use:tip={`${f.buyer || 'unknown buyer'}\n${num(f.airings)} airings · no video match yet`}>
         <span class="code">{f.key}</span>
         <span class="label"><b>{f.buyer || 'unknown buyer'}</b><span>{num(f.airings)}</span></span>
       </a>

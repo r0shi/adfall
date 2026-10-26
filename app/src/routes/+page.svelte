@@ -43,7 +43,7 @@
   // animate layer: load frame data on first use
   $effect(() => { if (ui.layer === 'animate' && !framer) Promise.all([stationDaily(), hexWeights(5), import('@deck.gl/geo-layers')]).then(([d, w, m]) => { layerMod = m; const f = new Framer(d, w, 2); const days = f.dayList; framer = f; setRange(days[0], days[days.length - 1]); }); });
   const scale = $derived(framer && ui.layer === 'animate' ? (tl.window, frameScale(framer, tl.window)) : 1);
-  const series = $derived(framer ? framer.series(tl.window === 'cumulative' ? 'cumulative' : 'day', loc.p ? new Set(loc.found.map(s => s.fac)) : null).filter(s => s[0] <= tl.last) : []);
+  const series = $derived(framer ? framer.series(tl.window === 'cumulative' ? 'cumulative' : 'day', loc.p ? new Set(loc.found.map(s => s.fac)) : null).filter(s => s[0] >= tl.first && s[0] <= tl.last) : []);
   $effect(() => {
     if (!api || !layerMod) return;
     if (ui.layer === 'party') { if (!partyVals) return; api.setDeckLayers([makePartyLayer(layerMod.H3HexagonLayer, weights, partyVals, partyScale, { triggers: [partyScale], onHover: h => hover = h, onClick: h3 => import('h3-js').then(m => { const [lat, lng] = m.cellToLatLng(h3); onMapClick([lat, lng]); }) })]); return; }
