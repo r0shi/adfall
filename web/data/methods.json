@@ -1,75 +1,54 @@
 {
- "generated": "2026-10-25",
+ "generated": "2026-10-26",
  "pipeline": {
   "last_runs": {
    "crawl": {
-    "status": "ok",
-    "started": "2026-10-25 15:07:22.661403+00:00",
-    "ended": "2026-10-25 15:20:07.523671+00:00",
-    "counts": {
-     "seconds": 764.9,
-     "download_mb": 3960.4,
-     "downloads_ok": 12683,
-     "files_listed": 12684,
-     "still_pending": 11,
-     "stations_listed": 21,
-     "downloads_failed": 11,
-     "stations_skipped": 5,
-     "downloads_pending": 12694
-    },
-    "failures": 11,
-    "error": null,
-    "log": "data/logs/crawl-20261025-110722.log"
-   },
-   "entities": {
-    "status": "ok",
-    "started": "2026-10-25 15:50:51.782085+00:00",
-    "ended": "2026-10-25 15:57:48.490520+00:00",
-    "counts": {
-     "form": 40656,
-     "spot": 953118,
-     "buyer": 2877,
-     "agency": 874,
-     "order_": 55320,
-     "invoice": 28062,
-     "seconds": 416.7,
-     "creative": 12539,
-     "documents": 190143,
-     "order_line": 1052331,
-     "buyer_alias": 24019,
-     "order_revision": 92413
-    },
-    "failures": 0,
-    "error": null,
-    "log": "data/logs/entities-20261025-115051.log"
-   },
-   "export": {
     "status": "running",
-    "started": "2026-10-25 16:00:00.327125+00:00",
+    "started": "2026-10-26 04:14:45.422275+00:00",
     "ended": null,
     "counts": null,
     "failures": 0,
     "error": null,
-    "log": "data/logs/export-20261025-120000.log"
+    "log": "data/logs/crawl-20261026-001445.log"
+   },
+   "entities": {
+    "status": "failed",
+    "started": "2026-10-26 03:59:11.940418+00:00",
+    "ended": "2026-10-26 04:13:26.059867+00:00",
+    "counts": {
+     "seconds": 854.1
+    },
+    "failures": 0,
+    "error": "ModuleNotFoundError: No module named '_strptime'",
+    "log": "data/logs/entities-20261025-235911.log"
+   },
+   "export": {
+    "status": "running",
+    "started": "2026-10-26 04:14:44.957103+00:00",
+    "ended": null,
+    "counts": null,
+    "failures": 0,
+    "error": null,
+    "log": "data/logs/export-20261026-001444.log"
    },
    "identity": {
     "status": "ok",
-    "started": "2026-10-25 15:48:43.718623+00:00",
-    "ended": "2026-10-25 15:48:55.822194+00:00",
+    "started": "2026-10-26 03:58:46.667079+00:00",
+    "ended": "2026-10-26 03:59:11.728819+00:00",
     "counts": {
-     "buyers": 2841,
-     "labels": 5872,
-     "merged": 997,
-     "seconds": 12.1,
-     "method_raw": 7,
-     "method_manual": 9,
-     "method_name-rule": 4102,
-     "method_fec-candidate": 1177,
-     "method_fec-committee": 577
+     "buyers": 6406,
+     "labels": 12936,
+     "merged": 2289,
+     "seconds": 25.1,
+     "method_raw": 43,
+     "method_manual": 14,
+     "method_name-rule": 9064,
+     "method_fec-candidate": 2686,
+     "method_fec-committee": 1129
     },
     "failures": 0,
     "error": null,
-    "log": "data/logs/identity-20261025-114843.log"
+    "log": "data/logs/identity-20261025-235846.log"
    },
    "load_pg": {
     "status": "ok",
@@ -89,19 +68,19 @@
    },
    "marts": {
     "status": "ok",
-    "started": "2026-10-25 15:58:00.730913+00:00",
-    "ended": "2026-10-25 15:59:44.769436+00:00",
+    "started": "2026-10-26 03:36:05.810386+00:00",
+    "ended": "2026-10-26 03:39:02.825291+00:00",
     "counts": {
-     "seconds": 104.1,
+     "seconds": 177.1,
      "hex_total": 298148,
-     "spend_daily": 319328,
-     "buyer_station": 7915,
-     "station_daily": 72902,
+     "spend_daily": 728927,
+     "buyer_station": 19811,
+     "station_daily": 175887,
      "station_total": 2147
     },
     "failures": 0,
     "error": null,
-    "log": "data/logs/marts-20261025-115800.log"
+    "log": "data/logs/marts-20261025-233605.log"
    },
    "migrate_sqlite": {
     "status": "ok",
@@ -132,64 +111,75 @@
    },
    "ocr": {
     "status": "ok",
-    "started": "2026-10-25 15:48:16.503962+00:00",
-    "ended": "2026-10-25 15:48:19.513123+00:00",
+    "started": "2026-10-26 03:42:52.328605+00:00",
+    "ended": "2026-10-26 03:42:52.481274+00:00",
     "counts": {
-     "ok": 4,
-     "pages": 15,
-     "cached": 0,
+     "ok": 0,
+     "pages": 0,
+     "cached": 6,
      "failed": 0,
-     "queued": 4,
-     "seconds": 3.0,
-     "given_up": 0,
+     "queued": 0,
+     "seconds": 0.2,
+     "given_up": 16,
      "pool_rebuilds": 0
     },
     "failures": 0,
     "error": null,
-    "log": "data/logs/ocr-20261025-114816.log"
+    "log": "data/logs/ocr-20261025-234252.log"
    },
    "parse": {
     "status": "ok",
-    "started": "2026-10-25 15:27:50.524785+00:00",
-    "ended": "2026-10-25 15:29:01.801644+00:00",
+    "started": "2026-10-26 03:42:52.713763+00:00",
+    "ended": "2026-10-26 03:42:59.983747+00:00",
     "counts": {
-     "ok": 22940,
-     "queued": 30027,
+     "ok": 419,
+     "queued": 2547,
      "crashes": 0,
-     "seconds": 71.3,
+     "seconds": 7.3,
      "needs_ocr": 0,
-     "invoice/sinclair-invoice/ok": 585,
-     "invoice/wideorbit-invoice/ok": 22355,
-     "invoice/sinclair-invoice/failed": 735,
-     "invoice/sinclair-invoice/partial": 5065,
-     "invoice/wideorbit-invoice/failed": 25,
-     "invoice/wideorbit-invoice/partial": 1262
+     "order/eport/failed": 2,
+     "order/katz/partial": 4,
+     "form/nab-text/failed": 71,
+     "other/-/unrecognized": 1203,
+     "other/nab-supplement/ok": 419,
+     "order/wideorbit-order/partial": 19,
+     "invoice/sinclair-invoice/partial": 676,
+     "order/wideorbit-contract/partial": 2,
+     "invoice/wideorbit-invoice/partial": 21,
+     "order/wideorbit-order-ocr/partial": 21,
+     "order/wideorbit-contract-ocr/failed": 7,
+     "order/wideorbit-contract-ocr/partial": 102
     },
     "failures": 0,
     "error": null,
-    "log": "data/logs/parse-20261025-112750.log"
+    "log": "data/logs/parse-20261025-234252.log"
    },
    "pipeline": {
-    "status": "running",
-    "started": "2026-10-25 15:03:24.354367+00:00",
-    "ended": null,
-    "counts": null,
-    "failures": 0,
+    "status": "ok",
+    "started": "2026-10-26 03:39:09.672138+00:00",
+    "ended": "2026-10-26 04:13:30.287546+00:00",
+    "counts": {
+     "seconds": 2060.6,
+     "states_ok": 2,
+     "pg_refreshes": 1,
+     "pg_refresh_failures": 1
+    },
+    "failures": 1,
     "error": null,
-    "log": "data/logs/pipeline-20261025-110324.log"
+    "log": "data/logs/pipeline-20261025-233909.log"
    },
    "tiles": {
     "status": "ok",
-    "started": "2026-10-25 03:52:00+00:00",
-    "ended": "2026-10-25 03:52:14+00:00",
+    "started": "2026-10-25 16:01:43.928562+00:00",
+    "ended": "2026-10-25 16:01:57.710236+00:00",
     "counts": {
-     "seconds": 13.9,
-     "hex5_cells": 5383,
+     "seconds": 13.8,
+     "hex5_cells": 9917,
      "hex7_cells": 231564
     },
     "failures": 0,
     "error": null,
-    "log": "data/logs/tiles-20261024-235200.log"
+    "log": "data/logs/tiles-20261025-120143.log"
    },
    "update": {
     "status": "ok",
@@ -204,29 +194,87 @@
    },
    "video": {
     "status": "ok",
-    "started": "2026-10-25 06:03:21+00:00",
-    "ended": "2026-10-25 06:33:22+00:00",
+    "started": "2026-10-25 16:02:03.775037+00:00",
+    "ended": "2026-10-25 16:15:08.429171+00:00",
     "counts": {
-     "seconds": 1801.6,
-     "families_low": 489,
-     "channels_none": 117,
-     "channels_found": 178,
+     "seconds": 784.7,
+     "families_low": 370,
      "channel_blocked": 5,
-     "families_matched": 611,
-     "families_unmatched": 206,
-     "buyers_without_channel": 122
+     "families_matched": 629,
+     "families_unmatched": 170,
+     "buyers_without_channel": 158
     },
     "failures": 0,
     "error": null,
-    "log": "data/logs/video-20261025-020321.log"
+    "log": "data/logs/video-20261025-120203.log"
    }
   },
   "batches": [
    {
+    "state": "AK",
+    "status": "ok",
+    "started": "2026-10-25 23:52:35.466804+00:00",
+    "ended": "2026-10-26 00:15:45.324552+00:00"
+   },
+   {
+    "state": "AL",
+    "status": "ok",
+    "started": "2026-10-25 18:39:42.901678+00:00",
+    "ended": "2026-10-25 19:10:38.001722+00:00"
+   },
+   {
+    "state": "AR",
+    "status": "ok",
+    "started": "2026-10-26 01:38:04.457245+00:00",
+    "ended": "2026-10-26 01:46:20.021397+00:00"
+   },
+   {
+    "state": "AZ",
+    "status": "ok",
+    "started": "2026-10-25 22:25:21.226221+00:00",
+    "ended": "2026-10-25 22:25:25.172706+00:00"
+   },
+   {
     "state": "CA",
-    "status": "failed",
-    "started": "2026-10-25 15:03:24.455915+00:00",
-    "ended": "2026-10-25 15:07:22.262019+00:00"
+    "status": "ok",
+    "started": "2026-10-26 03:39:09.779434+00:00",
+    "ended": "2026-10-26 03:42:34.059173+00:00"
+   },
+   {
+    "state": "CO",
+    "status": "ok",
+    "started": "2026-10-25 22:04:09.913034+00:00",
+    "ended": "2026-10-25 22:25:21.148492+00:00"
+   },
+   {
+    "state": "CT",
+    "status": "ok",
+    "started": "2026-10-26 02:42:05.279757+00:00",
+    "ended": "2026-10-26 02:44:20.091130+00:00"
+   },
+   {
+    "state": "DC",
+    "status": "ok",
+    "started": "2026-10-26 01:46:20.101437+00:00",
+    "ended": "2026-10-26 01:54:42.700225+00:00"
+   },
+   {
+    "state": "DE",
+    "status": "ok",
+    "started": "2026-10-26 02:52:06.981432+00:00",
+    "ended": "2026-10-26 02:52:16.536157+00:00"
+   },
+   {
+    "state": "FL",
+    "status": "ok",
+    "started": "2026-10-25 16:20:27.348452+00:00",
+    "ended": "2026-10-25 17:02:23.733655+00:00"
+   },
+   {
+    "state": "GA",
+    "status": "ok",
+    "started": "2026-10-25 17:02:23.805336+00:00",
+    "ended": "2026-10-25 17:02:28.952787+00:00"
    },
    {
     "state": "GU",
@@ -235,10 +283,70 @@
     "ended": "2026-10-25 03:27:27+00:00"
    },
    {
+    "state": "HI",
+    "status": "ok",
+    "started": "2026-10-26 00:37:22.597849+00:00",
+    "ended": "2026-10-26 00:46:25.269765+00:00"
+   },
+   {
     "state": "IA",
-    "status": "running",
-    "started": "2026-10-25 15:07:22.328314+00:00",
-    "ended": null
+    "status": "ok",
+    "started": "2026-10-26 03:42:34.132808+00:00",
+    "ended": "2026-10-26 03:43:00.071006+00:00"
+   },
+   {
+    "state": "ID",
+    "status": "ok",
+    "started": "2026-10-26 02:39:20.081790+00:00",
+    "ended": "2026-10-26 02:42:05.202430+00:00"
+   },
+   {
+    "state": "IL",
+    "status": "ok",
+    "started": "2026-10-25 20:23:40.423168+00:00",
+    "ended": "2026-10-25 20:45:25.219059+00:00"
+   },
+   {
+    "state": "IN",
+    "status": "ok",
+    "started": "2026-10-26 01:27:59.993053+00:00",
+    "ended": "2026-10-26 01:38:04.380078+00:00"
+   },
+   {
+    "state": "KS",
+    "status": "ok",
+    "started": "2026-10-25 17:29:37.850725+00:00",
+    "ended": "2026-10-25 18:39:20.540448+00:00"
+   },
+   {
+    "state": "KY",
+    "status": "ok",
+    "started": "2026-10-25 22:49:20.651276+00:00",
+    "ended": "2026-10-25 23:00:13.453078+00:00"
+   },
+   {
+    "state": "LA",
+    "status": "ok",
+    "started": "2026-10-26 00:15:45.402400+00:00",
+    "ended": "2026-10-26 00:37:22.522548+00:00"
+   },
+   {
+    "state": "MA",
+    "status": "ok",
+    "started": "2026-10-26 01:12:01.760380+00:00",
+    "ended": "2026-10-26 01:20:06.431731+00:00"
+   },
+   {
+    "state": "MD",
+    "status": "ok",
+    "started": "2026-10-26 02:46:14.958586+00:00",
+    "ended": "2026-10-26 02:49:19.281111+00:00"
+   },
+   {
+    "state": "ME",
+    "status": "ok",
+    "started": "2026-10-25 17:02:47.882250+00:00",
+    "ended": "2026-10-25 17:29:37.778140+00:00"
    },
    {
     "state": "MI",
@@ -247,41 +355,204 @@
     "ended": "2026-10-25 06:47:34+00:00"
    },
    {
+    "state": "MN",
+    "status": "ok",
+    "started": "2026-10-25 19:33:51.626572+00:00",
+    "ended": "2026-10-25 19:54:39.984872+00:00"
+   },
+   {
+    "state": "MO",
+    "status": "ok",
+    "started": "2026-10-25 20:45:25.295177+00:00",
+    "ended": "2026-10-25 21:12:20.883783+00:00"
+   },
+   {
+    "state": "MS",
+    "status": "ok",
+    "started": "2026-10-26 02:29:01.259688+00:00",
+    "ended": "2026-10-26 02:35:40.910533+00:00"
+   },
+   {
+    "state": "MT",
+    "status": "ok",
+    "started": "2026-10-26 01:20:09.735901+00:00",
+    "ended": "2026-10-26 01:27:59.916335+00:00"
+   },
+   {
+    "state": "NC",
+    "status": "ok",
+    "started": "2026-10-25 18:39:20.611870+00:00",
+    "ended": "2026-10-25 18:39:42.829410+00:00"
+   },
+   {
+    "state": "ND",
+    "status": "ok",
+    "started": "2026-10-26 01:54:42.773358+00:00",
+    "ended": "2026-10-26 02:13:53.601132+00:00"
+   },
+   {
+    "state": "NE",
+    "status": "ok",
+    "started": "2026-10-25 21:12:20.958962+00:00",
+    "ended": "2026-10-25 21:41:39.281155+00:00"
+   },
+   {
+    "state": "NH",
+    "status": "ok",
+    "started": "2026-10-26 02:44:20.163861+00:00",
+    "ended": "2026-10-26 02:46:14.882732+00:00"
+   },
+   {
+    "state": "NJ",
+    "status": "ok",
+    "started": "2026-10-26 02:49:19.356509+00:00",
+    "ended": "2026-10-26 02:50:34.996648+00:00"
+   },
+   {
+    "state": "NM",
+    "status": "ok",
+    "started": "2026-10-25 22:25:25.247916+00:00",
+    "ended": "2026-10-25 22:49:20.574320+00:00"
+   },
+   {
+    "state": "NV",
+    "status": "ok",
+    "started": "2026-10-26 01:20:06.504139+00:00",
+    "ended": "2026-10-26 01:20:09.663031+00:00"
+   },
+   {
+    "state": "NY",
+    "status": "ok",
+    "started": "2026-10-25 19:10:42.816708+00:00",
+    "ended": "2026-10-25 19:33:51.553238+00:00"
+   },
+   {
     "state": "OH",
     "status": "ok",
     "started": "2026-10-25 05:50:44+00:00",
     "ended": "2026-10-25 06:47:01+00:00"
    },
    {
+    "state": "OK",
+    "status": "ok",
+    "started": "2026-10-25 21:41:39.361446+00:00",
+    "ended": "2026-10-25 22:04:09.838168+00:00"
+   },
+   {
+    "state": "OR",
+    "status": "ok",
+    "started": "2026-10-26 00:46:25.344500+00:00",
+    "ended": "2026-10-26 00:56:32.374099+00:00"
+   },
+   {
+    "state": "PA",
+    "status": "ok",
+    "started": "2026-10-25 19:10:38.079608+00:00",
+    "ended": "2026-10-25 19:10:42.742748+00:00"
+   },
+   {
+    "state": "RI",
+    "status": "ok",
+    "started": "2026-10-26 02:13:53.675934+00:00",
+    "ended": "2026-10-26 02:16:24.783891+00:00"
+   },
+   {
+    "state": "SC",
+    "status": "ok",
+    "started": "2026-10-25 19:54:40.057283+00:00",
+    "ended": "2026-10-25 20:23:40.351806+00:00"
+   },
+   {
+    "state": "SD",
+    "status": "ok",
+    "started": "2026-10-25 23:00:13.528280+00:00",
+    "ended": "2026-10-25 23:14:42.556601+00:00"
+   },
+   {
+    "state": "TN",
+    "status": "ok",
+    "started": "2026-10-25 23:30:42.497171+00:00",
+    "ended": "2026-10-25 23:52:35.390531+00:00"
+   },
+   {
     "state": "TX",
     "status": "ok",
     "started": "2026-10-25 03:47:37+00:00",
     "ended": "2026-10-25 05:50:44+00:00"
+   },
+   {
+    "state": "UT",
+    "status": "ok",
+    "started": "2026-10-26 02:50:35.072319+00:00",
+    "ended": "2026-10-26 02:51:43.815243+00:00"
+   },
+   {
+    "state": "VA",
+    "status": "ok",
+    "started": "2026-10-25 23:14:42.634704+00:00",
+    "ended": "2026-10-25 23:30:42.415413+00:00"
+   },
+   {
+    "state": "VI",
+    "status": "ok",
+    "started": "2026-10-26 02:51:43.891419+00:00",
+    "ended": "2026-10-26 02:52:06.907458+00:00"
+   },
+   {
+    "state": "VT",
+    "status": "ok",
+    "started": "2026-10-26 02:35:40.984216+00:00",
+    "ended": "2026-10-26 02:39:19.994037+00:00"
+   },
+   {
+    "state": "WA",
+    "status": "ok",
+    "started": "2026-10-26 02:16:24.856645+00:00",
+    "ended": "2026-10-26 02:23:54.295178+00:00"
+   },
+   {
+    "state": "WI",
+    "status": "ok",
+    "started": "2026-10-25 17:02:29.028417+00:00",
+    "ended": "2026-10-25 17:02:47.805388+00:00"
+   },
+   {
+    "state": "WV",
+    "status": "ok",
+    "started": "2026-10-26 00:56:32.447974+00:00",
+    "ended": "2026-10-26 01:12:01.685333+00:00"
+   },
+   {
+    "state": "WY",
+    "status": "ok",
+    "started": "2026-10-26 02:23:54.370745+00:00",
+    "ended": "2026-10-26 02:29:01.185559+00:00"
    }
   ],
   "listing": {
-   "complete": 424
+   "complete": 1098
   },
   "ocr_engines": {
-   "vision": 14635,
+   "cached": 1893,
+   "vision": 76860,
    "legacy-tesseract": 24665
   },
   "templates": {
-   "order/wideorbit-contract": 40670,
-   "order/wideorbit-order": 34723,
-   "form/nab-text": 31899,
-   "invoice/wideorbit-invoice": 23642,
-   "other/unrecognized": 19560,
-   "order/katz": 8769,
-   "form/nab-acroform": 8757,
-   "invoice/sinclair-invoice": 6385,
-   "order/wideorbit-contract-ocr": 5030,
-   "order/katz-ecr": 4613,
-   "order/wideorbit-order-ocr": 2916,
-   "other/nab-supplement": 2349,
+   "form/nab-text": 82983,
+   "order/wideorbit-contract": 82580,
+   "order/wideorbit-order": 68778,
+   "invoice/wideorbit-invoice": 53258,
+   "other/unrecognized": 31918,
+   "form/nab-acroform": 19246,
+   "order/katz": 17722,
+   "order/katz-ecr": 14317,
+   "invoice/sinclair-invoice": 12956,
+   "order/wideorbit-contract-ocr": 12522,
+   "order/wideorbit-order-ocr": 10449,
+   "other/nab-supplement": 3403,
    "order/locality-worksheet": 562,
-   "order/eport": 164,
-   "order/sinclair-contract": 104
+   "order/eport": 289,
+   "order/sinclair-contract": 117
   },
   "parser_version": 5,
   "stages": "crawl -> parse -> ocr -> parse --only-failed -> entities -> identity -> entities -> marts -> geo -> export -> tiles",
@@ -301,12 +572,12 @@
    },
    "2026": {
     "stations": 1750,
-    "stations_crawled": 424,
+    "stations_crawled": 1098,
     "stations_with_docs": 1098,
     "docs_national": 410345,
-    "docs_listed": 190255,
-    "docs_downloaded": 190143,
-    "docs_ok": 155541
+    "docs_listed": 411340,
+    "docs_downloaded": 411100,
+    "docs_ok": 348376
    }
   },
   "by_state": {
@@ -321,11 +592,11 @@
     },
     "2026": {
      "stations": 15,
-     "stations_crawled": 0,
+     "stations_crawled": 7,
      "stations_with_docs": 7,
      "docs_national": 6175,
-     "docs_downloaded": 0,
-     "docs_ok": 0
+     "docs_downloaded": 6171,
+     "docs_ok": 4914
     }
    },
    "AL": {
@@ -339,11 +610,11 @@
     },
     "2026": {
      "stations": 42,
-     "stations_crawled": 1,
+     "stations_crawled": 25,
      "stations_with_docs": 25,
      "docs_national": 10646,
-     "docs_downloaded": 162,
-     "docs_ok": 155
+     "docs_downloaded": 10642,
+     "docs_ok": 8812
     }
    },
    "AR": {
@@ -357,11 +628,11 @@
     },
     "2026": {
      "stations": 27,
-     "stations_crawled": 1,
+     "stations_crawled": 18,
      "stations_with_docs": 18,
      "docs_national": 3270,
-     "docs_downloaded": 11,
-     "docs_ok": 3
+     "docs_downloaded": 3270,
+     "docs_ok": 2848
     }
    },
    "AZ": {
@@ -397,7 +668,7 @@
      "stations_with_docs": 69,
      "docs_national": 21960,
      "docs_downloaded": 21990,
-     "docs_ok": 16056
+     "docs_ok": 18245
     }
    },
    "CO": {
@@ -411,11 +682,11 @@
     },
     "2026": {
      "stations": 34,
-     "stations_crawled": 0,
+     "stations_crawled": 22,
      "stations_with_docs": 22,
      "docs_national": 7295,
-     "docs_downloaded": 0,
-     "docs_ok": 0
+     "docs_downloaded": 7377,
+     "docs_ok": 6892
     }
    },
    "CT": {
@@ -429,11 +700,11 @@
     },
     "2026": {
      "stations": 11,
-     "stations_crawled": 0,
+     "stations_crawled": 7,
      "stations_with_docs": 7,
      "docs_national": 1093,
-     "docs_downloaded": 0,
-     "docs_ok": 0
+     "docs_downloaded": 1121,
+     "docs_ok": 1026
     }
    },
    "DC": {
@@ -447,11 +718,11 @@
     },
     "2026": {
      "stations": 8,
-     "stations_crawled": 0,
+     "stations_crawled": 6,
      "stations_with_docs": 6,
      "docs_national": 2477,
-     "docs_downloaded": 0,
-     "docs_ok": 0
+     "docs_downloaded": 2477,
+     "docs_ok": 2021
     }
    },
    "DE": {
@@ -465,11 +736,11 @@
     },
     "2026": {
      "stations": 5,
-     "stations_crawled": 0,
+     "stations_crawled": 1,
      "stations_with_docs": 1,
      "docs_national": 67,
-     "docs_downloaded": 0,
-     "docs_ok": 0
+     "docs_downloaded": 67,
+     "docs_ok": 60
     }
    },
    "FL": {
@@ -483,11 +754,11 @@
     },
     "2026": {
      "stations": 95,
-     "stations_crawled": 0,
+     "stations_crawled": 59,
      "stations_with_docs": 59,
      "docs_national": 18161,
-     "docs_downloaded": 0,
-     "docs_ok": 0
+     "docs_downloaded": 18277,
+     "docs_ok": 15642
     }
    },
    "GA": {
@@ -537,11 +808,11 @@
     },
     "2026": {
      "stations": 25,
-     "stations_crawled": 0,
+     "stations_crawled": 15,
      "stations_with_docs": 15,
      "docs_national": 5370,
-     "docs_downloaded": 0,
-     "docs_ok": 0
+     "docs_downloaded": 5359,
+     "docs_ok": 3963
     }
    },
    "IA": {
@@ -559,7 +830,7 @@
      "stations_with_docs": 26,
      "docs_national": 18523,
      "docs_downloaded": 18565,
-     "docs_ok": 14073
+     "docs_ok": 16433
     }
    },
    "ID": {
@@ -573,11 +844,11 @@
     },
     "2026": {
      "stations": 19,
-     "stations_crawled": 0,
+     "stations_crawled": 9,
      "stations_with_docs": 9,
      "docs_national": 1121,
-     "docs_downloaded": 0,
-     "docs_ok": 0
+     "docs_downloaded": 1121,
+     "docs_ok": 963
     }
    },
    "IL": {
@@ -591,11 +862,11 @@
     },
     "2026": {
      "stations": 46,
-     "stations_crawled": 0,
+     "stations_crawled": 29,
      "stations_with_docs": 29,
      "docs_national": 9843,
-     "docs_downloaded": 0,
-     "docs_ok": 0
+     "docs_downloaded": 9858,
+     "docs_ok": 8823
     }
    },
    "IN": {
@@ -609,11 +880,11 @@
     },
     "2026": {
      "stations": 40,
-     "stations_crawled": 0,
+     "stations_crawled": 22,
      "stations_with_docs": 22,
      "docs_national": 3397,
-     "docs_downloaded": 0,
-     "docs_ok": 0
+     "docs_downloaded": 3445,
+     "docs_ok": 3224
     }
    },
    "KS": {
@@ -627,11 +898,11 @@
     },
     "2026": {
      "stations": 29,
-     "stations_crawled": 0,
+     "stations_crawled": 21,
      "stations_with_docs": 21,
      "docs_national": 12388,
-     "docs_downloaded": 0,
-     "docs_ok": 0
+     "docs_downloaded": 12443,
+     "docs_ok": 11004
     }
    },
    "KY": {
@@ -645,11 +916,11 @@
     },
     "2026": {
      "stations": 35,
-     "stations_crawled": 0,
+     "stations_crawled": 14,
      "stations_with_docs": 14,
      "docs_national": 6669,
-     "docs_downloaded": 0,
-     "docs_ok": 0
+     "docs_downloaded": 6662,
+     "docs_ok": 6023
     }
    },
    "LA": {
@@ -663,11 +934,11 @@
     },
     "2026": {
      "stations": 39,
-     "stations_crawled": 0,
+     "stations_crawled": 27,
      "stations_with_docs": 27,
      "docs_national": 5648,
-     "docs_downloaded": 0,
-     "docs_ok": 0
+     "docs_downloaded": 5647,
+     "docs_ok": 4933
     }
    },
    "MA": {
@@ -681,11 +952,11 @@
     },
     "2026": {
      "stations": 21,
-     "stations_crawled": 0,
+     "stations_crawled": 11,
      "stations_with_docs": 11,
      "docs_national": 4462,
-     "docs_downloaded": 0,
-     "docs_ok": 0
+     "docs_downloaded": 4492,
+     "docs_ok": 3515
     }
    },
    "MD": {
@@ -699,11 +970,11 @@
     },
     "2026": {
      "stations": 16,
-     "stations_crawled": 0,
+     "stations_crawled": 9,
      "stations_with_docs": 9,
      "docs_national": 923,
-     "docs_downloaded": 0,
-     "docs_ok": 0
+     "docs_downloaded": 925,
+     "docs_ok": 696
     }
    },
    "ME": {
@@ -717,11 +988,11 @@
     },
     "2026": {
      "stations": 15,
-     "stations_crawled": 0,
+     "stations_crawled": 9,
      "stations_with_docs": 9,
      "docs_national": 12716,
-     "docs_downloaded": 0,
-     "docs_ok": 0
+     "docs_downloaded": 12714,
+     "docs_ok": 9886
     }
    },
    "MI": {
@@ -753,11 +1024,11 @@
     },
     "2026": {
      "stations": 34,
-     "stations_crawled": 0,
+     "stations_crawled": 19,
      "stations_with_docs": 19,
      "docs_national": 10230,
-     "docs_downloaded": 0,
-     "docs_ok": 0
+     "docs_downloaded": 10239,
+     "docs_ok": 9277
     }
    },
    "MO": {
@@ -771,11 +1042,11 @@
     },
     "2026": {
      "stations": 35,
-     "stations_crawled": 0,
+     "stations_crawled": 28,
      "stations_with_docs": 28,
      "docs_national": 9033,
-     "docs_downloaded": 0,
-     "docs_ok": 0
+     "docs_downloaded": 9049,
+     "docs_ok": 8248
     }
    },
    "MS": {
@@ -789,11 +1060,11 @@
     },
     "2026": {
      "stations": 31,
-     "stations_crawled": 0,
+     "stations_crawled": 16,
      "stations_with_docs": 16,
      "docs_national": 1673,
-     "docs_downloaded": 0,
-     "docs_ok": 0
+     "docs_downloaded": 1673,
+     "docs_ok": 1359
     }
    },
    "MT": {
@@ -807,11 +1078,11 @@
     },
     "2026": {
      "stations": 23,
-     "stations_crawled": 0,
+     "stations_crawled": 14,
      "stations_with_docs": 14,
      "docs_national": 4189,
-     "docs_downloaded": 0,
-     "docs_ok": 0
+     "docs_downloaded": 4186,
+     "docs_ok": 3710
     }
    },
    "NC": {
@@ -843,11 +1114,11 @@
     },
     "2026": {
      "stations": 28,
-     "stations_crawled": 0,
+     "stations_crawled": 19,
      "stations_with_docs": 19,
      "docs_national": 2107,
-     "docs_downloaded": 0,
-     "docs_ok": 0
+     "docs_downloaded": 2131,
+     "docs_ok": 1152
     }
    },
    "NE": {
@@ -861,11 +1132,11 @@
     },
     "2026": {
      "stations": 26,
-     "stations_crawled": 0,
+     "stations_crawled": 25,
      "stations_with_docs": 25,
      "docs_national": 8481,
-     "docs_downloaded": 0,
-     "docs_ok": 0
+     "docs_downloaded": 8500,
+     "docs_ok": 7576
     }
    },
    "NH": {
@@ -879,11 +1150,11 @@
     },
     "2026": {
      "stations": 7,
-     "stations_crawled": 0,
+     "stations_crawled": 2,
      "stations_with_docs": 2,
      "docs_national": 977,
-     "docs_downloaded": 0,
-     "docs_ok": 0
+     "docs_downloaded": 977,
+     "docs_ok": 970
     }
    },
    "NJ": {
@@ -897,11 +1168,11 @@
     },
     "2026": {
      "stations": 18,
-     "stations_crawled": 0,
+     "stations_crawled": 8,
      "stations_with_docs": 8,
      "docs_national": 480,
-     "docs_downloaded": 0,
-     "docs_ok": 0
+     "docs_downloaded": 479,
+     "docs_ok": 369
     }
    },
    "NM": {
@@ -915,11 +1186,11 @@
     },
     "2026": {
      "stations": 25,
-     "stations_crawled": 0,
+     "stations_crawled": 15,
      "stations_with_docs": 15,
      "docs_national": 6676,
-     "docs_downloaded": 0,
-     "docs_ok": 0
+     "docs_downloaded": 6715,
+     "docs_ok": 6476
     }
    },
    "NV": {
@@ -951,11 +1222,11 @@
     },
     "2026": {
      "stations": 59,
-     "stations_crawled": 0,
+     "stations_crawled": 37,
      "stations_with_docs": 37,
      "docs_national": 10299,
-     "docs_downloaded": 0,
-     "docs_ok": 0
+     "docs_downloaded": 10351,
+     "docs_ok": 8612
     }
    },
    "OH": {
@@ -987,11 +1258,11 @@
     },
     "2026": {
      "stations": 28,
-     "stations_crawled": 0,
+     "stations_crawled": 13,
      "stations_with_docs": 13,
      "docs_national": 8266,
-     "docs_downloaded": 0,
-     "docs_ok": 0
+     "docs_downloaded": 8261,
+     "docs_ok": 6020
     }
    },
    "OR": {
@@ -1005,11 +1276,11 @@
     },
     "2026": {
      "stations": 34,
-     "stations_crawled": 0,
+     "stations_crawled": 23,
      "stations_with_docs": 23,
      "docs_national": 4796,
-     "docs_downloaded": 0,
-     "docs_ok": 0
+     "docs_downloaded": 4808,
+     "docs_ok": 4348
     }
    },
    "PA": {
@@ -1059,11 +1330,11 @@
     },
     "2026": {
      "stations": 5,
-     "stations_crawled": 0,
+     "stations_crawled": 3,
      "stations_with_docs": 3,
      "docs_national": 1810,
-     "docs_downloaded": 0,
-     "docs_ok": 0
+     "docs_downloaded": 1810,
+     "docs_ok": 1402
     }
    },
    "SC": {
@@ -1077,11 +1348,11 @@
     },
     "2026": {
      "stations": 33,
-     "stations_crawled": 0,
+     "stations_crawled": 29,
      "stations_with_docs": 29,
      "docs_national": 10177,
-     "docs_downloaded": 0,
-     "docs_ok": 0
+     "docs_downloaded": 10178,
+     "docs_ok": 8406
     }
    },
    "SD": {
@@ -1095,11 +1366,11 @@
     },
     "2026": {
      "stations": 25,
-     "stations_crawled": 0,
+     "stations_crawled": 11,
      "stations_with_docs": 11,
      "docs_national": 6650,
-     "docs_downloaded": 0,
-     "docs_ok": 0
+     "docs_downloaded": 6619,
+     "docs_ok": 6164
     }
    },
    "TN": {
@@ -1113,11 +1384,11 @@
     },
     "2026": {
      "stations": 42,
-     "stations_crawled": 0,
+     "stations_crawled": 25,
      "stations_with_docs": 25,
      "docs_national": 6475,
-     "docs_downloaded": 0,
-     "docs_ok": 0
+     "docs_downloaded": 6496,
+     "docs_ok": 5421
     }
    },
    "TX": {
@@ -1149,11 +1420,11 @@
     },
     "2026": {
      "stations": 20,
-     "stations_crawled": 0,
+     "stations_crawled": 8,
      "stations_with_docs": 8,
      "docs_national": 377,
-     "docs_downloaded": 0,
-     "docs_ok": 0
+     "docs_downloaded": 377,
+     "docs_ok": 325
     }
    },
    "VA": {
@@ -1167,11 +1438,11 @@
     },
     "2026": {
      "stations": 33,
-     "stations_crawled": 0,
+     "stations_crawled": 21,
      "stations_with_docs": 21,
      "docs_national": 6637,
-     "docs_downloaded": 0,
-     "docs_ok": 0
+     "docs_downloaded": 6696,
+     "docs_ok": 5714
     }
    },
    "VI": {
@@ -1185,11 +1456,11 @@
     },
     "2026": {
      "stations": 5,
-     "stations_crawled": 0,
+     "stations_crawled": 2,
      "stations_with_docs": 2,
      "docs_national": 108,
-     "docs_downloaded": 0,
-     "docs_ok": 0
+     "docs_downloaded": 108,
+     "docs_ok": 99
     }
    },
    "VT": {
@@ -1203,11 +1474,11 @@
     },
     "2026": {
      "stations": 6,
-     "stations_crawled": 0,
+     "stations_crawled": 4,
      "stations_with_docs": 4,
      "docs_national": 1248,
-     "docs_downloaded": 0,
-     "docs_ok": 0
+     "docs_downloaded": 1262,
+     "docs_ok": 1223
     }
    },
    "WA": {
@@ -1221,11 +1492,11 @@
     },
     "2026": {
      "stations": 35,
-     "stations_crawled": 0,
+     "stations_crawled": 21,
      "stations_with_docs": 21,
      "docs_national": 1744,
-     "docs_downloaded": 0,
-     "docs_ok": 0
+     "docs_downloaded": 1774,
+     "docs_ok": 1486
     }
    },
    "WI": {
@@ -1257,11 +1528,11 @@
     },
     "2026": {
      "stations": 18,
-     "stations_crawled": 0,
+     "stations_crawled": 11,
      "stations_with_docs": 11,
      "docs_national": 4668,
-     "docs_downloaded": 0,
-     "docs_ok": 0
+     "docs_downloaded": 4676,
+     "docs_ok": 3474
     }
    },
    "WY": {
@@ -1275,116 +1546,180 @@
     },
     "2026": {
      "stations": 16,
-     "stations_crawled": 0,
+     "stations_crawled": 11,
      "stations_with_docs": 11,
      "docs_national": 1698,
-     "docs_downloaded": 0,
-     "docs_ok": 0
+     "docs_downloaded": 1697,
+     "docs_ok": 1368
     }
    }
   },
-  "stations_not_yet_crawled_2026": 674
+  "stations_not_yet_crawled_2026": 0
  },
  "stations": {
   "licensed": 2147,
-  "with_documents": 424,
+  "with_documents": 1098,
   "states": [
+   "AK",
    "AL",
    "AR",
    "AZ",
    "CA",
+   "CO",
+   "CT",
+   "DC",
+   "DE",
+   "FL",
    "GA",
    "GU",
+   "HI",
    "IA",
+   "ID",
+   "IL",
+   "IN",
+   "KS",
+   "KY",
+   "LA",
+   "MA",
+   "MD",
+   "ME",
    "MI",
+   "MN",
+   "MO",
+   "MS",
+   "MT",
    "NC",
+   "ND",
+   "NE",
+   "NH",
+   "NJ",
+   "NM",
    "NV",
+   "NY",
    "OH",
+   "OK",
+   "OR",
    "PA",
+   "RI",
+   "SC",
+   "SD",
+   "TN",
    "TX",
-   "WI"
+   "UT",
+   "VA",
+   "VI",
+   "VT",
+   "WA",
+   "WI",
+   "WV",
+   "WY"
   ],
   "with_streams": 217,
   "by_group": [
    {
+    "group": "Gray",
+    "stations": 173,
+    "docs": 74684
+   },
+   {
     "group": "Nexstar",
-    "stations": 62,
-    "docs": 31205
+    "stations": 192,
+    "docs": 69732
    },
    {
     "group": "Sinclair",
-    "stations": 58,
-    "docs": 30526
-   },
-   {
-    "group": "Gray",
-    "stations": 55,
-    "docs": 27289
-   },
-   {
-    "group": "Tegna",
-    "stations": 24,
-    "docs": 14105
+    "stations": 135,
+    "docs": 58635
    },
    {
     "group": "Independent",
-    "stations": 38,
-    "docs": 13971
-   },
-   {
-    "group": "CBS",
-    "stations": 13,
-    "docs": 10709
-   },
-   {
-    "group": "Scripps",
-    "stations": 17,
-    "docs": 8415
-   },
-   {
-    "group": "Allen Media",
-    "stations": 10,
-    "docs": 8196
+    "stations": 130,
+    "docs": 38916
    },
    {
     "group": "Hearst",
-    "stations": 11,
-    "docs": 6949
+    "stations": 34,
+    "docs": 24324
+   },
+   {
+    "group": "Tegna",
+    "stations": 55,
+    "docs": 24023
+   },
+   {
+    "group": "CBS",
+    "stations": 24,
+    "docs": 18640
+   },
+   {
+    "group": "Scripps",
+    "stations": 45,
+    "docs": 17830
    },
    {
     "group": "Fox",
-    "stations": 15,
-    "docs": 6694
+    "stations": 31,
+    "docs": 12877
    },
    {
-    "group": "Graham",
-    "stations": 3,
-    "docs": 4536
+    "group": "Allen Media",
+    "stations": 14,
+    "docs": 8799
    },
    {
-    "group": "ABC",
-    "stations": 5,
-    "docs": 4400
+    "group": "Hubbard",
+    "stations": 12,
+    "docs": 8047
    },
    {
     "group": "NBCUniversal",
-    "stations": 15,
-    "docs": 3362
+    "stations": 28,
+    "docs": 6337
+   },
+   {
+    "group": "Graham",
+    "stations": 7,
+    "docs": 6107
+   },
+   {
+    "group": "ABC",
+    "stations": 6,
+    "docs": 5504
    },
    {
     "group": "Univision",
-    "stations": 19,
-    "docs": 2811
-   },
-   {
-    "group": "Entravision",
-    "stations": 13,
-    "docs": 2446
+    "stations": 31,
+    "docs": 3486
    },
    {
     "group": "Cox",
+    "stations": 10,
+    "docs": 3433
+   },
+   {
+    "group": "Marquee",
+    "stations": 12,
+    "docs": 3363
+   },
+   {
+    "group": "Rincon",
+    "stations": 10,
+    "docs": 2981
+   },
+   {
+    "group": "Entravision",
+    "stations": 22,
+    "docs": 2594
+   },
+   {
+    "group": "Morgan Murphy",
     "stations": 4,
-    "docs": 2052
+    "docs": 1730
+   },
+   {
+    "group": "News-Press & Gazette",
+    "stations": 7,
+    "docs": 1717
    },
    {
     "group": "Capitol",
@@ -1392,19 +1727,44 @@
     "docs": 1602
    },
    {
+    "group": "Bahakel",
+    "stations": 5,
+    "docs": 1469
+   },
+   {
     "group": "Lockwood",
     "stations": 2,
     "docs": 1454
    },
    {
-    "group": "Marquee",
-    "stations": 4,
-    "docs": 1409
+    "group": "Sunbeam",
+    "stations": 3,
+    "docs": 1294
    },
    {
-    "group": "Morgan Murphy",
+    "group": "SagamoreHill",
     "stations": 3,
-    "docs": 1261
+    "docs": 1229
+   },
+   {
+    "group": "Cowles",
+    "stations": 5,
+    "docs": 1203
+   },
+   {
+    "group": "GOCOM",
+    "stations": 3,
+    "docs": 1094
+   },
+   {
+    "group": "Sarkes Tarzian",
+    "stations": 2,
+    "docs": 1069
+   },
+   {
+    "group": "Weigel",
+    "stations": 4,
+    "docs": 1054
    },
    {
     "group": "Heritage",
@@ -1412,49 +1772,39 @@
     "docs": 1045
    },
    {
-    "group": "News-Press & Gazette",
-    "stations": 4,
-    "docs": 973
-   },
-   {
     "group": "Morris",
-    "stations": 2,
-    "docs": 877
-   },
-   {
-    "group": "SagamoreHill",
-    "stations": 2,
-    "docs": 732
-   },
-   {
-    "group": "Weigel",
     "stations": 3,
-    "docs": 701
+    "docs": 1020
    },
    {
-    "group": "Sarkes Tarzian",
-    "stations": 1,
-    "docs": 614
+    "group": "Forum",
+    "stations": 3,
+    "docs": 979
    },
    {
-    "group": "Maranatha",
-    "stations": 1,
-    "docs": 444
+    "group": "Ion",
+    "stations": 9,
+    "docs": 862
    },
    {
     "group": "Lilly",
-    "stations": 3,
-    "docs": 433
+    "stations": 6,
+    "docs": 686
    },
    {
-    "group": "Bahakel",
-    "stations": 1,
-    "docs": 398
-   },
-   {
-    "group": "Rincon",
+    "group": "Maranatha",
     "stations": 2,
-    "docs": 310
+    "docs": 511
+   },
+   {
+    "group": "Waterman",
+    "stations": 1,
+    "docs": 392
+   },
+   {
+    "group": "Public",
+    "stations": 48,
+    "docs": 218
    },
    {
     "group": "Londen",
@@ -1462,9 +1812,14 @@
     "docs": 163
    },
    {
-    "group": "Ion",
+    "group": "Draper",
     "stations": 1,
-    "docs": 70
+    "docs": 106
+   },
+   {
+    "group": "Estrella",
+    "stations": 4,
+    "docs": 86
    },
    {
     "group": "RNN",
@@ -1472,87 +1827,81 @@
     "docs": 36
    },
    {
-    "group": "Public",
-    "stations": 23,
-    "docs": 32
-   },
-   {
-    "group": "Estrella",
-    "stations": 2,
-    "docs": 30
-   },
-   {
     "group": "Religious",
-    "stations": 2,
-    "docs": 5
+    "stations": 6,
+    "docs": 9
    }
   ]
  },
  "documents": {
-  "total": 190255,
-  "parsed": 190143,
+  "total": 411340,
+  "parsed": 411100,
   "by_kind_status": {
-   "form/failed": 2817,
-   "form/ok": 37839,
-   "invoice/failed": 760,
-   "invoice/ok": 22940,
-   "invoice/partial": 6327,
-   "order/failed": 517,
-   "order/ok": 92413,
-   "order/partial": 4621,
-   "other/failed": 5557,
-   "other/ok": 2349,
-   "other/unrecognized": 14003
+   "form/failed": 5190,
+   "form/ok": 97039,
+   "invoice/failed": 1829,
+   "invoice/ok": 52242,
+   "invoice/partial": 12143,
+   "order/failed": 1075,
+   "order/ok": 195692,
+   "order/partial": 10569,
+   "other/failed": 23,
+   "other/ok": 3403,
+   "other/unrecognized": 31895
   },
   "templates": {
-   "eport": 164,
-   "katz": 8769,
-   "katz-ecr": 4613,
+   "eport": 289,
+   "katz": 17722,
+   "katz-ecr": 14317,
    "locality-worksheet": 562,
-   "sinclair-contract": 104,
-   "sinclair-invoice": 6385,
-   "wideorbit-contract": 40670,
-   "wideorbit-contract-ocr": 5030,
-   "wideorbit-invoice": 23642,
-   "wideorbit-order": 34723,
-   "wideorbit-order-ocr": 2916
+   "sinclair-contract": 117,
+   "sinclair-invoice": 12956,
+   "wideorbit-contract": 82580,
+   "wideorbit-contract-ocr": 12522,
+   "wideorbit-invoice": 53258,
+   "wideorbit-order": 68778,
+   "wideorbit-order-ocr": 10449
   },
-  "ocr": 39300,
+  "ocr": 103418,
   "first_upload": "2025-12-19",
-  "last_upload": "2026-10-25"
+  "last_upload": "2026-10-26"
  },
  "entities": {
-  "orders": 55320,
-  "orders_with_lines": 41924,
-  "invoices": 28062,
-  "invoices_linked": 20400,
-  "spots": 953118,
-  "creatives": 12539,
-  "buyers": 2412,
+  "orders": 124049,
+  "orders_with_lines": 88973,
+  "invoices": 62195,
+  "invoices_linked": 45664,
+  "spots": 2022276,
+  "creatives": 24593,
+  "buyers": 5403,
   "identity": {
+   "name-rule": [
+    4381,
+    7800
+   ],
    "fec-committee": [
-    213,
-    560
+    398,
+    1123
+   ],
+   "manual": [
+    1,
+    1
    ],
    "raw": [
-    15,
+    53,
     0
    ],
    "fec-candidate": [
-    229,
-    1187
-   ],
-   "name-rule": [
-    1955,
-    3596
+    570,
+    2752
    ]
   },
   "manual_overrides": 17
  },
  "money": {
-  "booked": 2538663792.82,
-  "invoiced": 866953802.96,
-  "first_day": "2025-07-01",
+  "booked": 4431462984.35,
+  "invoiced": 1514991208.53,
+  "first_day": "2020-03-15",
   "last_day": "2028-10-11"
  },
  "geography": {
