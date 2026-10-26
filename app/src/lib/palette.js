@@ -1,16 +1,16 @@
 // One palette for every map layer and chart. The weather lean lives here and in app.css, nowhere else:
-// adfall (money and spots landing on a place) is a precipitation ramp, pale sky to deep indigo; differences
+// adfall (money and spots landing on a place) is radar's rain ramp, pale mint to deep teal (one hue family, no party); differences
 // are warm against cool; party keeps its conventional blue and red; the pins are ink and amber.
 // Steps were checked with the dataviz validator: the ramp is lightness-monotone within one hue family.
 
 /** Sequential ramp for magnitude: t in [0,1] -> [r, g, b, a]. sqrt is applied by callers. */
 export const RAMP = [
-  [0.00, [201, 221, 243, 0.15]],
-  [0.20, [143, 187, 233, 0.45]],
-  [0.45, [83, 144, 220, 0.70]],
-  [0.70, [47, 95, 198, 0.85]],
-  [0.88, [43, 56, 170, 0.90]],
-  [1.00, [44, 31, 128, 0.94]]
+  [0.00, [185, 230, 211, 0.15]],
+  [0.20, [127, 207, 174, 0.45]],
+  [0.45, [69, 176, 138, 0.70]],
+  [0.70, [35, 143, 112, 0.85]],
+  [0.88, [22, 107, 94, 0.90]],
+  [1.00, [15, 74, 70, 0.94]]
 ];
 export function ramp(t) {
   t = Math.max(0, Math.min(1, t || 0));
@@ -31,11 +31,12 @@ export function rampExpr(prop, max) {
   return expr;
 }
 
-/** Diverging pairs. Party keeps convention; everything else is warm (rising, still to air) against cool. */
+/** Diverging pairs. Party keeps convention (blue, red, gray midpoint); everything else is warm (rising, still to air) against cool. */
 export const WARM = [217, 112, 15];
 export const COOL = [26, 143, 160];
 export const DEM = [47, 111, 214];
 export const REP = [200, 16, 46];
+export const MID = [158, 160, 168];
 
 /** Pins and contours: A is ink, B is amber, on the light basemap. */
 export const PIN_A = '#1b1b1f';

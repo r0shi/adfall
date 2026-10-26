@@ -251,3 +251,20 @@ component.
   issue groups 51% of all money with no party by design. A curated "leaning" list for the top issue
   buyers is the obvious next step and is not in the data yet.
 
+### Map ramp and party share (2026-10-25, late)
+
+Same concern on the map: a blue money ramp reads as Democratic. Alex floated radar green-to-red and
+two overlaid party heatmaps; both were pushed back on (a rainbow is not lightness-ordered and red
+still means party; overlaid translucent layers blend to an unreadable purple). What shipped:
+
+- The magnitude ramp is radar's rain colors alone: pale mint to deep teal, one hue family (22°
+  spread), lightness-monotone, used by the hex tiles, the timeline frames and every legend through
+  `palette.js`. Blue now appears on the map only in the party layer.
+- "D − R" became **Party share**, a value-by-alpha layer: hue is the Democratic share of candidate
+  dollars reaching the cell (blue through gray at an even split to red), opacity is the amount of
+  candidate money (sqrt, 98th-percentile scale), so thin markets fade instead of shouting. Hover
+  gives the share, the candidate total and the unknown-party dollars left out. Issue-group money
+  (51% of all dollars) is excluded and the panel says so; unknown-party state candidates are the
+  other gap. The legend has two axes: hue for share, a gray alpha strip for amount.
+- The time animation stays unsplit by party; the daily series would need a by-party export first.
+

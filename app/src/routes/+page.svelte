@@ -10,8 +10,9 @@
   import TimeTab from '$lib/tabs/TimeTab.svelte';
   import NewsTab from '$lib/tabs/NewsTab.svelte';
   import { shares } from '$lib/color.svelte.js';
+  import { DEM, REP, MID } from '$lib/palette.js';
   import { loc, locB, setLocation, setLocationB, clearA, clearB } from '$lib/location.svelte.js';
-  import { DIFFS, stationDiffs, composeDiff, makeDiffLayer, diffScale } from '$lib/difflayer.js';
+  import { DIFFS, stationDiffs, composeDiff, makeDiffLayer, diffScale, composeParty, makePartyLayer } from '$lib/difflayer.js';
   import { tl, setRange } from '$lib/time.svelte.js';
   import { spendIndex, usd, CATS, get, stationDaily, hexWeights } from '$lib/data.js';
   import { toGeoJSON } from '$lib/geo.js';
@@ -22,7 +23,7 @@
   let layer = $state('coverage'), tab = $state('stations'), tabB = $state('stations'), collapsed = $state(false), collapsedB = $state(false), hover = $state.raw(null), pickingB = $state(false), weights = $state.raw(null);
   let framer = $state.raw(null), layerMod = $state.raw(null), lastDay = null;
   spendIndex().then(d => idx = d); get('tiles/meta.json').then(m => meta = m);
-  const LAYERS = [['coverage', 'Airshed'], ['booked', 'Money'], ['pp', '$ / person'], ['spots', 'Spots'], ['ps', '$ / spot'], ['animate', 'Over time ▶'], ['dr', 'D − R'], ['bi', 'Booked − invoiced'], ['wk', 'Week vs last']];
+  const LAYERS = [['coverage', 'Airshed'], ['booked', 'Money'], ['pp', '$ / person'], ['spots', 'Spots'], ['ps', '$ / spot'], ['animate', 'Over time ▶'], ['party', 'Party share'], ['bi', 'Booked − invoiced'], ['wk', 'Week vs last']];
   const isDiff = $derived(layer in DIFFS);
   const isTile = $derived(!(layer === 'coverage' || layer === 'animate' || isDiff));
   const res = $derived(zoom >= 6.3 ? 7 : 5);
@@ -34,7 +35,9 @@
   $effect(() => { if ((isDiff || layer === 'animate') && !weights) hexWeights(5).then(w => weights = w); });
   $effect(() => { if (layer === 'wk' && !framer) Promise.all([stationDaily(), hexWeights(5), import('@deck.gl/geo-layers')]).then(([d, w, m]) => { layerMod = m; const f = new Framer(d, w, 2); const days = f.dayList; framer = f; setRange(days[0], days[days.length - 1]); }); });
   $effect(() => { if (isDiff && !layerMod) import('@deck.gl/geo-layers').then(m => layerMod = m); });
-  const diffValues = $derived(isDiff && weights && (layer !== 'wk' || (framer && tl.day)) ? composeDiff(weights, stationDiffs(layer, idx, framer, tl.day)) : null);
+  const partyVals = $derived(layer === 'party' && weights ? composeParty(weights, idx) : null);
+  const partyScale = $derived(partyVals ? diffScale(partyVals.total) : 1);
+  const diffValues = $derived(isDiff && layer !== 'party' && weights && (layer !== 'wk' || (framer && tl.day)) ? composeDiff(weights, stationDiffs(layer, idx, framer, tl.day)) : null);
   const diffScaleV = $derived(diffValues ? diffScale(diffValues) : 1);
   // animate layer: load frame data on first use
   $effect(() => { if (layer === 'animate' && !framer) Promise.all([stationDaily(), hexWeights(5), import('@deck.gl/geo-layers')]).then(([d, w, m]) => { layerMod = m; const f = new Framer(d, w, 2); const days = f.dayList; framer = f; setRange(days[0], days[days.length - 1]); }); });
@@ -42,6 +45,7 @@
   const series = $derived(framer ? framer.series(tl.window === 'cumulative' ? 'cumulative' : 'day', loc.p ? new Set(loc.found.map(s => s.fac)) : null).filter(s => s[0] <= tl.last) : []);
   $effect(() => {
     if (!api || !layerMod) return;
+    if (layer === 'party') { if (!partyVals) return; api.setDeckLayers([makePartyLayer(layerMod.H3HexagonLayer, weights, partyVals, partyScale, { triggers: [partyScale], onHover: h => hover = h, onClick: h3 => import('h3-js').then(m => { const [lat, lng] = m.cellToLatLng(h3); onMapClick([lat, lng]); }) })]); return; }
     if (isDiff) { if (!diffValues) return; api.setDeckLayers([makeDiffLayer(layerMod.H3HexagonLayer, weights, diffValues, diffScaleV, layer, { triggers: [layer, diffScaleV, tl.day], onHover: h => hover = h, onClick: h3 => import('h3-js').then(m => { const [lat, lng] = m.cellToLatLng(h3); onMapClick([lat, lng]); }) })]); return; }
     if (layer !== 'animate' || !framer || !tl.day) { api.setDeckLayers([]); return; }
     const forward = lastDay && tl.day > lastDay; lastDay = tl.day;
@@ -61,7 +65,7 @@
   const ratio = (a, b) => b ? (a / b).toFixed(a / b >= 10 ? 0 : 1) + '×' : (a ? '∞' : '–');
   const cmpA = $derived(locB.p ? ` · vs B: ${ratio(total, totalB)}` : '');
   const cmpB = $derived(locB.p ? `${locB.found.length} stations · ${usd(totalB)} booked · ${ratio(totalB, total)} of A` : '');
-  const fmtHover = (p) => isDiff ? `${p.value > 0 ? DIFFS[layer].pos : DIFFS[layer].neg} by ${usd(Math.abs(p.value))}` : layer === 'animate' ? `${usd(p.raw)} this ${tl.window}` : `${METRICS[layer]?.[0]}: ${layer === 'pp' ? '$' + (+p.pp).toFixed(2) : layer === 'spots' ? p.spots : layer === 'ps' ? '$' + p.ps : usd(p.booked)} · ${Number(p.pop).toLocaleString()} people · ${p.stations} stations with buys`;
+  const fmtHover = (p) => layer === 'party' ? (p.total ? `${Math.round(100 * p.share)}% Democratic of ${usd(p.total)} candidate $${p.unk ? ` (+${usd(p.unk)} unknown party)` : ''}` : 'no candidate money') : isDiff ? `${p.value > 0 ? DIFFS[layer].pos : DIFFS[layer].neg} by ${usd(Math.abs(p.value))}` : layer === 'animate' ? `${usd(p.raw)} this ${tl.window}` : `${METRICS[layer]?.[0]}: ${layer === 'pp' ? '$' + (+p.pp).toFixed(2) : layer === 'spots' ? p.spots : layer === 'ps' ? '$' + p.ps : usd(p.booked)} · ${Number(p.pop).toLocaleString()} people · ${p.stations} stations with buys`;
 </script>
 <svelte:head><title>Adfall</title></svelte:head>
 <div class="shell wide"><div class="mapwrap" style="height:100%">
@@ -69,8 +73,11 @@
   <div class="float">
     <Search />
     <div class="chips" style="margin:6px 0 0">{#each LAYERS.slice(0, 6) as [k, l]}<span class="chip" class:on={layer === k} onclick={() => layer = k} role="button" tabindex="0">{l}</span>{/each}</div>
-    <div class="chips" style="margin:4px 0 0"><span class="muted small" style="align-self:center">Difference:</span>{#each LAYERS.slice(6) as [k, l]}<span class="chip" class:on={layer === k} onclick={() => layer = k} role="button" tabindex="0">{l}</span>{/each}</div>
+    <div class="chips" style="margin:4px 0 0"><span class="muted small" style="align-self:center">Party, change:</span>{#each LAYERS.slice(6) as [k, l]}<span class="chip" class:on={layer === k} onclick={() => layer = k} role="button" tabindex="0">{l}</span>{/each}</div>
     {#if isTile}<div class="muted small" style="margin-top:6px">{METRICS[layer][1]}. {hover ? fmtHover(hover) : 'Hover a cell.'}</div>
+    {:else if layer === 'party'}<div class="muted small" style="margin-top:6px">{DIFFS.party.desc}. {hover ? fmtHover(hover) : 'Hover a cell.'}</div>
+      <div class="legend" style="display:flex;align-items:center;gap:8px;margin-top:6px"><span style="color:rgb({REP.join(',')})">■ Republican</span><span style="flex:1;height:8px;border-radius:4px;background:linear-gradient(90deg, rgb({REP.join(',')}), rgb({MID.join(',')}), rgb({DEM.join(',')}))"></span><span style="color:rgb({DEM.join(',')})">Democratic ■</span></div>
+      <div class="legend" style="display:flex;align-items:center;gap:8px;margin-top:4px"><span>less candidate $</span><span style="flex:1;height:8px;border-radius:4px;background:linear-gradient(90deg, rgba(158,160,168,.1), rgba(158,160,168,1))"></span><span>more</span></div>
     {:else if isDiff}<div class="muted small" style="margin-top:6px">{DIFFS[layer].desc}.{layer === 'wk' && tl.day ? ` Week ending ${tl.day}.` : ''} {hover ? fmtHover(hover) : ''}</div>
       <div class="legend" style="display:flex;align-items:center;gap:8px;margin-top:6px"><span style="color:rgb({DIFFS[layer].negColor.join(',')})">■ {DIFFS[layer].neg}</span><span style="flex:1;height:8px;border-radius:4px;background:linear-gradient(90deg, rgb({DIFFS[layer].negColor.join(',')}), rgba(255,255,255,.1), rgb({DIFFS[layer].posColor.join(',')}))"></span><span style="color:rgb({DIFFS[layer].posColor.join(',')})">{DIFFS[layer].pos} ■</span></div>
     {:else if layer === 'animate'}<div class="muted small" style="margin-top:6px">Booked $ reaching each cell, by the window on the bar below.{hover ? ' ' + fmtHover(hover) : ''}</div>{/if}

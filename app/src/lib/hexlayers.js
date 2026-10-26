@@ -11,7 +11,7 @@ export function installHexLayers(map, beforeId = 'contours-fill') {
   for (const r of [5, 7]) {
     if (map.getSource(`hex${r}`)) continue;
     map.addSource(`hex${r}`, { type: 'vector', url: `pmtiles://${location.origin}/data/tiles/hex${r}.pmtiles` });
-    map.addLayer({ id: `hex${r}-fill`, type: 'fill', source: `hex${r}`, 'source-layer': `hex${r}`, layout: { visibility: 'none' }, paint: { 'fill-color': '#2f5fc6', 'fill-opacity': 0.85 } }, beforeId);
+    map.addLayer({ id: `hex${r}-fill`, type: 'fill', source: `hex${r}`, 'source-layer': `hex${r}`, layout: { visibility: 'none' }, paint: { 'fill-color': '#238f70', 'fill-opacity': 0.85 } }, beforeId);
   }
 }
 export function fillExpr(prop, max) { return rampExpr(prop, max); }
