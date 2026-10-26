@@ -48,12 +48,23 @@ export async function geocode(q) {
   return { p: [+j[0].lat, +j[0].lon], label: j[0].display_name.split(',').slice(0, 3).join(',') };
 }
 function nearestPlace(idx, p) {
-  let best = null, bd = Infinity;
+  // nearest indexed place, with a pull toward larger towns: a city 3 miles off beats a hamlet 1 mile off
+  let best = null, bs = Infinity, bd = Infinity;
+  const k = Math.cos(p[0] * Math.PI / 180);
   for (const pl of idx.places) {
-    const d = (pl[2] - p[0]) ** 2 + ((pl[3] - p[1]) * Math.cos(p[0] * Math.PI / 180)) ** 2;
-    if (d < bd) { bd = d; best = pl; }
+    const d = Math.sqrt((pl[2] - p[0]) ** 2 + ((pl[3] - p[1]) * k) ** 2) * 69;      // miles
+    if (d > 40) continue;
+    const s = d - 1.2 * Math.log10(1 + (pl[4] || 0));                                 // pl[4] is land area in sq mi, a stand-in for size
+    if (s < bs) { bs = s; bd = d; best = pl; }
   }
-  return best && Math.sqrt(bd) * 69 < 40 ? `${best[0]}, ${best[1]}` : '';
+  return best ? `${best[0].replace(/ (city|town|village|CDP|borough) and$/, '')}, ${best[1]}` : '';
+}
+/** The TV market a place sits in, as a proxy: the city most of its full-power stations are licensed to. */
+export function marketOf(found, p) {
+  const n = new Map();
+  for (const s of found) { if (s.svc !== 'DTV') continue; const k = `${s.city}, ${s.state}`; const e = n.get(k) || { k, n: 0, d: Infinity }; e.n += 1; e.d = Math.min(e.d, miles(p, s.tx)); n.set(k, e); }
+  const best = [...n.values()].sort((a, b) => b.n - a.n || a.d - b.d)[0];
+  return best ? best.k : '';
 }
 export async function reverse(p) {
   try { return nearestPlace(await places(), p); } catch { return ''; }

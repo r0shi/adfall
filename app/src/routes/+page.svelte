@@ -65,7 +65,9 @@
   const totalB = $derived(sumOf(locB.found));
   const ratio = (a, b) => b ? (a / b).toFixed(a / b >= 10 ? 0 : 1) + '×' : (a ? '∞' : '–');
   const cmpA = $derived(locB.p ? ` · vs B: ${ratio(total, totalB)}` : '');
-  const cmpB = $derived(locB.p ? `${locB.found.length} stations · ${usd(totalB)} booked · ${ratio(totalB, total)} of A` : '');
+  const cmpB = $derived(locB.p ? `${where(locB)}${locB.found.length} stations · ${usd(totalB)} booked · ${ratio(totalB, total)} of A` : '');
+  const fmtP = (p) => `${p[0].toFixed(3)}, ${p[1].toFixed(3)}`;
+  const where = (l) => (l.market ? `${l.market} market · ` : '') + fmtP(l.p) + ' · ';
   const fmtHover = (p) => ui.layer === 'party' ? (p.total ? `${Math.round(100 * p.share)}% Democratic of ${usd(p.total)} candidate $${p.unk ? ` (+${usd(p.unk)} unknown party)` : ''}` : 'no candidate money') : isDiff ? `${p.value > 0 ? DIFFS[ui.layer].pos : DIFFS[ui.layer].neg} by ${usd(Math.abs(p.value))}` : ui.layer === 'animate' ? `${usd(p.raw)} this ${tl.window}` : `${METRICS[ui.layer]?.[0]}: ${ui.layer === 'pp' ? '$' + (+p.pp).toFixed(2) : ui.layer === 'spots' ? p.spots : ui.layer === 'ps' ? '$' + p.ps : usd(p.booked)} · ${Number(p.pop).toLocaleString()} people · ${p.stations} stations with buys`;
 </script>
 <svelte:head><title>Adfall</title></svelte:head>
@@ -85,7 +87,7 @@
     {#if pickingB}<div class="small" style="margin-top:6px;color:var(--pin-b)"><b>Click the map to drop pin B.</b> <span class="chip" onclick={() => pickingB = false} role="button" tabindex="0">cancel</span></div>{/if}
   </div>
   {#if loc.p}
-    <Popover {api} anchor={loc.p} badge={locB.p ? 'A' : ''} title={loc.label} sub="{loc.found.length} stations reach here{covered.length ? ` · ${covered.length} with filings · ${usd(total)} booked ${idx.year}` : ' · none crawled yet'}{cmpA}" tabs={TABS} bind:active={ui.tab} bind:collapsed onclose={() => { clearA(); clearB(); }}
+    <Popover {api} anchor={loc.p} badge={locB.p ? 'A' : ''} title={loc.label} sub="{where(loc)}{loc.found.length} stations reach here{covered.length ? ` · ${covered.length} with filings · ${usd(total)} booked ${idx.year}` : ' · none crawled yet'}{cmpA}" tabs={TABS} bind:active={ui.tab} bind:collapsed onclose={() => { clearA(); clearB(); }}
       oncompare={locB.p ? null : () => pickingB = true} compareLabel="Compare…">
       {#if covered.length}<div class="catbar" style="margin:0 0 10px">{#each shares({ by_category: byCat, by_party: byParty }) as [c, v, col]}<i style="width:{(100 * v / total).toFixed(1)}%;background:{col}" title="{c}: {usd(v)}"></i>{/each}</div>{/if}
       {#if ui.tab === 'stations'}<StationsTab found={loc.found} p={loc.p} {idx} {api} />
@@ -96,7 +98,7 @@
     </Popover>
   {/if}
   {#if locB.p}
-    <Popover {api} anchor={locB.p} badge="B" accent="#c96a0a" title={locB.label} sub={cmpB} tabs={TABS} bind:active={ui.tabB} bind:collapsed={collapsedB} onclose={clearB}>
+    <Popover {api} anchor={locB.p} badge="B" accent="#c96a0a" prefer="left" title={locB.label} sub={cmpB} tabs={TABS} bind:active={ui.tabB} bind:collapsed={collapsedB} onclose={clearB}>
       {#if ui.tabB === 'stations'}<StationsTab found={locB.found} p={locB.p} {idx} {api} />
       {:else if ui.tabB === 'money'}<MoneyTab found={locB.found} all={loc.all} {idx} />
       {:else if ui.tabB === 'ads'}<AdsTab found={locB.found} {idx} />
