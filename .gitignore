@@ -11,6 +11,7 @@ data/*.sqlite*
 data/crawl.log
 data/post_crawl.log
 data/fec/
+data/backups/
 # per-entity exports are build artifacts (regenerate with make export); aggregates stay committed
 web/data/creatives/id/
 web/data/buyers/

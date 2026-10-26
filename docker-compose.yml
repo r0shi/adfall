@@ -1,3 +1,8 @@
+# Alternative PostGIS for the pipeline. The default on this Mac is Homebrew's postgresql@17 + postgis run by
+# `brew services` on 127.0.0.1:5434 (README "Set up once"); this compose service is the same thing in a container
+# (same port, role, database and password, so DATABASE_URL does not change) for a machine without Homebrew Postgres.
+# Only one of the two can listen on 5434: stop the brew service before `make db-up`, and vice versa.
+# Data lives in the tvw-pgdata volume; the pre-2026-10-26 production data is still there (see README rollback note).
 services:
   db:
     image: postgis/postgis:16-3.4

@@ -12,7 +12,7 @@ FCC public files, TV Query, contours      Census, FEC, NewsON, YouTube
                  │                                   │
                  ▼                                   ▼
    ┌───────────────────────────────────────────────────────┐
-   │  Pipeline  (Python, PostGIS in Docker)   make …        │
+   │  Pipeline  (Python, PostGIS)             make …        │
    │  crawl → parse → ocr → entities → identity → marts     │
    └───────────────────────────┬───────────────────────────┘
                                │  make export / make tiles
@@ -38,19 +38,20 @@ deployed. Findings, pitfalls and design live in [docs/](#documentation).
 | | Needed for |
 |---|---|
 | Python 3.12 or newer (developed on 3.14), venv at `.venv`: `python3 -m venv .venv && .venv/bin/pip install -r requirements.txt` | pipeline |
-| Docker with Compose | PostGIS |
+| PostgreSQL 17 + PostGIS: `brew install postgresql@17 postgis` (or Docker with Compose, see below) | pipeline store |
 | Node 20+ | app |
 | [tippecanoe](https://github.com/felt/tippecanoe) (`brew install tippecanoe`) | `make tiles` |
 | Apple Vision on macOS (the `ocrmac` package in requirements); elsewhere the `tesseract` CLI, picked automatically | `make ocr` |
 | `yt-dlp` (in requirements), optionally `YOUTUBE_API_KEY` in `.env` for the Data API | `make video` |
 
 Copy `.env.example` to `.env`. The only required setting is `DATABASE_URL`, and the
-default already points at the compose service on `127.0.0.1:5434`.
+default already points at `127.0.0.1:5434`, where both the Homebrew server (as set
+up below) and the compose service listen.
 
 ## Quick start
 
 ```bash
-make db-up && make migrate        # PostGIS on 127.0.0.1:5434, schema from db/migrations
+brew services start postgresql@17 && make migrate   # PostGIS on 127.0.0.1:5434 (see Set up once), schema from db/migrations
 make geo && make fec              # counties, population, H3 cells, coverage; FEC master files (once per cycle)
 make stations && make places      # station table from web/data/stations.json; place index for search
 make crawl STATE=IA               # one state's 2026 political files into Postgres and data/pdfs
@@ -104,8 +105,49 @@ updater can run at the same time. Each stage:
 
 ### Set up once
 
+Postgres runs natively under Homebrew and `brew services` (launchd), so it comes
+back after a reboot and the daily jobs can depend on it. On this Mac
+`postgresql@17` listens on `127.0.0.1:5434` only (5433 belongs to another app);
+the role, database and password match `.env.example`, so `DATABASE_URL` is the
+default. One-time install:
+
 ```bash
-make db-up           # start PostGIS (make db-down stops it; data persists in the tvw-pgdata volume)
+brew install postgresql@17 postgis
+conf=/opt/homebrew/var/postgresql@17/postgresql.conf
+cat >> $conf <<'EOF2'
+# Adfall (scripts/backup.sh, README "Set up once")
+listen_addresses = '127.0.0.1'
+port = 5434
+shared_buffers = 512MB
+work_mem = 64MB
+maintenance_work_mem = 256MB
+EOF2
+brew services start postgresql@17
+/opt/homebrew/opt/postgresql@17/bin/psql -p 5434 -d postgres -c "CREATE ROLE tvw LOGIN SUPERUSER PASSWORD 'tvw'" \
+  -c "CREATE DATABASE tvw OWNER tvw TEMPLATE template0 ENCODING UTF8 LOCALE_PROVIDER icu ICU_LOCALE 'en-US' LOCALE 'en_US.UTF-8'"
+```
+
+`brew services info postgresql@17` shows whether it is up; the log is
+`/opt/homebrew/var/log/postgresql@17.log`. Nightly dumps: `scripts/backup.sh`
+(`pg_dump -Fc` into `data/backups/`, newest 7 kept, uploaded to Backblaze B2 when
+`B2_BUCKET` is set in `.env` and `rclone` or the `b2` CLI is configured), scheduled
+by `scripts/launchd/com.adfall.backup.plist` once copied into
+`~/Library/LaunchAgents` (instructions in the file).
+
+The alternative is the compose service in `docker-compose.yml` (same port, role and
+password): `make db-up` starts it, `make db-down` stops it, data persists in the
+`tvw-pgdata` volume. Only one of the two can hold port 5434. The data was moved from
+that container (PostgreSQL 16 under Colima) to Homebrew on 2026-10-26; the volume still
+holds the pre-move copy, so rolling back is
+
+```bash
+brew services stop postgresql@17 && docker --context colima start tvw-db   # and the reverse to come back
+```
+
+(anything written after the move is only on the Homebrew side; carry it over with
+`pg_dump -Fc` from one and `pg_restore` into the other).
+
+```bash
 make migrate         # apply db/migrations/*.sql in order; rerun after pulling new migrations
 make geo             # counties, population, H3 cells, station coverage (rerun when stations.json changes)
 make fec             # FEC candidate, committee and linkage files for the cycle into data/fec
@@ -188,9 +230,9 @@ web/data/       exports the app reads: stations.json, spend/, hex/, buyers/, cre
 ingest/         pipeline stages, one module each; runlog.py (locks, logs, ledger), pg.py (migrate, marts)
 db/migrations/  schema, applied in order by make migrate
 data/           crawl store (pdfs/, text/, ocr/), logs/, locks/, target lists, overrides, FEC files
-scripts/        build_data.py (stations.json from FCC exports), fetch_newson.py, safe_export.sh
+scripts/        build_data.py (stations.json from FCC exports), fetch_newson.py, safe_export.sh, backup.sh (+ launchd/ plist)
 docs/           research.md, spec.md, design.md, design-pass.md
-docker-compose.yml   PostGIS service tvw-db on 127.0.0.1:5434
+docker-compose.yml   alternative PostGIS service tvw-db on 127.0.0.1:5434 (default is Homebrew postgresql@17)
 ```
 
 Per-entity exports (`web/data/buyers/`, `stations/`, `creatives/id/`, `marts/`,
