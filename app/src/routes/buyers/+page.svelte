@@ -59,7 +59,7 @@
             Plot.text(top, { x: 'booked', y: 'name', text: d => usd(d.booked), dx: 4, textAnchor: 'start', fontSize: 11, fill: 'var(--fg)' })
           ]
         })} />
-        <Legend other />
+        <Legend other toggle />
       {/if}
       <h2>All {list.length}</h2>
       {#each list.slice(0, 200) as b (b.id)}

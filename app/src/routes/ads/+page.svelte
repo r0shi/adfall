@@ -51,7 +51,7 @@
             <a href={b.slug ? `/buyers/${b.slug}` : `/ads/${b.top}`} style="font-size:{size(b.airings, maxB).toFixed(0)}px;color:{colorOf(b)};text-decoration:none" use:tip={{ html: true, text: `<b>${b.buyer}</b>\n${num(b.airings)} airings · ${b.creatives} creative${b.creatives === 1 ? '' : 's'}` }}>{b.buyer}</a>
           {/each}
         </div>
-        <Legend other><span>· sized by airings; switch to List for individual creatives</span></Legend>
+        <Legend other toggle><span>· sized by airings; switch to List for individual creatives</span></Legend>
       {:else}
         {#each list.slice(0, 150) as c (c.ad_id)}
           <div class="card" style="padding:7px 12px">

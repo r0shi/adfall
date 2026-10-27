@@ -18,6 +18,7 @@
   import { spendIndex, usd, num, CATS, get, hexWeights, forget } from '$lib/data.js';
   import { td, loadTimeData, retryTimeData, framerFor, geoLayers } from '$lib/timedata.svelte.js';
   import LoadPanel from '$lib/LoadPanel.svelte';
+  import ColorBy from '$lib/ColorBy.svelte';
   import { lazy, describe } from '$lib/recover.js';
   import { toGeoJSON } from '$lib/geo.js';
   import { installHexLayers, setHexLayer, resForZoom, layersFor, METRICS } from '$lib/hexlayers.js';
@@ -78,8 +79,15 @@
   });
   const covered = $derived(loc.found.filter(s => idx.stations[s.fac]?.total));
   const total = $derived(covered.reduce((t, s) => t + idx.stations[s.fac].total, 0));
-  const byCat = $derived.by(() => { const m = {}; for (const s of covered) for (const [c, v] of Object.entries(idx.stations[s.fac].by_category)) m[c] = (m[c] || 0) + v; return m; });
-  const byParty = $derived.by(() => { const m = {}; for (const s of covered) for (const [c, v] of Object.entries(idx.stations[s.fac].by_party || {})) m[c] = (m[c] || 0) + v; return m; });
+  // the buyer mix reaching a pin (the share bar under the tabs, next to the Color by switch that recolors it)
+  function mixOf(found) {
+    const m = { total: 0, by_category: {}, by_party: {} };
+    for (const s of found) { const st = idx.stations[s.fac]; if (!st?.total) continue; m.total += st.total;
+      for (const [c, v] of Object.entries(st.by_category)) m.by_category[c] = (m.by_category[c] || 0) + v;
+      for (const [c, v] of Object.entries(st.by_party || {})) m.by_party[c] = (m.by_party[c] || 0) + v; }
+    return m;
+  }
+  const mixA = $derived(mixOf(loc.found)), mixB = $derived(mixOf(locB.found));
   const TABS = [{ id: 'stations', label: 'Stations' }, { id: 'money', label: 'Money' }, { id: 'ads', label: 'Ads' }, { id: 'news', label: 'Newscasts' }, { id: 'time', label: 'Over time' }];
   const sumOf = (found) => found.reduce((t, s) => t + (idx.stations[s.fac]?.total || 0), 0);
   const totalB = $derived(sumOf(locB.found));
@@ -90,6 +98,9 @@
   const where = (l) => (l.market ? `${l.market} market · ` : '') + fmtP(l.p) + ' · ';
   const fmtHover = (p) => ui.layer === 'party' ? (p.total ? `${Math.round(100 * p.share)}% Democratic of ${usd(p.total)} candidate $${p.unk ? ` (+${usd(p.unk)} unknown party)` : ''}` : 'no candidate money') : isDiff ? `${p.value > 0 ? DIFFS[ui.layer].pos : DIFFS[ui.layer].neg} by ${usd(Math.abs(p.value))}` : ui.layer === 'animate' ? (p.party ? (p.total ? `${Math.round(100 * p.share)}% Democratic of ${usd(p.total)} candidate $ this ${tl.window}` : 'no candidate money') : `${tl.metric === 'spots' ? num(p.raw) + ' spots' : usd(p.raw)} this ${tl.window}`) : `${METRICS[ui.layer]?.[0]}: ${ui.layer === 'pp' ? '$' + (+p.pp).toFixed(2) : ui.layer === 'spots' ? p.spots : ui.layer === 'ps' ? '$' + p.ps : usd(p.booked)} · ${Number(p.pop).toLocaleString()} people · ${p.stations} stations with buys`;
 </script>
+{#snippet colorRow(m)}
+  <div class="colorrow">{#if m.total}<div class="catbar">{#each shares(m) as [c, v, col]}<i style="width:{(100 * v / m.total).toFixed(1)}%;background:{col}" title="{c}: {usd(v)}"></i>{/each}</div>{:else}<span class="muted small" style="flex:1">No filings yet</span>{/if}<ColorBy /></div>
+{/snippet}
 <svelte:head><title>Adfall</title></svelte:head>
 <div class="shell wide"><div class="mapwrap" style="height:100%">
   <MapView onready={ready} onclick={onMapClick} />
@@ -118,7 +129,7 @@
   {#if loc.p}
     <Popover {api} anchor={loc.p} badge={locB.p ? 'A' : ''} title={loc.label} sub="{where(loc)}{loc.found.length} stations reach here{covered.length ? ` · ${covered.length} with filings · ${usd(total)} booked ${idx.year}` : ' · none crawled yet'}{cmpA}" tabs={TABS} bind:active={ui.tab} bind:collapsed onclose={() => { clearA(); clearB(); }}
       oncompare={locB.p ? null : () => pickingB = true} compareLabel="Compare…">
-      {#if covered.length}<div class="catbar" style="margin:0 0 10px">{#each shares({ by_category: byCat, by_party: byParty }) as [c, v, col]}<i style="width:{(100 * v / total).toFixed(1)}%;background:{col}" title="{c}: {usd(v)}"></i>{/each}</div>{/if}
+      {@render colorRow(mixA)}
       {#if ui.tab === 'stations'}<StationsTab found={loc.found} p={loc.p} {idx} {api} />
       {:else if ui.tab === 'money'}<MoneyTab found={loc.found} all={loc.all} {idx} />
       {:else if ui.tab === 'ads'}<AdsTab found={loc.found} {idx} />
@@ -128,6 +139,7 @@
   {/if}
   {#if locB.p}
     <Popover {api} anchor={locB.p} badge="B" accent="#c96a0a" prefer="left" title={locB.label} sub={cmpB} tabs={TABS} bind:active={ui.tabB} bind:collapsed={collapsedB} onclose={clearB}>
+      {@render colorRow(mixB)}
       {#if ui.tabB === 'stations'}<StationsTab found={locB.found} p={locB.p} {idx} {api} />
       {:else if ui.tabB === 'money'}<MoneyTab found={locB.found} all={loc.all} {idx} />
       {:else if ui.tabB === 'ads'}<AdsTab found={locB.found} {idx} />
@@ -185,6 +197,8 @@
   .keynote { font-size: 11px; margin-top: 2px; }
   .keyhover { margin-top: 6px; padding-top: 6px; border-top: 1px solid var(--line); font-size: 11.5px; line-height: 1.35; }
   .key :global(.loadpanel) { margin-top: 6px; }
+  .colorrow { display: flex; align-items: center; gap: 10px; margin: -2px 0 10px; }
+  .colorrow .catbar { flex: 1; min-width: 40px; height: 8px; border-radius: 4px; margin: 0; }
   .credit { position: absolute; left: 12px; bottom: 6px; z-index: 3; font-size: 10.5px; max-width: 60%; }
   @media (max-width: 800px) {
     .float { left: 6px; top: 6px; width: calc(100% - 12px); padding: 8px 10px; }

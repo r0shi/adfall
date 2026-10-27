@@ -42,7 +42,7 @@
       {#if sp}
         <h2>Who is buying here</h2>
         <Treemap items={sp.buyers.map(b => ({ id: `${b.category}|${b.name}`, key: b.name, value: b.gross, color: colorOf(b), href: b.slug ? `/buyers/${b.slug}` : null }))} height={260} format={usd} />
-        <Legend><span>· area = booked $</span></Legend>
+        <Legend toggle><span>· area = booked $</span></Legend>
       {/if}
       {#if d.daypart}<h2>When political ads ran</h2><Heatmap grid={d.daypart} />{/if}
       {#if sp}
