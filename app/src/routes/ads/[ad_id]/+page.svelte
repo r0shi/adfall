@@ -27,8 +27,10 @@
         <h2 style="margin-top:0">The ad{#if d.video_title} · <span class="muted" style="font-weight:400">{d.video_title}</span>{/if}</h2>
         <div style="max-width:720px"><Player video={d} title={d.video_title || d.ad_id} autoplay={false} /></div>
         <p class="muted small" style="margin:6px 0 0">
-          {#if d.source === 'override'}Verified by hand.{:else}Matched to the buyer's own channel by {(d.matched_by || '').split(',').filter(x => x && x !== 'exact-date').join(', ') || 'date'}:
+          {#if d.source === 'google-ads'}No upload on the campaign's channel lines up, but the advertiser started a Google video ad within days of the first airing ({(d.matched_by || '').match(/candidates=(\d+)/)?.[1] || '?'} candidate{(d.matched_by || '').includes('candidates=1,') || (d.matched_by || '').endsWith('candidates=1') ? '' : 's'} that week). Google's page plays it; it may be a different cut of the same spot. <Badge confidence={d.confidence} source={d.source} size="inline" />
+          {:else if d.source === 'override'}Verified by hand.{:else}Matched to the buyer's own channel by {(d.matched_by || '').split(',').filter(x => x && x !== 'exact-date').join(', ') || 'date'}:
             uploaded {d.video_published || '?'}{#if d.video_duration} · {d.video_duration}s{/if} vs first aired {d.first}. <Badge confidence={d.confidence} source={d.source} size="inline" /> {Math.round((d.confidence || 0) * 100)}% confidence.{/if}
+          {#if d.google_url}It also ran as a Google video ad that week: <a href={d.google_url} target="_blank" rel="noopener">Ads Transparency Center ↗</a>.{/if}
           {#if d.runner_up}Runner-up: <a href={d.runner_up.video_url} target="_blank" rel="noopener">{d.runner_up.title || 'another upload'}</a> ({Math.round((d.runner_up.confidence || 0) * 100)}%).{/if}
           {#if d.family && d.family !== d.ad_id}Spot family <b style="font-family:ui-monospace,monospace">{d.family}</b>: the invoices append a per-airing tail to this code; every variant maps to the same video.{/if}
         </p>

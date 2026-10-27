@@ -29,7 +29,6 @@ log = logging.getLogger('ingest.video')
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 CACHE_DIR = os.path.join(ROOT, "data", "video_cache")
 OVERRIDES = os.path.join(ROOT, "data", "video_overrides.yaml")
-GOOGLE_ADVERTISERS = os.path.join(ROOT, "data", "google_political_ads", "advertiser_stats.csv")
 UA = "adfall/0.1 (+research; metadata only)"
 
 AD_MIN, AD_MAX = 10, 95                       # seconds: what counts as an ad-length upload
@@ -642,22 +641,13 @@ def cmd_overrides(con, st):
     log.info("overrides applied: %d channels, %d creatives", len(ov["channels"]), len(ov["creatives"]))
 
 
-def cmd_google_ads(con, st):
-    """Optional cross-check: an advertiser_stats export from BigQuery `bigquery-public-data.google_political_ads`
-    dropped at data/google_political_ads/advertiser_stats.csv (advertiser_id, advertiser_name, ...). Gives a
-    link-out to the advertiser's page in Google's Ads Transparency Center per buyer; no video, no scraping."""
-    if not os.path.exists(GOOGLE_ADVERTISERS):
-        log.info("google ads: no %s, skipping (export advertiser_stats from BigQuery to enable)", os.path.relpath(GOOGLE_ADVERTISERS, ROOT)); return
-    import csv
-    rows = list(csv.DictReader(open(GOOGLE_ADVERTISERS)))
-    names = [(r["advertiser_name"], r["advertiser_id"]) for r in rows if r.get("advertiser_name")]
-    for b in load_buyers(con):
-        best = max(((fuzz.token_set_ratio(b["name"], n), n, aid) for n, aid in names), default=(0, None, None))
-        if best[0] >= 92:
-            upsert_channel(con, b, {"channel_id": best[2], "channel_url": f"https://adstransparency.google.com/advertiser/{best[2]}?region=US&political",
-                                                "title": best[1], "confidence": best[0] / 100, "matched_by": "name match to advertiser_stats"}, source="google-ads")
-            st.count("google_advertisers")
-    con.commit()
+def cmd_google_ads(con, st, buyers, refresh=False):
+    """Second source: Google's political ads transparency bundle (see ingest/video_google.py). Link-outs and a cross-check."""
+    from . import video_google
+    try:
+        video_google.run(con, st, buyers, refresh=refresh)
+    except Exception as e:                                   # a Google outage must not sink the YouTube run
+        con.rollback(); st.fail("google-ads", f"{type(e).__name__}: {e}"); log.exception("google ads step failed")
 
 
 # ------------------------------------------------------------------ report
@@ -683,7 +673,19 @@ def cmd_report(con, places=(("Des Moines 50309", "50309"), ("Atlanta 30303", "30
                                      COUNT(v.ad_id) FILTER (WHERE v.confidence>=0.7) high, SUM(c.airings) FILTER (WHERE v.confidence>=0.7) high_airings
                               FROM creative c JOIN buyer b USING (buyer_id) LEFT JOIN creative_video v ON v.ad_id=c.ad_id AND v.rank=1 AND v.embed_url IS NOT NULL
                               GROUP BY 1 ORDER BY 1""")
-    out["sources"] = q("SELECT source, COUNT(*) FROM creative_video WHERE rank=1 GROUP BY 1")
+    out["sources"] = q("""SELECT v.source, v.rank, CASE WHEN v.confidence>=0.7 THEN 'high' WHEN v.confidence>=0.4 THEN 'medium' ELSE 'low' END, COUNT(*), SUM(c.airings)
+                          FROM creative_video v JOIN creative c USING (ad_id) GROUP BY 1,2,3 ORDER BY 1,2,3""")
+    out["google_by_category"] = q("""SELECT b.category, SUM(c.airings) airings,
+                                            SUM(c.airings) FILTER (WHERE y.ad_id IS NOT NULL) youtube, SUM(c.airings) FILTER (WHERE g.ad_id IS NOT NULL) google_any,
+                                            SUM(c.airings) FILTER (WHERE y.ad_id IS NULL AND g.ad_id IS NOT NULL) google_only,
+                                            SUM(c.airings) FILTER (WHERE y.matched_by LIKE '%%google%%') yt_crosschecked
+                                     FROM creative c JOIN buyer b USING (buyer_id)
+                                     LEFT JOIN creative_video y ON y.ad_id=c.ad_id AND y.rank=1 AND y.source='youtube'
+                                     LEFT JOIN (SELECT DISTINCT ad_id FROM creative_video WHERE source='google-ads') g ON g.ad_id=c.ad_id
+                                     GROUP BY 1 ORDER BY 1""")
+    out["google_advertisers"] = q(f"""SELECT b.category, COUNT(DISTINCT {SLUG_SQL}), COUNT(DISTINCT bc.buyer_slug), COUNT(DISTINCT bc.buyer_slug) FILTER (WHERE bc.matched_by LIKE 'fec%%')
+                                      FROM (SELECT buyer_id, SUM(airings) a FROM creative GROUP BY 1 ORDER BY 2 DESC LIMIT 300) t JOIN buyer b USING (buyer_id)
+                                      LEFT JOIN buyer_channel bc ON bc.buyer_slug={SLUG_SQL} AND bc.source='google-ads' GROUP BY 1 ORDER BY 1""")
     zips = json.load(open(os.path.join(ROOT, "web", "data", "places.json"))).get("zips", {})
     out["places"] = []
     for label, z in places:
@@ -693,8 +695,10 @@ def cmd_report(con, places=(("Des Moines 50309", "50309"), ("Atlanta 30303", "30
         r = q("""WITH facs AS (SELECT facility_id FROM station WHERE contour IS NOT NULL AND ST_Contains(contour, ST_SetSRID(ST_Point(%s,%s),4326)))
                  SELECT COUNT(*) airings, COUNT(*) FILTER (WHERE v.embed_url IS NOT NULL) playable,
                         COUNT(*) FILTER (WHERE v.embed_url IS NOT NULL AND v.confidence>=0.7) high,
-                        COUNT(*) FILTER (WHERE v.embed_url IS NOT NULL AND v.confidence>=0.4) med_up, (SELECT COUNT(*) FROM facs)
-                 FROM spot s JOIN facs USING (facility_id) LEFT JOIN creative_video v ON v.ad_id=s.ad_id AND v.rank=1 WHERE s.ad_id IS NOT NULL""", lon, lat)[0]
+                        COUNT(*) FILTER (WHERE v.embed_url IS NOT NULL AND v.confidence>=0.4) med_up,
+                        COUNT(*) FILTER (WHERE v.ad_id IS NOT NULL) any_link, COUNT(*) FILTER (WHERE g.ad_id IS NOT NULL) google_seen, (SELECT COUNT(*) FROM facs)
+                 FROM spot s JOIN facs USING (facility_id) LEFT JOIN creative_video v ON v.ad_id=s.ad_id AND v.rank=1
+                 LEFT JOIN (SELECT DISTINCT ad_id FROM creative_video WHERE source='google-ads') g ON g.ad_id=s.ad_id WHERE s.ad_id IS NOT NULL""", lon, lat)[0]
         out["places"].append((label, *r))
     out["tail"] = q(f"""SELECT b.canonical_name, b.category, SUM(c.airings) a, COUNT(*) n, bool_or(bc.buyer_slug IS NOT NULL) has_channel,
                               COUNT(v.ad_id) matched
@@ -710,8 +714,10 @@ def print_report(r):
     print("category  buyers  with_channel  with_ad_uploads"); [print("  ", *row) for row in r["channels_by_category"]]
     print("tier  creatives  airings"); [print("  ", *row) for row in r["by_tier"]]
     print("category  creatives  airings  matched  matched_airings  high  high_airings"); [print("  ", *row) for row in r["by_category"]]
-    print("sources:", r["sources"])
-    print("place  airings  playable  high  medium+  stations"); [print("  ", *row) for row in r["places"]]
+    print("source rank tier creatives airings"); [print("  ", *row) for row in r["sources"]]
+    print("google advertisers (top 300): category buyers matched by_fec"); [print("  ", *row) for row in r["google_advertisers"]]
+    print("category airings youtube google_any google_only yt_crosschecked"); [print("  ", *row) for row in r["google_by_category"]]
+    print("place  airings  playable  high  medium+  any_link  google_seen  stations"); [print("  ", *row) for row in r["places"]]
     t = r["tail"]; cum = 0; tot = sum(x[2] for x in t)
     print("tail (buyers ranked by airings: cumulative share, has channel, matched creatives)")
     for i, row in enumerate(t):
@@ -746,8 +752,8 @@ def main():
         if a.cmd in ("all", "videos"):
             cmd_videos(con, st, buyers, refresh=a.refresh, detail_cap=a.detail_cap)
         if a.cmd in ("all", "google-ads"):
-            cmd_google_ads(con, st)
-        if a.cmd in ("all", "overrides", "channels", "videos"):
+            cmd_google_ads(con, st, buyers, refresh=a.refresh)
+        if a.cmd in ("all", "overrides", "channels", "videos", "google-ads"):
             cmd_overrides(con, st)
         for k, v in sorted(st.counts.items()):
             log.info("  %s=%s", k, v)

@@ -53,13 +53,17 @@ VIDEO_KEYS = ("video_url", "embed_url", "thumb_url", "confidence", "source")
 
 
 def load_videos(con):
-    """creative_video -> ({ad_id: best}, {ad_id: runner-up}); built by ingest.video, overrides already applied there."""
-    best, runner = {}, {}
+    """creative_video -> ({ad_id: best}, {ad_id: runner-up}); built by ingest.video, overrides already applied there.
+    Rank 3 rows (a Google Ads Transparency link beside a YouTube match) ride along on the best row as `google_url`."""
+    best, runner, google = {}, {}, {}
     for ad, rank, source, vurl, eurl, turl, title, dur, pub, conf, mb in con.execute(
             "SELECT ad_id, rank, source, video_url, embed_url, thumb_url, title, duration_sec, published_at, confidence, matched_by FROM creative_video ORDER BY ad_id, rank"):
         d = {"video_url": vurl, "embed_url": eurl, "thumb_url": turl, "title": title, "duration": dur, "published": str(pub) if pub else None,
              "confidence": round(conf, 2) if conf is not None else None, "source": source, "matched_by": mb}
-        (best if rank == 1 else runner)[ad] = d
+        {1: best, 2: runner, 3: google}.get(rank, {})[ad] = d
+    for ad, g in google.items():
+        if ad in best:
+            best[ad]["google_url"] = g["video_url"]
     return best, runner
 
 
@@ -250,6 +254,7 @@ def export_creative_pages(con):
         v = videos.get(ad)
         if v:
             out.update({k: v[k] for k in VIDEO_KEYS}, video_title=v["title"], video_duration=v["duration"], video_published=v["published"], matched_by=v["matched_by"],
+                       google_url=v.get("google_url"),
                        runner_up=({k: runners[ad][k] for k in ("video_url", "thumb_url", "title", "confidence")} if ad in runners else None))
         json.dump(out, open(os.path.join(WEB, "creatives", "id", f"{ad}.json"), "w"), separators=(",", ":"))
     log.info(f"  creatives/id/: {len(by)} files")

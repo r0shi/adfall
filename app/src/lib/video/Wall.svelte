@@ -10,11 +10,12 @@
   let { list, limit = 48, min = 84, max = 156 } = $props();
   const fams = $derived(families(list).slice(0, limit));
   const maxA = $derived(fams[0]?.airings || 1);
-  const matched = $derived(fams.filter(f => f.video).length);
+  const matched = $derived(fams.filter(f => f.video?.embed_url).length);
+  const linked = $derived(fams.filter(f => f.video && !f.video.embed_url).length);
   const width = (a) => Math.round(min + (max - min) * Math.sqrt(a / maxA));
   let playing = $state(null);
 </script>
-<div class="muted small" style="margin-bottom:6px">{matched} of {fams.length} spots have a video match{matched < fams.length ? '; the rest are codes from the invoices with no public video yet' : ''}. Click a tile to play.</div>
+<div class="muted small" style="margin-bottom:6px">{matched} of {fams.length} spots play here{linked ? `, ${linked} more link to a Google ad that started the same week` : ''}{matched + linked < fams.length ? '; the rest are invoice codes with no public video yet' : ''}. Click a tile to play.</div>
 <div class="wall">
   {#each fams as f (f.key)}
     {#if playing === f.key && f.video}
@@ -22,6 +23,13 @@
         <Player video={f.video} title="{f.buyer || f.key} · {num(f.airings)} airings" onclose={() => playing = null} />
         <div class="cap small"><a href="/ads/{f.ad_id}" style="font-family:ui-monospace,monospace;text-decoration:none">{f.key}</a><span class="muted">{f.buyer || 'unknown buyer'}</span></div>
       </div>
+    {:else if f.video && !f.video.embed_url}
+      <a class="tile text linkout" href={f.video.video_url} target="_blank" rel="noopener" style="width:{width(f.airings)}px;--cat:{CATS[f.category] || CATS.Other}" title="{f.buyer || f.key} · {num(f.airings)} airings · a Google video ad that started the same week; opens Google's Ads Transparency Center">
+        <span class="tag"><Badge confidence={f.video.confidence} source={f.video.source} /></span>
+        <span class="code">{f.key}</span>
+        <span class="go small">Google ad ↗</span>
+        <span class="label"><b>{f.buyer || 'unknown buyer'}</b><span>{num(f.airings)}</span></span>
+      </a>
     {:else if f.video}
       <button class="tile thumb" style="width:{width(f.airings)}px;--cat:{colorOf(f)}" onclick={() => playing = f.key} use:tip={`${f.buyer || f.key}\n${num(f.airings)} airings · ${f.first} → ${f.last}`}>
         <img src={f.video.thumb_url} alt="" loading="lazy" />
@@ -52,6 +60,8 @@
   .tile.text { aspect-ratio: 16 / 9; display: flex; flex-direction: column; justify-content: center; align-items: center; }
   .tile.text .code { font-family: ui-monospace, monospace; font-weight: 700; font-size: 11px; opacity: .8; padding: 0 6px; word-break: break-all; text-align: center; }
   .tile.text .label { color: var(--fg); background: none; padding: 4px 6px; }
+  .tile.linkout { border-style: dashed; border-left-style: solid; }
+  .tile.linkout .go { font-size: 10.5px; color: var(--accent); margin-top: 2px; }
   .tile.open { width: 100%; cursor: default; border-left-width: 1px; background: none; border: 0; }
   .cap { display: flex; gap: 8px; padding: 4px 2px 0; }
 </style>

@@ -15,7 +15,8 @@ export function families(list) {
     const e = m.get(k) || { key: k, ad_id: c.ad_id, buyer: c.buyer, category: c.category, airings: 0, ids: [], first: c.first, last: c.last, video: null };
     e.airings += c.airings; e.ids.push(c.ad_id);
     if (c.first < e.first) e.first = c.first; if (c.last > e.last) e.last = c.last;
-    if (c.video_url && (!e.video || (c.confidence || 0) > (e.video.confidence || 0))) {
+    const better = (a, b) => !b || (!!a.embed_url !== !!b.embed_url ? !!a.embed_url : (a.confidence || 0) > (b.confidence || 0));   // a playable match beats a link-out
+    if (c.video_url && better(c, e.video)) {
       e.video = { video_url: c.video_url, embed_url: c.embed_url, thumb_url: c.thumb_url, confidence: c.confidence, source: c.source };
       e.ad_id = c.ad_id;
     }
