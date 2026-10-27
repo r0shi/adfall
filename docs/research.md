@@ -1190,3 +1190,12 @@ over all 1,098 stations takes about six minutes with four threads; the re-walks 
 API calls per changed station. `--all` re-walks everything (weekly safety net against an add
 and a delete cancelling out in the count); `--mode feed` keeps the old path for small windows.
 First run on four stations: three had grown (+14 files), listed and downloaded in 71 seconds.
+
+First full run of the count-check update (2026-10-26, 22:47 to 23:36): 1,098 station-years
+checked in 55 seconds, 623 changed, re-listed with four threads in 38 minutes (297,668 files
+walked, 7,880 new, 77 removed, 16 walk-versus-count mismatches logged), 8,451 files
+downloaded (3.4 GB) with 2 transient 504s that the daily chain's own pass then fetched. The
+daily chain after it (`scripts/daily.sh`) took 24 minutes end to end: parse 3.6 min, OCR of
+2,015 image PDFs 7.8 min, entities twice plus identity 3.4 min, marts 2.7 min, export and
+tiles 2.4 min, site build 44 s. Store after the run: 419,678 documents from 1,098 stations,
+84.8% parsed ok, 126,584 orders, 63,943 invoices, 2.09 million spots.

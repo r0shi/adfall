@@ -39,6 +39,7 @@ def overall(con):
                                          AND (o.status IS NULL OR (o.status='failed' AND o.attempts<3))""").fetchone()[0]
     o["ocr"]["engines"] = dict(con.execute("SELECT engine, COUNT(*) FROM ocr WHERE status='ok' GROUP BY 1 ORDER BY 1").fetchall())
     o["last_history_sync"] = (con.execute("SELECT value FROM meta WHERE key='last_history_sync'").fetchone() or [None])[0]
+    o["last_count_check"] = (con.execute("SELECT value FROM meta WHERE key='last_count_check'").fetchone() or [None])[0]
     return o
 
 
@@ -129,7 +130,7 @@ def main(argv=None):
     print(f"  listings: " + "  ".join(f"{s}={n}" for s, n in o["listing"].items()) + f"   by year: " + "  ".join(f"{y}: {v['downloaded']:,}/{v['listed']:,}" for y, v in o["by_year"].items()))
     print(f"  parsed {d['parsed']:,}  ok {d['ok']:,} ({100*d['ok']/max(1,d['parsed']):.1f}%)  partial {d['partial']:,}  failed {d['failed']:,}  unrecognized {d['unrecognized']:,}  unparsed downloads {d['unparsed_downloads']:,}  parser crashes {d['parser_crashes']:,}")
     print(f"  OCR: needed {d['needs_ocr'] + d['from_ocr']:,}  done {oc['ok']:,} ({oc['pages']:,} pages, {oc['cpu_hours']} cpu-h, engines {oc['engines']})  pending {oc['pending']:,}  failed {oc['failed']:,} (given up {oc['given_up']:,})")
-    print(f"  last history sync: {o['last_history_sync']}   entities: " + (f"orders {pgc['orders']:,}  invoices {pgc['invoices']:,}  spots {pgc['spots']:,}  buyers {pgc['buyers']:,}  built {pgc['entities_built_at']}" if "error" not in pgc else f"unreadable ({pgc['error']})"))
+    print(f"  last update (folder counts): {o['last_count_check']}   feed sync: {o['last_history_sync']}   entities: " + (f"orders {pgc['orders']:,}  invoices {pgc['invoices']:,}  spots {pgc['spots']:,}  buyers {pgc['buyers']:,}  built {pgc['entities_built_at']}" if "error" not in pgc else f"unreadable ({pgc['error']})"))
     print("\n  documents by kind / template / status:")
     for key, n in sorted(k.items(), key=lambda x: -x[1])[:28]:
         print(f"    {n:7,}  {key}")
