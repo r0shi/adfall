@@ -3,9 +3,9 @@ import { rampExpr } from './palette.js';
 import { dataAbs } from './base.js';
 export const METRICS = {
   booked: ['Money reaching here', 'Booked $ spread over each station\'s coverage by population', 'booked'],
-  pp: ['$ per person', 'Booked $ divided by people in the cell', 'pp'],
+  pp: ['$ per person', 'Booked $ per person from the nearest TV market\'s stations (towers within 30 km form a market), so areas between markets are not counted twice', 'pp'],
   spots: ['Spots aired', 'Invoiced airings reaching the cell, population-weighted', 'spots'],
-  ps: ['$ per spot', 'Booked $ per aired spot', 'ps'],
+  ps: ['$ per spot', 'Invoiced $ per aired spot on the nearest market\'s stations; blank where none of them report airings', 'ps'],
   stations: ['Stations with buys', 'How many covering stations have political orders', 'stations']
 };
 export const RES = [5, 7, 8];
@@ -32,7 +32,8 @@ export function setHexLayer(map, { visible, res, metric, meta }) {
     const on = visible && want.includes(id);
     map.setLayoutProperty(id, 'visibility', on ? 'visible' : 'none');
     if (!on) continue;
-    map.setFilter(id, filterFor(r, res));
+    const f = filterFor(r, res), has = metric === 'ps' ? ['has', 'ps'] : null;    // $/spot is absent where no in-market station reports airings
+    map.setFilter(id, f && has ? ['all', f, has] : f || has);
     if (meta) map.setPaintProperty(id, 'fill-color', fillExpr(prop, meta.hex?.[r]?.max?.[prop]));
   }
 }

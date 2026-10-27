@@ -11,9 +11,9 @@
   get('tiles/meta.json').then(m => meta = m);
   const METRICS = {
     booked: ['Money reaching here', 'Booked $ spread over each station\'s coverage by population', 'booked', usd],
-    pp: ['$ per person', 'Booked $ divided by people in the cell', 'pp', v => `$${(+v).toFixed(2)}`],
+    pp: ['$ per person', 'Booked $ per person from the nearest TV market\'s stations', 'pp', v => `$${(+v).toFixed(2)}`],
     spots: ['Spots aired', 'Invoiced airings reaching the cell, population-weighted', 'spots', num],
-    ps: ['$ per spot', 'Booked $ per aired spot (what a spot costs where you live)', 'ps', v => `$${Math.round(v)}`],
+    ps: ['$ per spot', 'Invoiced $ per aired spot on the nearest market\'s stations (what a spot costs where you live)', 'ps', v => v ? `$${Math.round(v)}` : 'no spot data'],
     stations: ['Stations with buys', 'How many covering stations have political orders', 'stations', v => String(v)]
   };
   const prop = $derived(METRICS[metric][2]);
