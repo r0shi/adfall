@@ -41,7 +41,7 @@ OFFICE_WORDS = [("gov", "Governor"), ("senate", "Senate"), ("house", "Congress")
 STATE_NAMES = {"AL": "Alabama", "AK": "Alaska", "AZ": "Arizona", "AR": "Arkansas", "CA": "California", "CO": "Colorado", "CT": "Connecticut", "DE": "Delaware", "FL": "Florida", "GA": "Georgia", "HI": "Hawaii", "ID": "Idaho", "IL": "Illinois", "IN": "Indiana", "IA": "Iowa", "KS": "Kansas", "KY": "Kentucky", "LA": "Louisiana", "ME": "Maine", "MD": "Maryland", "MA": "Massachusetts", "MI": "Michigan", "MN": "Minnesota", "MS": "Mississippi", "MO": "Missouri", "MT": "Montana", "NE": "Nebraska", "NV": "Nevada", "NH": "New Hampshire", "NJ": "New Jersey", "NM": "New Mexico", "NY": "New York", "NC": "North Carolina", "ND": "North Dakota", "OH": "Ohio", "OK": "Oklahoma", "OR": "Oregon", "PA": "Pennsylvania", "RI": "Rhode Island", "SC": "South Carolina", "SD": "South Dakota", "TN": "Tennessee", "TX": "Texas", "UT": "Utah", "VT": "Vermont", "VA": "Virginia", "WA": "Washington", "WV": "West Virginia", "WI": "Wisconsin", "WY": "Wyoming", "DC": "District of Columbia"}
 
 # ------------------------------------------------------------------ Ad-ID structure
-WEEKDAY_TAIL = re.compile(r"(M|Tu|W|Th|F|Sa|Su)\d*$")
+WEEKDAY_TAIL = re.compile(r"(M|Tu|W|Th|F|Sa|Su)\d{0,2}$")     # a glued tail has at most a 2-digit slot; MADF2602 is a code, not MAD + F2602
 
 
 def family(ad_id):

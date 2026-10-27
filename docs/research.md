@@ -775,7 +775,7 @@ app's Ads tab has a thumbnail wall and creative pages embed the match.
 | yt-dlp (metadata only) | keyless search (`ytsearch15:`), flat channel listings with exact durations and approximate dates ("2 months ago"), thumbnails | Reads public pages; YouTube's ToS disallow automated access without permission, so this is a research-grade fallback, rate-limited to one request per listing and nothing downloaded. One listing ≈ 1.5 s. |
 | YouTube watch page `uploadDate` | exact publish date for an upload | one GET per ad-length upload, 4 in parallel, cached forever under `data/video_cache/dates/` |
 | YouTube RSS (`feeds/videos.xml?channel_id=`) | exact dates for the latest 15 uploads | returned 404 for the channels tried on 2026-10-25; not used |
-| Google Ads Transparency Center | per-advertiser page listing every political ad with a playable creative (`/advertiser/AR…?region=US&political`) | the site is a JS app with no name-based deep link; advertiser ids come only from the BigQuery public dataset `google_political_ads` (needs a GCP project; no `bq`/`gcloud` on this machine) or the site's internal RPC. Supported as a link-out when `data/google_political_ads/advertiser_stats.csv` is exported from BigQuery; empty otherwise. The old zip bundle is a stub. |
+| Google Ads Transparency Center | per-advertiser page listing every political ad with a playable creative (`/advertiser/AR…?region=US&political`) | the site is a JS app with no name-based deep link; advertiser ids come only from the BigQuery public dataset `google_political_ads` (needs a GCP project; no `bq`/`gcloud` on this machine) or the site's internal RPC. Used since 2026-10-26 through the public bundle (below), not BigQuery. |
 | iSpot.tv | public ad pages (`ispot.tv/ad/<id>/<slug>`) with a player for many political spots | search is JS-only (`/search?q=` renders no results), brand ids are internal; usable only as an override URL (kept as a link-out, never embedded or scraped) |
 | Ad-ID registry (ad-id.org) | the authoritative prefix → advertiser table | members only; no video |
 
@@ -910,11 +910,89 @@ Both are honest; a reader sees the badge.
   on top, and survives the entity rebuild (migration 008 keys channels by
   buyer slug, not buyer_id, which the rebuild reassigns). Then
   `scripts/safe_export.sh --only creatives,pages,details`.
-- Cross-check sources are wired but dormant: drop a BigQuery export of
-  `google_political_ads.advertiser_stats` at
-  `data/google_political_ads/advertiser_stats.csv` and `ingest.video
-  google-ads` adds a Transparency Center link per buyer; iSpot pages go in
-  as overrides.
+- The Google step (`ingest.video google-ads`, also part of `all`) re-downloads
+  the bundle only when Google's copy is newer (conditional GET), then
+  re-extracts and re-matches in about 30 s. iSpot pages go in as overrides.
+
+### Second source: Google's political ads bundle (2026-10-26)
+
+`https://storage.googleapis.com/political-csv/google-political-ads-transparency-bundle.zip`
+is no longer the empty stub it was on 2026-10-25: 313 MB zipped, 3.3 GB of
+CSV, regenerated daily, public, no account or key. It is the same data as
+the BigQuery dataset `bigquery-public-data.google_political_ads`, so
+BigQuery access is not needed. Useful tables:
+
+- `creative-stats`: every election ad Google served (YouTube included) with
+  advertiser, type (VIDEO / TEXT / IMAGE), first and last served dates,
+  impression and spend buckets, geo targeting (ZIPs, counties, states), and
+  a link to the ad's page in the Ads Transparency Center. 128,814 US video
+  ads ran between 2025-07-01 and 2026-10-26.
+- `advertiser-stats`: `Public_IDs_List` carries the FEC committee id for
+  federal committees ("FEC ID C00…"), a state registration for state ones,
+  an EIN for most others. 16,638 of 17,889 US advertisers have one.
+- `advertiser-declared-stats`: the name and regulatory id the advertiser
+  declared, a second name to match on.
+
+It has no YouTube video id, so a Google match is a link-out (Google's page
+plays the ad), never an embed. `ingest/video_google.py`:
+
+1. Buyer → advertiser: FEC id first (confidence 0.95), else the best name
+   match over advertiser and declared names, with guards: every distinctive
+   token of the buyer's name must appear in the advertiser's (rejects
+   "Democratic Lieutenant Governors Association" → "Democratic Governors
+   Association" and "Texans for a Conservative Majority" → "Texas
+   Conservative Majority PAC"), a buyer named only with generic words ("US
+   Senate", "Action Fund") does not match by name, and the advertiser must
+   target the buyer's state when the buyer has one.
+2. Per spot family: the advertiser's video ads that started serving within
+   5 days of the first airing and target a state the spot aired in. Where
+   YouTube already matched, a Google launch within 5 days of the upload date
+   adds the signal `google` and +0.05, and the best candidate is stored as a
+   rank-3 "also ran on Google" link. Where YouTube did not, the best
+   candidate becomes the rank-1 link-out at 0.55 × date score / √candidates.
+   Big PACs run several variants a week, so most of these are "guess".
+
+Results (2026-10-26 23:30; 2,228 buyers, 24,593 creatives, 7,284 spot
+families, 2,022,297 airings, top 300 buyers = 71% of airings):
+
+| Top-300 buyers | Buyers | Google advertiser | by FEC id |
+|---|---|---|---|
+| Federal | 87 | 73 | 70 |
+| Issue | 100 | 76 | 36 |
+| State | 110 | 25 | 0 |
+| Local | 3 | 0 | 0 |
+
+| Airings | All | Playable on YouTube | Google link only | Any link |
+|---|---|---|---|---|
+| Federal | 547,725 | 263,784 (48%) | 70,926 (13%) | 61% |
+| Issue | 634,083 | 146,011 (23%) | 140,141 (22%) | 45% |
+| State | 810,106 | 476,773 (59%) | 6,692 (1%) | 60% |
+| Local | 30,383 | 3,098 (10%) | 0 | 10% |
+| Total | 2,022,297 | 889,666 (44%) | 217,759 (11%) | 55% |
+
+High-confidence YouTube matches cover 166,805 airings (8%). The Google
+launch date confirmed 475 YouTube family matches. Google helps most where
+YouTube was weakest: issue groups and super PACs register with Google to run
+election ads even when they keep no public channel. State candidates mostly
+advertise on Google under committee names that rarely carry an FEC id, so
+Google adds little there.
+
+| Place | Airings | Playable | High | Medium or better | Any link |
+|---|---|---|---|---|---|
+| Des Moines 50309 | 59,797 | 39,605 (66%) | 10,843 (18%) | 25,699 (43%) | 44,164 (74%) |
+| Atlanta 30303 | 81,768 | 59,163 (72%) | 9,512 (12%) | 32,587 (40%) | 64,307 (79%) |
+
+Two caveats on these numbers. From the 134th buyer of the run on, YouTube
+served a stripped watch page (HTTP 200, no metadata) instead of the upload
+date, without a 429: a soft block after about 1,500 page fetches in 45
+minutes. Those 40 buyers matched on approximate listing dates, which caps
+their confidence at 0.45, so the high tier is understated. A Data API key
+(`YOUTUBE_API_KEY`) removes the dependency; without one, rerunning later
+fills the gaps, since only successful date lookups are cached. And the spot
+family rule (`ingest.video.family()`) is still needed after the parser fix:
+bare weekday tails with no slot digit (`SSUBCAR111HSa`, `JADP2601HW`)
+survive it, and the rule now strips at most a two-digit slot so real codes
+such as `MADF2602` keep their identity.
 
 ### Known limits
 
