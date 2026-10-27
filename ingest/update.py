@@ -211,12 +211,24 @@ def main_counts(a):
             changed = [(fac, y, None, None) for fac in facs for y in years]
         else:
             changed = check_counts(con, st, facs, years, workers=a.workers)
-        for i, (fac, year, ours, theirs) in enumerate(changed, 1):
-            log.info("  [%d/%d] %s/%s: we hold %s, FCC reports %s; re-listing", i, len(changed), fac, year, ours, theirs)
-            before = con.execute("SELECT COUNT(*) FROM opif_file WHERE facility_id=%s AND year=%s", (fac, year)).fetchone()[0]
-            list_station(con, st, fac, year, relist=True, mark_missing=True)
-            after = con.execute("SELECT COUNT(*) FROM opif_file WHERE facility_id=%s AND year=%s", (fac, year)).fetchone()[0]
-            st.count("files_new", after - before)
+        import threading
+        local = threading.local()
+
+        def relist(item):                                # each thread walks with its own connection (psycopg connections are not shared across threads)
+            fac, year, ours, theirs = item
+            if not hasattr(local, "con"):
+                local.con = db.connect()
+            c = local.con
+            before = c.execute("SELECT COUNT(*) FROM opif_file WHERE facility_id=%s AND year=%s", (fac, year)).fetchone()[0]
+            list_station(c, st, fac, year, relist=True, mark_missing=True)
+            after = c.execute("SELECT COUNT(*) FROM opif_file WHERE facility_id=%s AND year=%s", (fac, year)).fetchone()[0]
+            c.commit()
+            return fac, year, ours, theirs, after - before
+
+        with ThreadPoolExecutor(a.workers) as ex:
+            for i, (fac, year, ours, theirs, new) in enumerate(ex.map(relist, changed), 1):
+                st.count("files_new", new)
+                log.info("  [%d/%d] %s/%s: held %s, FCC reports %s, %+d files", i, len(changed), fac, year, ours, theirs, new)
         con.execute("INSERT INTO meta(key,value) VALUES('last_count_check',%s) ON CONFLICT (key) DO UPDATE SET value=EXCLUDED.value", (datetime.datetime.now().isoformat(timespec="seconds"),))
         con.commit()
         if a.download:

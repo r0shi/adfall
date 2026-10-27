@@ -15,7 +15,7 @@ Stage runs are recorded in the Postgres pipeline_run table with start, end, stat
 path, so `ingest.status` and the About page export can show what ran and what failed last. The ledger
 uses its own short-lived connection, so a stage whose own transaction is broken still closes its run row.
 """
-import datetime, fcntl, json, logging, os, socket, sys, time, traceback
+import datetime, fcntl, json, logging, os, socket, sys, threading, time, traceback
 from . import db
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -98,17 +98,21 @@ class Stage:
         self.counts, self.failures, self.attempted = {}, [], 0
         self.run_id, self.lock_fh, self.log_path, self.t0 = None, None, None, None
         self.warnings = 0
+        self._lock = threading.Lock()                  # stages may count from worker threads
 
     # ---- public API for stages
     def count(self, key, n=1):
-        self.counts[key] = self.counts.get(key, 0) + n
+        with self._lock:
+            self.counts[key] = self.counts.get(key, 0) + n
 
     def attempt(self, n=1):
         """Units of work attempted; the failure threshold is relative to this."""
-        self.attempted += n
+        with self._lock:
+            self.attempted += n
 
     def fail(self, item, reason, level=logging.WARNING):
-        self.failures.append((str(item), str(reason)[:300]))
+        with self._lock:
+            self.failures.append((str(item), str(reason)[:300]))
         log.log(level, "FAIL %s: %s", item, str(reason)[:300])
 
     def warn(self, msg, *a):
