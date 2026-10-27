@@ -21,6 +21,7 @@
   <header>
     <h1>About the data and methods</h1>
     <p class="tag">What this site shows, where every number comes from, how documents become dollars, and what it gets wrong. Figures update with each data build.</p>
+    <p class="small">Code, pipeline and design notes: <a href="https://github.com/r0shi/adfall" target="_blank" rel="noopener">github.com/r0shi/adfall</a> (MIT).</p>
     {#if m}<div class="muted small">Data build {m.generated} · uploads from {m.documents.first_upload} to {m.documents.last_upload} · spending dated {m.money.first_day} to {m.money.last_day}</div>{/if}
     {#if h}<div class="muted small">Pipeline health {h.ok ? 'ok' : 'failing'} at {h.checked_at.slice(0, 16).replace('T', ' ')}: {Object.entries(h.checks).map(([k, c]) => `${k} ${c.ok ? 'ok' : 'FAIL'} (${c.detail})`).join(' · ')}</div>{/if}
   </header>
@@ -69,7 +70,7 @@
       <li>Unrecognized document layouts under-count the stations that use them (see the table above). Parsers are added group by group.</li>
       <li>Only full-power and Class A television is covered; cable, satellite, radio and digital advertising are not in these files at all.</li>
       <li>Political-file folders are organized by station staff; a mislabeled folder becomes a mislabeled buyer until an override fixes it.</li>
-      <li>Contours are predictions. Population is county-level, spread by area. Nielsen market definitions are not used.</li>
+      <li>Contours are predictions. Population is {m.geography.population ? 'tract-level, spread into cells by overlap area' : 'county-level, spread by area'}. Nielsen market definitions are not used; the market named for a pin is the community most of its stations are licensed to.</li>
       <li>Streams are the stations' own; ad breaks on them are replaced, so the political ads themselves cannot be watched there. Ad-ID codes identify creatives, but the video is not in the FCC file.</li>
     </ul>
 
@@ -77,7 +78,7 @@
     {#each Object.entries(m.modules) as [name, doc]}
       <details><summary style="cursor:pointer;font-family:ui-monospace,monospace">ingest/{name}.py</summary><pre class="small" style="white-space:pre-wrap;color:var(--muted);margin:4px 0 10px 16px">{doc}</pre></details>
     {/each}
-    <p class="small muted" style="margin-top:14px">Source and design notes: the repository's docs/research.md, docs/design.md and docs/spec.md.</p>
+    <p class="small muted" style="margin-top:14px">Source and design notes: <a href="https://github.com/r0shi/adfall/blob/main/docs/research.md" target="_blank" rel="noopener">docs/research.md</a>, <a href="https://github.com/r0shi/adfall/blob/main/docs/design.md" target="_blank" rel="noopener">docs/design.md</a> and <a href="https://github.com/r0shi/adfall/blob/main/README.md#sources-methods-and-limits" target="_blank" rel="noopener">the README</a> in the repository.</p>
   </section>
   {/if}
 </aside></div>

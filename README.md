@@ -30,8 +30,9 @@ The app never talks to Postgres and the pipeline never reads the app's exports
 back in. Either end can be started, stopped or rebuilt on its own; deploying the
 app means copying `app/build` (which includes `web/data`) to any static host.
 
-Status: working prototype, data for 2026 being crawled nationally. Not yet
-deployed. Findings, pitfalls and design live in [docs/](#documentation).
+Status: working prototype with the 2026 cycle crawled nationally and updated daily.
+Not yet deployed. Findings, pitfalls and design live in [docs/](#documentation);
+where every number comes from is in [Sources, methods and limits](#sources-methods-and-limits).
 
 ## Prerequisites
 
@@ -70,7 +71,7 @@ npm --prefix app run dev                       # dev server with hot reload on :
 npm --prefix app run build                     # static site in app/build, data included
 npm --prefix app run serve -- --host 0.0.0.0 --port 4173      # serve the build on the LAN (app/serve.mjs, reads app/build live)
 tailscale serve --bg 4173                      # HTTPS on the tailnet
-ALLOWED_HOSTS=ix.carp-gopher.ts.net,localhost npm --prefix app run dev   # restrict Host headers (any host is accepted by default)
+ALLOWED_HOSTS=your-host.ts.net,localhost npm --prefix app run dev   # restrict Host headers (any host is accepted by default)
 ```
 
 Routes:
@@ -122,10 +123,9 @@ updater can run at the same time. Each stage:
 ### Set up once
 
 Postgres runs natively under Homebrew and `brew services` (launchd), so it comes
-back after a reboot and the daily jobs can depend on it. On this Mac
-`postgresql@17` listens on `127.0.0.1:5434` only (5433 belongs to another app);
-the role, database and password match `.env.example`, so `DATABASE_URL` is the
-default. One-time install:
+back after a reboot and the daily jobs can depend on it. The convention here is
+`127.0.0.1:5434`, away from a default 5432 install; the role, database and password
+match `.env.example`, so `DATABASE_URL` is the default. One-time install:
 
 ```bash
 brew install postgresql@17 postgis
@@ -312,24 +312,85 @@ refresh it from source:
 - [docs/design-pass.md](docs/design-pass.md): presentation design pass and build order.
 - `/about` in the app: methods as exported, kept in sync with the pipeline by `ingest.export`.
 
-## Data sources and limits
+## Sources, methods and limits
 
-Contours and station facts come from the FCC (TV Query and the TV service
-contour file); political advertising documents from the FCC public inspection
-files through the FCC Data API; population from the Census; candidate and
-committee identities from FEC bulk files; newscast links from NewsON; ad video
-is embedded from the campaigns' own channels and never downloaded or rehosted.
+The app's `/about` page is the canonical methods statement: it is generated from
+`web/data/methods.json` on every export, so its counts, parse rates, identity
+resolution figures and population totals are the ones behind the build you are
+looking at. [docs/research.md](docs/research.md) is the long account: the legal
+picture, what each source does and does not provide, parser coverage by station
+group over time, buyer identity, and the Ad-ID to video chain. What follows is the
+short version.
+
+### Sources
+
+| Source | Used for | Terms |
+|---|---|---|
+| [FCC Online Public Inspection File API](https://publicfiles.fcc.gov/developer/) | every political-file document a station uploads: folder listings, the change feed, the PDFs | [API terms](https://www.fcc.gov/developer/api-terms-of-service) |
+| [FCC TV Query](https://www.fcc.gov/media/radio/tvq-tv-query) | licensed full-power and Class A stations: call sign, community, transmitter, licensee | public record |
+| [FCC TV service contour data](https://www.fcc.gov/media/television/tv-service-contour-data-points) | predicted F(50,90) service contours, 360 points per station, updated daily | public record |
+| [FEC bulk candidate and committee files](https://www.fec.gov/data/browse-data/?tab=bulk-data) | federal candidates and committees for the cycle, to resolve who a buyer is | public record |
+| [Census cartographic boundaries](https://www.census.gov/geographies/mapping-files/time-series/geo/cartographic-boundary.html) | county and tract polygons | public domain |
+| [Census population estimates](https://www.census.gov/programs-surveys/popest.html) and [ACS 5-year B01003](https://www.census.gov/programs-surveys/acs/data/summary-file.html) | county totals; tract population rescaled to them, spread into H3 cells by overlap | public domain |
+| [Census Gazetteer files](https://www.census.gov/geographies/reference-files/time-series/geo/gazetteer-files.html) | ZIP and place search without an external geocoder | public domain |
+| [NewsON](https://www.newson.us/) | links to free local newscast streams; station IDs from its public search | theirs; linked, not embedded |
+| YouTube | the ad video itself, matched by Ad-ID and air dates to the campaigns' own public uploads and shown in YouTube's player; never downloaded or rehosted (`YOUTUBE_API_KEY` is optional) | YouTube terms |
+| [Nominatim](https://nominatim.org/) | fallback geocoder for street addresses only | OSM usage policy |
+| [OpenFreeMap](https://openfreemap.org/), [H3](https://h3geo.org/) | basemap tiles (OpenStreetMap, ODbL attribution in the app); hexagonal cells | ODbL / Apache-2.0 |
+
 This product uses the FCC Data API but is not endorsed or certified by the FCC.
 
-- Spend is read from scanned order and invoice PDFs. Booked money is the latest
-  order revision, invoiced money the invoice total, aired spots are exact; dollars
-  per person spread a station's money over its footprint by population share.
-- Network affiliation is not in the FCC TV Query export, so stations show call
-  sign and channel only.
-- Streams are linked, not embedded, and station streams replace broadcast ad
-  breaks with a slate, so the political ads are not visible on them.
-- Buyer identity is alias-table matching with FEC confirmation; mistakes are
-  corrected in `data/buyer_overrides.yaml`.
+### Methods, in short
+
+- **Which stations reach a place.** A point is reached by a station when it falls
+  inside the FCC's predicted service contour (simplified to 72 points). Contours
+  are predictions, not measurements. Only full-power and Class A television is
+  covered; cable, satellite, radio and digital advertising are not in these files.
+- **Documents to dollars.** The crawler lists and downloads every political-file
+  document through the FCC API; image-only PDFs go through OCR. Parsers recognize
+  the common traffic-system layouts (WideOrbit text and image prints, Katz and ePort
+  contracts, Sinclair billing invoices) and record a parse status per document.
+  Stations whose documents fall in "other" are under-counted, not zero; the About
+  page shows the rate per kind and per station group.
+- **Booked, invoiced, aired.** Booked is the gross on the latest revision of each
+  order (a cancellation makes it zero). Invoiced is the gross on invoices, which lag
+  booked by weeks. Aired spots are the individual airings on invoices, each with a
+  date, time and Ad-ID. Over time, booked dollars sit on the days the order's
+  schedule lines name, otherwise spread evenly over the flight; invoiced dollars
+  spread over the invoice period; spots are exact.
+- **Money on the map.** A dollar booked at a station is spread across its contour in
+  proportion to population (ACS tract population inside each county's estimate,
+  into H3 cells by overlap). A dollar reaching a cell therefore counts in every cell
+  the station covers: right for "what reaches this place", wrong for adding cells up.
+- **Who the buyers are.** Stations label buyers in their own words. Labels are merged
+  by manual overrides, then FEC candidate and committee matching (state-scoped,
+  surname plus first-name evidence), then a name rule and surname-and-nickname
+  clustering within category and state. State and local candidates have no registry
+  here, so their identity is by name only. Corrections go in
+  `data/buyer_overrides.yaml` and `data/buyer_identity.json`.
+- **Party.** A buyer's party comes from the FEC match for federal candidates and
+  committees, and from the filed party where state or local forms name one; issue
+  groups and unmatched buyers have none and are shown as such. Blue and red mean
+  party and nothing else in the app.
+- **Newscast blocks.** Order lines carry program names and clock windows; a
+  classifier reads the news blocks out of them, and invoices confirm which spots
+  aired in those windows.
+- **Ad video.** Invoice Ad-IDs identify creatives; the video is not in the FCC file.
+  A matcher finds the campaign's public channel and the upload whose dates line up,
+  with confidence tiers; mistakes are corrected in `data/video_overrides.yaml`.
+
+### Limits
+
+- Amounts are what stations filed, parsed by software: directional, with a link to
+  the underlying document one click away.
+- Political-file folders are organized by station staff; a mislabeled folder is a
+  mislabeled buyer until an override fixes it.
+- Network affiliation is not in the FCC TV Query export, so stations show call sign
+  and channel only.
+- Station streams replace broadcast ad breaks with a slate, so the political ads are
+  not visible on them.
+- Nielsen market definitions are not used; the "market" shown for a pin is the
+  community most of its stations are licensed to.
 
 ## License
 
