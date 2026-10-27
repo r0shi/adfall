@@ -104,8 +104,9 @@ def api_key():
     env = os.path.join(ROOT, ".env")
     if os.path.exists(env):
         for line in open(env):
-            if line.startswith("YOUTUBE_API_KEY="):
-                return line.split("=", 1)[1].strip() or None
+            m = re.match(r"\s*(?:export\s+)?YOUTUBE_API_KEY\s*=\s*(.*)$", line)      # shell-style `export KEY=...` and quotes are fine
+            if m:
+                return m.group(1).strip().strip("'\"") or None
     return None
 
 

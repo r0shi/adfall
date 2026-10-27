@@ -986,9 +986,15 @@ Two caveats on these numbers. From the 134th buyer of the run on, YouTube
 served a stripped watch page (HTTP 200, no metadata) instead of the upload
 date, without a 429: a soft block after about 1,500 page fetches in 45
 minutes. Those 40 buyers matched on approximate listing dates, which caps
-their confidence at 0.45, so the high tier is understated. A Data API key
-(`YOUTUBE_API_KEY`) removes the dependency; without one, rerunning later
-fills the gaps, since only successful date lookups are cached. And the spot
+their confidence at 0.45. With a Data API key in `.env` (2026-10-26 23:44)
+the 56 buyers whose channels lacked exact dates were re-run through the API
+(`ingest.video videos --approx`, 65 s, a few hundred quota units): all 56
+now have exact dates for every ad-length upload. High-confidence YouTube
+matches went from 166,805 to 187,890 airings (8.3% to 9.3%), medium from
+404,504 to 426,769, low down from 536,116 to 500,775; playable airings
+from 889,666 to 897,937 (44%). Atlanta 30303 high tier: 9,512 to 10,006.
+The API is now the default path whenever the key is set (shell-style
+`export YOUTUBE_API_KEY=...` lines are read too). And the spot
 family rule (`ingest.video.family()`) is still needed after the parser fix:
 bare weekday tails with no slot digit (`SSUBCAR111HSa`, `JADP2601HW`)
 survive it, and the rule now strips at most a two-digit slot so real codes
