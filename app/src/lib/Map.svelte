@@ -1,6 +1,7 @@
 <script>
   import { PIN_A, PIN_B } from './palette.js';
   import { ui } from './url.svelte.js';
+  import { lazy } from './recover.js';
   // MapLibre map with an optional deck.gl overlay. Children layers are driven through the `api` prop callback.
   import { onMount } from 'svelte';
   import maplibregl from 'maplibre-gl';
@@ -46,7 +47,7 @@
     flyTo(p, z) { map.flyTo({ center: [p[1], p[0]], zoom: z ?? Math.max(map.getZoom(), 7), duration: 600 }); },
     fitBounds(b) { map.fitBounds([[b[1], b[0]], [b[3], b[2]]], { padding: 30, duration: 600 }); },
     async setDeckLayers(layers, getTooltip = null) {
-      if (!overlay) { const { MapboxOverlay } = await import('@deck.gl/mapbox'); overlay = new MapboxOverlay({ interleaved: false, layers, getTooltip }); map.addControl(overlay); }
+      if (!overlay) { const { MapboxOverlay } = await lazy(() => import('@deck.gl/mapbox')); overlay = new MapboxOverlay({ interleaved: false, layers, getTooltip }); map.addControl(overlay); }
       else overlay.setProps({ layers, getTooltip });
     },
     onZoom(fn) { map.on('zoomend', () => fn(map.getZoom())); },

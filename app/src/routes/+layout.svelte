@@ -1,8 +1,9 @@
 <script>
   import '../app.css';
-  import { page } from '$app/state';
+  import { page, updated } from '$app/state';
   import { onMount, untrack } from 'svelte';
-  import { pushState, replaceState, afterNavigate } from '$app/navigation';
+  import { pushState, replaceState, afterNavigate, beforeNavigate } from '$app/navigation';
+  import { isStaleBuild, reloadOnce } from '$lib/recover.js';
   import { loc } from '$lib/location.svelte.js';
   import { ui, serialize, apply, historyMode } from '$lib/url.svelte.js';
   import SearchAll from '$lib/SearchAll.svelte';
@@ -24,6 +25,11 @@
     return () => { removeEventListener('popstate', sync); removeEventListener('hashchange', sync); };
   });
   afterNavigate(() => sync());
+  // A rebuild replaces every hashed chunk, so a tab still on the old index.html fails its next dynamic import. Two guards:
+  // a newer _app/version.json (polled; svelte.config.js) turns the next in-app navigation into a full load, and a chunk
+  // failure nobody caught reloads the page once (recover.js rate-limits it so a broken build cannot loop).
+  beforeNavigate(({ willUnload, to }) => { if (updated.current && !willUnload && to?.url) location.href = to.url.href; });
+  onMount(() => { const onReject = e => { if (isStaleBuild(e.reason)) { e.preventDefault(); reloadOnce(); } }; addEventListener('unhandledrejection', onReject); return () => removeEventListener('unhandledrejection', onReject); });
   $effect(() => { ui.path = page.url.pathname; });
   $effect(() => {
     const h = '#' + serialize();

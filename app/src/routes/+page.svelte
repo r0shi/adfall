@@ -14,21 +14,21 @@
   import { ui } from '$lib/url.svelte.js';
   import { loc, locB, setLocation, setLocationB, clearA, clearB } from '$lib/location.svelte.js';
   import { DIFFS, stationDiffs, composeDiff, makeDiffLayer, diffScale, composeParty, makePartyLayer } from '$lib/difflayer.js';
-  import { tl, setRange } from '$lib/time.svelte.js';
-  import { spendIndex, usd, num, CATS, get, stationDaily, hexWeights } from '$lib/data.js';
+  import { tl } from '$lib/time.svelte.js';
+  import { spendIndex, usd, num, CATS, get, hexWeights, forget } from '$lib/data.js';
+  import { td, loadTimeData, retryTimeData, framerFor, geoLayers } from '$lib/timedata.svelte.js';
+  import LoadPanel from '$lib/LoadPanel.svelte';
+  import { lazy, describe } from '$lib/recover.js';
   import { toGeoJSON } from '$lib/geo.js';
   import { installHexLayers, setHexLayer, resForZoom, layersFor, METRICS } from '$lib/hexlayers.js';
-  import { Framer } from '$lib/frames.js';
   import { makeFrameLayer, frameScale, makePartyFrameLayer, partyFrameScale } from '$lib/framelayer.js';
   import { rampCss } from '$lib/palette.js';
   let api = $state(null), idx = $state.raw({ stations: {}, year: new Date().getFullYear() }), meta = $state.raw(null), zoom = $state(3.6);
   let collapsed = $state(false), collapsedB = $state(false), hover = $state.raw(null), pickingB = $state(false), weights = $state.raw(null);
-  let layerMod = $state.raw(null), lastDay = null, timeData = $state.raw(null);
-  // one Framer per metric over the same daily rows (party = a Democratic and a Republican framer sharing the decay)
-  const COL = { booked: 2, invoiced: 3, spots: 4 }, ANIM = [['booked', 'Booked $'], ['invoiced', 'Invoiced $'], ['spots', 'Spots aired'], ['party', 'Party share']];
-  const cache = new Map();
-  function framerFor(metric) { if (!timeData) return null; if (!cache.has(metric)) { const { daily, weights } = timeData; cache.set(metric, metric === 'party' ? { d: new Framer(daily, weights, 5), r: new Framer(daily, weights, 6) } : new Framer(daily, weights, COL[metric] ?? 2)); } return cache.get(metric); }
-  const framer = $derived(timeData ? framerFor(ui.layer === 'wk' ? 'booked' : tl.metric) : null);
+  let layerMod = $state.raw(null), lastDay = null, loadErr = $state(null);
+  const ANIM = [['booked', 'Booked $'], ['invoiced', 'Invoiced $'], ['spots', 'Spots aired'], ['party', 'Party share']];
+  // one Framer per metric over the same daily rows (timedata.svelte.js; party = a Democratic and a Republican framer sharing the decay)
+  const framer = $derived(td.status === 'ready' ? framerFor(ui.layer === 'wk' ? 'booked' : tl.metric) : null);
   const isPartyAnim = $derived(ui.layer === 'animate' && tl.metric === 'party');
   spendIndex().then(d => idx = d); get('tiles/meta.json').then(m => meta = m);
   const LAYERS = [['coverage', 'Airshed'], ['booked', 'Money'], ['pp', '$ / person'], ['spots', 'Spots'], ['ps', '$ / spot'], ['animate', 'Over time ▶'], ['party', 'Party share'], ['bi', 'Booked − invoiced'], ['wk', 'Week vs last']];
@@ -40,14 +40,18 @@
   $effect(() => { if (api && loc.p) { api.setContours(toGeoJSON(loc.found)); api.setMarker(loc.p); if (api.map.getZoom() < 6 && Date.now() - ui.camApplied > 1000) api.flyTo(loc.p, 6.5); } else if (api) { api.setContours({ type: 'FeatureCollection', features: [] }); api.setMarker(null); } });
   $effect(() => { if (!api) return; if (locB.p) { api.setContoursB(toGeoJSON(locB.found)); api.setMarkerB(locB.p); } else { api.setContoursB({ type: 'FeatureCollection', features: [] }); api.setMarkerB(null); } });
   function onMapClick(p) { if (pickingB) { pickingB = false; setLocationB(p); } else setLocation(p); }
-  $effect(() => { if ((isDiff || ui.layer === 'animate') && !weights) hexWeights(5).then(w => weights = w); });
-  $effect(() => { if (isDiff && !layerMod) import('@deck.gl/geo-layers').then(m => layerMod = m); });
+  $effect(() => { if ((isDiff || ui.layer === 'animate') && !weights && !loadErr) hexWeights(5).then(w => weights = w).catch(e => loadErr = describe(e)); });
+  $effect(() => { if (isDiff && !layerMod && !loadErr) lazy(() => import('@deck.gl/geo-layers')).then(m => layerMod = m).catch(e => loadErr = describe(e)); });
+  $effect(() => { if (td.status === 'ready' && !layerMod) layerMod = geoLayers(); });
+  // the party / change layers load only the weights and the layer module; a failure there is shown in their panel
+  const diffState = $derived(loadErr ? { status: 'error', error: loadErr } : ui.layer === 'wk' ? td : { status: 'idle' });
+  function retryDiff() { loadErr = null; weights = null; layerMod = null; forget('hex/weights_r5.json'); if (ui.layer === 'wk') retryTimeData(); }
   const partyVals = $derived(ui.layer === 'party' && weights ? composeParty(weights, idx) : null);
   const partyScale = $derived(partyVals ? diffScale(partyVals.total) : 1);
   const diffValues = $derived(isDiff && ui.layer !== 'party' && weights && (ui.layer !== 'wk' || (framer && tl.day)) ? composeDiff(weights, stationDiffs(ui.layer, idx, framer, tl.day)) : null);
   const diffScaleV = $derived(diffValues ? diffScale(diffValues) : 1);
   // animate / week-vs-last layers: load the daily rows and weights on first use
-  $effect(() => { if ((ui.layer === 'animate' || ui.layer === 'wk') && !timeData) Promise.all([stationDaily(), hexWeights(5), import('@deck.gl/geo-layers')]).then(([d, w, m]) => { layerMod = m; timeData = { daily: d, weights: w }; const days = framerFor('booked').dayList; setRange(days[0], days[days.length - 1]); }); });
+  $effect(() => { if (ui.layer === 'animate' || ui.layer === 'wk') loadTimeData(); });
   const scale = $derived(!framer || ui.layer !== 'animate' ? 1 : isPartyAnim ? (tl.window, partyFrameScale(framer.d, framer.r, tl.window)) : (tl.window, frameScale(framer, tl.window)));
   const series = $derived.by(() => {
     if (!framer) return [];
@@ -57,15 +61,15 @@
   });
   $effect(() => {
     if (!api || !layerMod) return;
-    if (ui.layer === 'party') { if (!partyVals) return; api.setDeckLayers([makePartyLayer(layerMod.H3HexagonLayer, weights, partyVals, partyScale, { triggers: [partyScale], onHover: h => hover = h, onClick: h3 => import('h3-js').then(m => { const [lat, lng] = m.cellToLatLng(h3); onMapClick([lat, lng]); }) })]); return; }
-    if (isDiff) { if (!diffValues) return; api.setDeckLayers([makeDiffLayer(layerMod.H3HexagonLayer, weights, diffValues, diffScaleV, ui.layer, { triggers: [ui.layer, diffScaleV, tl.day], onHover: h => hover = h, onClick: h3 => import('h3-js').then(m => { const [lat, lng] = m.cellToLatLng(h3); onMapClick([lat, lng]); }) })]); return; }
+    if (ui.layer === 'party') { if (!partyVals) return; api.setDeckLayers([makePartyLayer(layerMod.H3HexagonLayer, weights, partyVals, partyScale, { triggers: [partyScale], onHover: h => hover = h, onClick: h3 => lazy(() => import('h3-js')).then(m => { const [lat, lng] = m.cellToLatLng(h3); onMapClick([lat, lng]); }) })]); return; }
+    if (isDiff) { if (!diffValues) return; api.setDeckLayers([makeDiffLayer(layerMod.H3HexagonLayer, weights, diffValues, diffScaleV, ui.layer, { triggers: [ui.layer, diffScaleV, tl.day], onHover: h => hover = h, onClick: h3 => lazy(() => import('h3-js')).then(m => { const [lat, lng] = m.cellToLatLng(h3); onMapClick([lat, lng]); }) })]); return; }
     if (ui.layer !== 'animate' || !framer || !tl.day) { api.setDeckLayers([]); return; }
     const forward = lastDay && tl.day > lastDay; lastDay = tl.day;
     const decay = tl.trails && forward ? (tl.window === 'day' ? 0.937 : 0.865) : 0;
     const fs = isPartyAnim ? [framer.d, framer.r] : [framer];
     if (!decay) fs.forEach(f => f.reset());
     fs.forEach(f => f.frame(tl.day, tl.window, { decay }));
-    const opts = { max: scale, speed: tl.speed, triggers: [tl.day, tl.window, tl.metric, scale, tl.trails], onHover: h => hover = h, onClick: h3 => import('h3-js').then(m => { const [lat, lng] = m.cellToLatLng(h3); setLocation([lat, lng]); }) };
+    const opts = { max: scale, speed: tl.speed, triggers: [tl.day, tl.window, tl.metric, scale, tl.trails], onHover: h => hover = h, onClick: h3 => lazy(() => import('h3-js')).then(m => { const [lat, lng] = m.cellToLatLng(h3); setLocation([lat, lng]); }) };
     api.setDeckLayers([isPartyAnim ? makePartyFrameLayer(layerMod.H3HexagonLayer, framer.d, framer.r, opts) : makeFrameLayer(layerMod.H3HexagonLayer, framer, opts)]);
   });
   const covered = $derived(loc.found.filter(s => idx.stations[s.fac]?.total));
@@ -93,12 +97,15 @@
     {:else if ui.layer === 'party'}<div class="muted small" style="margin-top:6px">{DIFFS.party.desc}. {hover ? fmtHover(hover) : 'Hover a cell.'}</div>
       <div class="legend" style="display:flex;align-items:center;gap:8px;margin-top:6px"><span style="color:rgb({REP.join(',')})">■ Republican</span><span style="flex:1;height:8px;border-radius:4px;background:linear-gradient(90deg, rgb({REP.join(',')}), rgb({MID.join(',')}), rgb({DEM.join(',')}))"></span><span style="color:rgb({DEM.join(',')})">Democratic ■</span></div>
       <div class="legend" style="display:flex;align-items:center;gap:8px;margin-top:4px"><span>less candidate $</span><span style="flex:1;height:8px;border-radius:4px;background:linear-gradient(90deg, rgba(158,160,168,.1), rgba(158,160,168,1))"></span><span>more</span></div>
+      <LoadPanel state={diffState} what="the map data" onretry={retryDiff} />
     {:else if isDiff}<div class="muted small" style="margin-top:6px">{DIFFS[ui.layer].desc}.{ui.layer === 'wk' && tl.day ? ` Week ending ${tl.day}.` : ''} {hover ? fmtHover(hover) : ''}</div>
       <div class="legend" style="display:flex;align-items:center;gap:8px;margin-top:6px"><span style="color:rgb({DIFFS[ui.layer].negColor.join(',')})">■ {DIFFS[ui.layer].neg}</span><span style="flex:1;height:8px;border-radius:4px;background:linear-gradient(90deg, rgb({DIFFS[ui.layer].negColor.join(',')}), rgba(255,255,255,.1), rgb({DIFFS[ui.layer].posColor.join(',')}))"></span><span style="color:rgb({DIFFS[ui.layer].posColor.join(',')})">{DIFFS[ui.layer].pos} ■</span></div>
+      <LoadPanel state={diffState} what="the map data" onretry={retryDiff} />
     {:else if ui.layer === 'animate'}<div class="chips" style="margin:6px 0 0">{#each ANIM as [k, l]}<span class="chip" class:on={tl.metric === k} onclick={() => tl.metric = k} role="button" tabindex="0">{l}</span>{/each}</div>
       <div class="muted small" style="margin-top:4px">{isPartyAnim ? 'Candidate $ reaching each cell, blue to red by Democratic share, fainter where there is less of it' : `${ANIM.find(a => a[0] === tl.metric)?.[1]} reaching each cell`}, by the window on the bar below.{hover ? ' ' + fmtHover(hover) : ''}</div>
       {#if isPartyAnim}<div class="legend" style="display:flex;align-items:center;gap:8px;margin-top:6px"><span style="color:rgb({REP.join(',')})">■ Republican</span><span style="flex:1;height:8px;border-radius:4px;background:linear-gradient(90deg, rgb({REP.join(',')}), rgb({MID.join(',')}), rgb({DEM.join(',')}))"></span><span style="color:rgb({DEM.join(',')})">Democratic ■</span></div>
-      {:else}<div class="legend" style="display:block;margin-top:6px"><div style="height:8px;border-radius:4px;background:{rampCss}"></div><div class="row" style="font-size:11px"><span>0</span><span style="margin-left:auto">{tl.metric === 'spots' ? num(scale) : usd(scale)}+</span></div></div>{/if}{/if}
+      {:else}<div class="legend" style="display:block;margin-top:6px"><div style="height:8px;border-radius:4px;background:{rampCss}"></div><div class="row" style="font-size:11px"><span>0</span><span style="margin-left:auto">{tl.metric === 'spots' ? num(scale) : usd(scale)}+</span></div></div>{/if}
+      <LoadPanel state={td} what="the timeline data" onretry={retryTimeData} />{/if}
     {#if pickingB}<div class="small" style="margin-top:6px;color:var(--pin-b)"><b>Click the map to drop pin B.</b> <span class="chip" onclick={() => pickingB = false} role="button" tabindex="0">cancel</span></div>{/if}
   </div>
   {#if loc.p}

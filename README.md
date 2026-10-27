@@ -68,7 +68,7 @@ against real data before any of the pipeline steps above.
 ```bash
 npm --prefix app run dev                       # dev server with hot reload on :5173
 npm --prefix app run build                     # static site in app/build, data included
-npm --prefix app run preview -- --host 0.0.0.0 --port 4173    # serve the build on the LAN
+npm --prefix app run serve -- --host 0.0.0.0 --port 4173      # serve the build on the LAN (app/serve.mjs, reads app/build live)
 tailscale serve --bg 4173                      # HTTPS on the tailnet
 ALLOWED_HOSTS=ix.carp-gopher.ts.net,localhost npm --prefix app run dev   # restrict Host headers (any host is accepted by default)
 ```
@@ -85,6 +85,22 @@ Routes:
 | `/ads`, `/ads/<ad_id>` | Creatives by Ad-ID, with the matched video where one exists. |
 | `/explore` | Pivot builder over the Parquet marts, in the browser via DuckDB-WASM. |
 | `/about` | Methods and provenance, generated from `web/data/methods.json` at export time. |
+
+Serve the build with `npm run serve`, not `vite preview`: the preview server indexes
+the build folder once at startup, so after `post_batch.sh` or `npm run build` rewrites
+it, the preview answers 404 for every new chunk until restarted and the site is blank.
+`app/serve.mjs` looks files up per request, answers Range requests for the PMTiles, and
+sends an ETag with `Cache-Control: no-cache` so browsers revalidate every data file.
+`scripts/launchd/com.adfall.web.plist` keeps it running across reboots
+(`cp` it into `~/Library/LaunchAgents/` and `launchctl load -w` it, like the daily job).
+
+The client recovers on its own from the two ways a static deploy used to leave a tab
+stuck. A rebuild drops every old chunk: a tab still holding the previous page reloads
+once when a dynamic import fails (`src/lib/recover.js`, rate-limited to once a minute),
+and polls `_app/version.json` so the next in-app navigation after a deploy is a full
+load. A data file that fails to load (an export mid-write, a network blip) is retried
+once, never memoized, and the Over time views show the reason with a Try again button
+(`src/lib/timedata.svelte.js`, `LoadPanel.svelte`) instead of a blank timeline.
 
 The URL hash carries the whole view (pins, layer, tab, newscast night, timeline, color mode, camera), so any view is linkable and Back/Forward step through your changes.
 

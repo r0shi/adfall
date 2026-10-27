@@ -4,18 +4,18 @@
   import MapView from '$lib/Map.svelte';
   import Timeline from '$lib/Timeline.svelte';
   import { loc, setLocation } from '$lib/location.svelte.js';
-  import { tl, setRange } from '$lib/time.svelte.js';
-  import { stationDaily, hexWeights, usd, num } from '$lib/data.js';
-  import { Framer } from '$lib/frames.js';
+  import { tl } from '$lib/time.svelte.js';
+  import { usd, num } from '$lib/data.js';
+  import { td, loadTimeData, retryTimeData, framerFor, geoLayers } from '$lib/timedata.svelte.js';
+  import LoadPanel from '$lib/LoadPanel.svelte';
+  import { lazy } from '$lib/recover.js';
   import { makeFrameLayer, frameScale, makePartyFrameLayer, partyFrameScale } from '$lib/framelayer.js';
   import { rampCss, DEM, REP, MID } from '$lib/palette.js';
   import { toGeoJSON } from '$lib/geo.js';
-  let api = $state(null), timeData = $state.raw(null), scope = $state('all'), hover = $state.raw(null), layerMod = $state.raw(null);   // big data stays non-reactive
-  Promise.all([stationDaily(), hexWeights(5), import('@deck.gl/geo-layers')]).then(([d, w, m]) => { layerMod = m; timeData = { daily: d, weights: w }; const days = framerFor('booked').dayList; setRange(days[0], days[days.length - 1]); });
-  const METRICS = { booked: ['Booked $', 2], invoiced: ['Invoiced $', 3], spots: ['Spots aired', 4], party: ['Party share', null] };
-  const cache = new Map();
-  function framerFor(metric) { if (!timeData) return null; if (!cache.has(metric)) { const { daily, weights } = timeData; cache.set(metric, metric === 'party' ? { d: new Framer(daily, weights, 5), r: new Framer(daily, weights, 6) } : new Framer(daily, weights, METRICS[metric]?.[1] ?? 2)); } return cache.get(metric); }
-  const framer = $derived(timeData ? framerFor(tl.metric) : null);
+  let api = $state(null), scope = $state('all'), hover = $state.raw(null);
+  loadTimeData();   // big data stays non-reactive in timedata.svelte.js; td.status is the signal
+  const METRICS = { booked: ['Booked $'], invoiced: ['Invoiced $'], spots: ['Spots aired'], party: ['Party share'] };
+  const framer = $derived(td.status === 'ready' ? framerFor(tl.metric) : null);
   const isParty = $derived(tl.metric === 'party');
   const facsHere = $derived(scope === 'here' && loc.p ? new Set(loc.found.map(s => s.fac)) : null);
   const series = $derived.by(() => {
@@ -28,6 +28,7 @@
   const scaleMax = $derived(!framer ? 1 : isParty ? (tl.window, partyFrameScale(framer.d, framer.r, tl.window)) : (tl.window, frameScale(framer, tl.window)));
   let lastDay = null;
   $effect(() => {
+    const layerMod = geoLayers();
     if (!api || !framer || !tl.day || !layerMod) return;
     const forward = lastDay && tl.day > lastDay; lastDay = tl.day;
     const decay = tl.trails && forward ? (tl.window === 'day' ? 0.937 : 0.865) : 0;   // per step; a trail lasts ~20 steps
@@ -35,7 +36,7 @@
     if (!decay) fs.forEach(f => f.reset());
     fs.forEach(f => f.frame(tl.day, tl.window, { decay, facs: facsHere }));
     const opts = { max: scaleMax, speed: tl.speed, triggers: [tl.day, tl.window, tl.metric, scaleMax, tl.trails, facsHere],
-                   onHover: h => hover = h, onClick: h3 => import('h3-js').then(m => { const [lat, lng] = m.cellToLatLng(h3); setLocation([lat, lng]); }) };
+                   onHover: h => hover = h, onClick: h3 => lazy(() => import('h3-js')).then(m => { const [lat, lng] = m.cellToLatLng(h3); setLocation([lat, lng]); }) };
     api.setDeckLayers([isParty ? makePartyFrameLayer(layerMod.H3HexagonLayer, framer.d, framer.r, opts) : makeFrameLayer(layerMod.H3HexagonLayer, framer, opts)]);
   });
   $effect(() => { if (api && loc.p) { api.setContours(toGeoJSON(loc.found)); api.setMarker(loc.p); } });
@@ -47,6 +48,7 @@
   <MapView onready={a => api = a} onclick={p => setLocation(p)} zoom={4} />
   <div class="float">
     <b>Watch the money move</b>
+    <LoadPanel state={td} what="the timeline data" onretry={retryTimeData} />
     <div class="muted small">{isParty ? 'Candidate $ reaching each cell, blue to red by Democratic share and fainter where there is less of it' : `${METRICS[tl.metric][0]} reaching each cell`}, {winLabel} the date below. Click a cell or the map to pick a place.</div>
     <div class="chips" style="margin:8px 0 0">{#each Object.entries(METRICS) as [k, [l]]}<span class="chip" class:on={tl.metric === k} onclick={() => tl.metric = k} role="button" tabindex="0">{l}</span>{/each}</div>
     <div class="chips" style="margin:4px 0 0"><span class="muted small">Scrubline:</span>

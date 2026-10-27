@@ -1,9 +1,22 @@
 // Static data access. Everything is a JSON artifact exported by ingest/export.py under /data.
 const cache = new Map();
-export async function get(path) {
-  if (!cache.has(path)) cache.set(path, fetch(`/data/${path}`).then(r => { if (!r.ok) throw new Error(`${path}: ${r.status}`); return r.json(); }));
+const wait = (ms) => new Promise(r => setTimeout(r, ms));
+// Every data file is revalidated on load (cache: 'no-cache' makes the browser send a conditional request), so a tab
+// never keeps a heuristically cached file from before an export. A failed fetch is retried once and never memoized, so
+// a later call can succeed; a 404 is permanent until the next export and is remembered to spare the request.
+async function fetchJson(path, attempt = 0) {
+  const again = (why) => attempt < 1 ? wait(900).then(() => fetchJson(path, attempt + 1)) : Promise.reject(new Error(`${path}: ${why}`));
+  let r;
+  try { r = await fetch(`/data/${path}`, { cache: 'no-cache' }); } catch (e) { return again(e.message || 'network error'); }
+  if (r.status === 404) throw Object.assign(new Error(`${path}: HTTP 404`), { permanent: true });
+  if (!r.ok) return again(`HTTP ${r.status}`);
+  try { return await r.json(); } catch { return again('incomplete JSON (an export may be in progress)'); }
+}
+export function get(path) {
+  if (!cache.has(path)) { const p = fetchJson(path); cache.set(path, p); p.catch(e => { if (!e?.permanent) cache.delete(path); }); }
   return cache.get(path);
 }
+export function forget(path) { if (path) cache.delete(path); else cache.clear(); }
 export const stations = () => get('stations.json').then(d => d.stations);
 export const spendIndex = () => get('spend/index.json').catch(() => ({ stations: {}, year: new Date().getFullYear() }));
 export const stationSpend = (fac) => get(`spend/${fac}.json`);
