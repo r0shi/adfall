@@ -478,13 +478,14 @@ def parse_order_eport(text, file_name=""):
 
 
 # ----------------------------------------------------------------------------------------------- invoices
-WEEKDAY_SUFFIX = re.compile(r"^(?P<code>[A-Za-z0-9]{4,14}?)(?P<day>Mo|Tu|Th|Sa|Su|M|W|F)(?P<slot>\d{1,2})$")
+WEEKDAY_SUFFIX = re.compile(r"^(?P<code>[A-Za-z0-9]{4,14}?)(?P<day>Mo|Tu|Th|Sa|Su|M|W|F)(?P<slot>\d{1,2})?$")
 WEEKDAYS = {0: ("M", "Mo"), 1: ("Tu",), 2: ("W",), 3: ("Th",), 4: ("F",), 5: ("Sa",), 6: ("Su",)}
 
 
 def clean_ad_id(token, aired_iso):
     """Some invoice layouts glue the weekday column and a slot digit onto the Ad-ID ('RSFI2615000HTu1',
-    'JTFI2000HW1'). Strip that tail only when the weekday agrees with the air date, so real codes survive."""
+    'JTFI2000HW1'), sometimes the weekday alone ('SSUBCAR111HSa', 'JADP2601HW'). Strip that tail only when the
+    weekday agrees with the air date, so real codes survive; a bare one-letter day is stripped only after an 'H'."""
     m = WEEKDAY_SUFFIX.match(token or "")
     if not m or not aired_iso:
         return token
@@ -492,7 +493,11 @@ def clean_ad_id(token, aired_iso):
         wd = _dt.date.fromisoformat(aired_iso).weekday()
     except ValueError:
         return token
-    return m.group("code") if m.group("day") in WEEKDAYS[wd] else token
+    if m.group("day") not in WEEKDAYS[wd]:
+        return token
+    if m.group("slot") is None and len(m.group("day")) == 1 and not m.group("code").endswith("H"):
+        return token                                     # a bare M/W/F with no slot digit only counts after the Ad-ID's HD marker (JADP2601H|W)
+    return m.group("code")
 
 
 def parse_invoice_sinclair(text, file_name="", source="text"):
