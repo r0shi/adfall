@@ -70,6 +70,7 @@ figure.plot svg { max-width: 100%; height: auto; }
 @media (max-width: 800px) {
   :root { --panel-w: 100%; }
   .shell { grid-template-columns: 1fr; grid-template-rows: 42vh 1fr; }
+  .shell.wide { grid-template-rows: 1fr; }   /* one child (the map or a page panel): it gets the whole height */
   .mapwrap { order: -1; }
   .panel { border-right: 0; border-top: 1px solid var(--line); }
   nav.top .loc { display: none; }

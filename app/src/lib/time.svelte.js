@@ -8,6 +8,8 @@ export const tl = $state({
   trails: true,         // slow decay of previous frames while playing/scrubbing
   metric: 'booked'      // 'booked' | 'invoiced' | 'spots' | 'party' (Democratic share of candidate $, value-by-alpha)
 });
+/** What the Over time layer can animate: [key, label, short label for phones]. */
+export const ANIM = [['booked', 'Booked $', 'Booked'], ['invoiced', 'Invoiced $', 'Invoiced'], ['spots', 'Spots aired', 'Spots'], ['party', 'Party share', 'Party']];
 export const addDays = (iso, n) => { const d = new Date(iso + 'T00:00:00Z'); d.setUTCDate(d.getUTCDate() + n); return d.toISOString().slice(0, 10); };
 export const FIRST_DAY = '2025-11-01';      // the view starts here; earlier bookings still count in cumulative windows
 export function setRange(first, last) {
