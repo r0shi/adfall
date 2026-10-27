@@ -1000,6 +1000,39 @@ bare weekday tails with no slot digit (`SSUBCAR111HSa`, `JADP2601HW`)
 survive it, and the rule now strips at most a two-digit slot so real codes
 such as `MADF2602` keep their identity.
 
+### After the parser's weekday-tail fix (2026-10-27 00:15)
+
+The pipeline session now strips bare weekday tails too (`SSUBCAR111HSa`,
+`JADP2601HW`): `creative` fell from 24,593 rows to 8,639, multi-code spot
+families from 3,098 to 401. `ingest.video` pruned the 13,218 match rows
+whose Ad-IDs no longer exist and re-matched the top 300 buyers that have a
+channel (no new channel searches: through the API each costs 100 units).
+
+One regression found and fixed on the way: the API's uploads playlist
+(`UU…`) includes Shorts, which the keyless Videos-tab listing never did.
+Shorts are under 60 s, so they flooded the ad-length candidates (106 of Tom
+Tiffany's 144 uploads) and pushed high-confidence matches down to medium.
+`api_uploads()` now reads `UULF…`, the long-form playlist, and falls back to
+`UU…` only if a channel has none.
+
+| Airings (2,090,672) | Count | Share |
+|---|---|---|
+| Playable on YouTube | 942,256 | 45% |
+| of which high confidence | 198,189 | 9.5% |
+| of which medium | 462,355 | 22% |
+| Google link only | 241,719 | 12% |
+| Any link | 1,183,975 | 57% |
+
+| Place | Airings | Playable | High | Medium or better | Any link |
+|---|---|---|---|---|---|
+| Des Moines 50309 | 59,801 | 39,619 (66%) | 10,147 (17%) | 27,670 (46%) | 44,178 (74%) |
+| Atlanta 30303 | 82,494 | 60,301 (73%) | 11,887 (14%) | 41,492 (50%) | 65,471 (79%) |
+
+108 of the current top 300 buyers have no channel on record (most entered
+the top 300 as the crawl grew). Searching them through the API costs about
+10,800 units, one day's default quota; `ingest.video channels --top 300`
+then `videos` does it, best spread over two days.
+
 ### Known limits
 
 - No video for buyers without a channel; no channel for most issue groups.

@@ -171,8 +171,17 @@ def api_search_channels(q):
 
 
 def api_uploads(channel_id, max_n=400):
+    """Long-form uploads only: playlist UULF<id> is the channel's Videos tab without Shorts (UU<id> would include
+    them, and Shorts are under 60 s, so they flood the ad-length candidates: 106 of Tom Tiffany's 144 uploads).
+    Falls back to the full uploads playlist if a channel has no UULF list."""
     out, token = [], None
-    pl = "UU" + channel_id[2:]
+    pl = "UULF" + channel_id[2:]
+    try:
+        api_get("playlistItems", part="id", playlistId=pl, maxResults=1)
+    except urllib.error.HTTPError as e:
+        if e.code != 404:
+            raise
+        pl = "UU" + channel_id[2:]
     while len(out) < max_n:
         r = api_get("playlistItems", part="snippet,contentDetails", playlistId=pl, maxResults=50, **({"pageToken": token} if token else {}))
         ids = [it["contentDetails"]["videoId"] for it in r.get("items", [])]
