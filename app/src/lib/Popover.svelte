@@ -20,7 +20,7 @@
     if (prefer === 'left' && x - w - 18 < 8 && right + w <= W - 8) px = right;
     if (py + h > H - 8) py = Math.max(8, H - h - 8);
     if (py < 8) py = 8;
-    if (px < 390 && py < 150 && H > 400) py = 150;          // keep clear of the search card at top-left
+    if (px < 440 && py < 150 && H > 400) py = 150;          // keep clear of the search card at top-left
     // stay off the other popover: try the other side of the pin, then below it, then above
     for (const [k, o] of placed) {
       if (k === id || !hits({ x: px, y: py, w, h }, o)) continue;

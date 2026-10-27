@@ -8,8 +8,8 @@
   import Heatmap from '../Heatmap.svelte';
   import { stationDetail } from '../data.js';
   import Wall from '../video/Wall.svelte';                    // video chain (ingest.video): thumbnail wall mode
-  let list = $state.raw([]), mode = $state('wall'), loading = $state(true), grid = $state.raw(null);
-  $effect(() => { loading = true; const f = found; creativesHere(f).then(c => { list = c; loading = false; }).catch(() => { list = []; loading = false; }); });
+  let list = $state.raw([]), mode = $state('wall'), loading = $state(true), grid = $state.raw(null), openSpot = $state(null);
+  $effect(() => { loading = true; openSpot = null; const f = found; creativesHere(f).then(c => { list = c; loading = false; }).catch(() => { list = []; loading = false; }); });
   $effect(() => {
     const facs = idx ? found.filter(s => idx.stations[s.fac]) : found;
     Promise.all(facs.map(s => stationDetail(s.fac).catch(() => null))).then(ds => {
@@ -26,7 +26,7 @@
   const maxB = $derived(byBuyer[0]?.airings || 1), maxA = $derived(list[0]?.airings || 1);
   const size = (a, mx) => 11 + 24 * Math.sqrt(a / mx);
 </script>
-<div class="chips" style="margin:0 0 8px">
+{#if !(mode === 'wall' && openSpot)}<div class="chips" style="margin:0 0 8px">
   <!-- video chain: thumbnail wall (components under src/lib/video/) -->
   <span class="chip" class:on={mode === 'wall'} onclick={() => mode = 'wall'} role="button" tabindex="0" title="The spots as video, sized by airings here">Wall</span>
   <!-- /video chain -->
@@ -34,12 +34,12 @@
   <span class="chip" class:on={mode === 'list'} onclick={() => mode = 'list'} role="button" tabindex="0">Creatives</span>
   <span class="chip" class:on={mode === 'daypart'} onclick={() => mode = 'daypart'} role="button" tabindex="0" title="When the ads ran: hour × weekday">Daypart</span>
   <span class="muted small" style="align-self:center">{num(list.length)} creatives · {num(list.reduce((t, c) => t + c.airings, 0))} airings</span>
-</div>
+</div>{/if}
 {#if loading}<div class="muted small">Loading…</div>
 {:else if !list.length}<Coverage {found} {idx} what="aired ads on record" />
 {:else if mode === 'wall'}
   <!-- video chain: thumbnail wall -->
-  <Wall {list} />
+  <Wall {list} bind:open={openSpot} />
   <!-- /video chain -->
 {:else if mode === 'daypart'}
   <div class="muted small" style="margin-bottom:4px">When political spots aired on these stations (invoiced airings with a known time).</div>
