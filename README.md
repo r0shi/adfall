@@ -31,9 +31,89 @@ back in. Either end can be started, stopped or rebuilt on its own; deploying
 means putting `web/data` on any static host that answers Range requests and the
 5 MB `app/build` on another (or the same one), see [Publishing](#publishing-to-cloudflare).
 
-Status: working prototype with the 2026 cycle crawled nationally and updated every
-8 hours. Not yet deployed. Findings, pitfalls and design live in [docs/](#documentation);
-where every number comes from is in [Sources, methods and limits](#sources-methods-and-limits).
+Status: working prototype, live at **[adfall.bitblot.com](https://adfall.bitblot.com)**, with the
+2026 cycle crawled nationally (FCC public files for about 1,000 stations that carry political
+buys) and refreshed by hand-started runs of the daily pipeline. Findings, pitfalls and design live
+in [docs/](#documentation); where every number comes from is in
+[Sources, methods and limits](#sources-methods-and-limits).
+
+![A pin in Columbus, Ohio: the money layer on the map and the buyers reaching the pin as a treemap](docs/screenshots/pin-money.jpg)
+
+## What you can do
+
+**Drop a pin, get its airshed.** Click the map or search an address, ZIP or city. The pin's
+popover lists every full-power and Class A station whose contour reaches the spot, nearest first,
+each with its group, how far away its transmitter is, the political money booked on it, its
+newscast stream and its FCC public file. The contours draw on the map, so you can see which
+markets overlap where you are.
+
+**Follow the money that lands there.** The popover's tabs answer "what reaches here" from four sides:
+
+- *Money*: every buyer whose ads air on those stations, as a treemap or ranked bars, pivoted by
+  buyer, party, office level or agency. Federal, state and local races and issue groups each get
+  a color; a **Color by: Office level | Party** switch recolors every buyer mark in the app.
+- *Ads*: the spots that actually aired, by their Ad-ID. A thumbnail wall puts the matched video
+  first (most matched from the campaign's own YouTube channel, some from Google's Ads Transparency
+  Center); opening one plays it in the panel, and spots with no public video get a summary card
+  linking to the ad's page. There are also buyer and creative lists and an hour-by-weekday
+  daypart heatmap.
+- *Newscasts*: the political spots that ran in tonight's and last night's local newscasts.
+- *Over time*: weekly booked and invoiced money for the stations reaching the pin.
+
+![The Ads tab: a wall of matched spot videos sized by airings on the stations reaching Columbus](docs/screenshots/ads-wall.jpg)
+
+**Compare two places.** *Compare…* drops a second pin (B, in amber) with its own popover, and
+each header gives the ratio to the other ("1.8× of A").
+
+![Two pins: Cincinnati (B) and Columbus (A), each with its stations and money](docs/screenshots/compare.jpg)
+
+**Read the country as a map.** The map layers color an H3 hexagon grid (national cells, finer
+cells inside crawled coverage, and the finest in metro areas when you zoom in):
+
+| Layer | Shows |
+|---|---|
+| Airshed | Station contours only |
+| Money | Booked dollars spread over each station's coverage by Census-tract population |
+| $ / person | Booked dollars per resident from the stations of the market you are in |
+| Spots | Aired spots reaching each cell |
+| $ / spot | What a political spot costs in your market, from fully parsed invoices |
+| Party share | Democratic vs Republican share of candidate money; fainter where there is less of it |
+| Booked − invoiced | Money ordered but not yet aired and billed: the pipeline still to come |
+| Week vs last | Momentum: this week's bookings against last week's |
+
+Contours overlap across market lines, but a household watches one market. So $ / person and $ / spot
+use only the stations of the nearest market (inferred from transmitter sites), and areas between
+two markets are not counted twice.
+
+![$ / spot by market across Ohio, Indiana and Kentucky: Dayton is the priciest, the Lexington market has no clean invoice data and is left blank](docs/screenshots/spot-markets.jpg)
+
+![Party share: candidate money colored blue to red by Democratic share](docs/screenshots/party-share.jpg)
+
+**Watch it move.** *Over time* animates the money across the grid day by day. The timeline bar
+holds every playback choice: what to show (booked, invoiced, spots, party share), the window
+(a day, a week, or cumulative), trails that fade the previous frames, and speed. The scrubline
+is a sparkline of the series, national or for the pin, so the shape of the cycle shows before you
+press play. A small key above the bar shows the scale and the cell under the cursor.
+
+![Over time: weekly booked dollars across the country with the timeline bar](docs/screenshots/over-time.jpg)
+
+**Look across the whole corpus.** *Buyers* ranks every political advertiser (identities merged
+against the FEC candidate and committee masters), with a page per buyer: stations, flights,
+dayparts and creatives. *Ads* does the same by creative, *Stations* gives one station's buyers,
+documents and parse coverage, and *Explore* is a pivot builder over the Parquet marts that runs
+SQL in your browser (DuckDB-WASM). *About* is generated from the data on every export, so its
+counts and caveats always match what you are looking at.
+
+![Buyers: every political advertiser ranked by booked TV time, colored by office level](docs/screenshots/buyers.jpg)
+
+<img src="docs/screenshots/phone.jpg" alt="The map on a phone in dark mode: the pin's popover becomes a bottom sheet" width="300" align="right">
+
+**On a phone, in the dark, and by link.** The layout works at phone width (the popover
+becomes a bottom sheet) and follows the system's light or dark theme. The URL carries the whole
+view: pins, layer, open tab, newscast night, timeline position, color mode and camera. Any view
+can be shared as a link, and Back and Forward step through your changes.
+
+<br clear="right">
 
 ## Prerequisites
 
@@ -79,7 +159,7 @@ Routes:
 
 | Route | What it shows |
 |---|---|
-| `/` | Map-first home. Click or search to drop a pin; the popover lists stations reaching it with newscast and FCC links, money by buyer, aired ads, the political spots in tonight's and last night's newscasts, and a timeline. The nav's "Color by" switch colors every buyer mark by office level or by party. A second pin (B) turns on comparison and difference layers. |
+| `/` | Map-first home. Click or search to drop a pin; the popover lists stations reaching it with newscast and FCC links, money by buyer, aired ads, the political spots in tonight's and last night's newscasts, and a timeline. The popover's "Color by" switch (also on the Buyers, Ads and station pages) colors every buyer mark by office level or by party. A second pin (B) turns on comparison. |
 | `/map` | The coverage map on its own, without the money layers. |
 | `/time` | Money moving across the hex grid day by day, with trails or accumulate, driven by the global timeline bar. |
 | `/buyers`, `/buyers/<slug>` | Who is buying: treemap by category, per-buyer stations, flights, dayparts, creatives. |
@@ -241,10 +321,10 @@ the `pipeline` lock, and a second copy of itself exits at once (`data/locks/dail
 `scripts/health.sh` writes `web/data/health.json`, which the About page shows under
 the build line.
 
-Two launchd agents in `scripts/launchd/` schedule them: `com.adfall.daily` every 8
-hours at 05:10, 13:10 and 21:10 local time, and `com.adfall.health` hourly at :30
-(and once on load). They are not
-installed by the repository; the paths inside them are absolute, so edit them if the
+Two launchd agents in `scripts/launchd/` can schedule them: `com.adfall.daily` at
+05:10, 13:10 and 21:10 local time, and `com.adfall.health` hourly at :30 (and once on
+load). They are not installed yet, here or by the repository, so today the daily run is
+started by hand; the paths inside them are absolute, so edit them if the
 checkout is not at `/Users/alex/tv_wormhole`, then:
 
 ```bash
@@ -312,8 +392,8 @@ scripts/publish.sh --dry-run     # rclone in dry-run mode: what would upload, no
 scripts/publish.sh               # the real thing; data/publish.json records the last success
 ```
 
-`scripts/daily.sh` runs it after every clean export once `R2_BUCKET` is set, so the
-8-hour schedule publishes three times a day. Each publish uploads the two large
+`scripts/daily.sh` runs it after every clean export once `R2_BUCKET` is set, so a
+scheduled daily job would publish on every run. Each publish uploads the two large
 PMTiles afresh (about 260 MB) plus whatever else changed; at this volume R2 costs
 a few dollars a month and egress is free. `PUBLISH_PING` takes a healthchecks-style
 URL that is hit on success and with `/fail` appended on failure, which is the
