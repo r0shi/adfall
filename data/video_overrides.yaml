@@ -12,3 +12,5 @@ issue-ia-victory-fund: none          # same
 issue-action-fund: none              # picked "Progress Action Fund"; the station label is too short to resolve
 state-brian-wrightson: none          # picked a jiu-jitsu channel
 local-reno: none                     # picked the City of Reno
+issue-ky-pac: none                   # 2026-10-27 API search picked "Pac- Ky"; too generic a name to trust
+issue-alliance-for-economic-freedom: none   # picked "Economic Freedom Alliance", likely a different group

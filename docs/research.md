@@ -1033,6 +1033,56 @@ the top 300 as the crawl grew). Searching them through the API costs about
 10,800 units, one day's default quota; `ingest.video channels --top 300`
 then `videos` does it, best spread over two days.
 
+### Channel search through the API, prefix fallback, office channels (2026-10-27 03:15)
+
+Channel search for the top-300 buyers without one, through the Data API in
+two quota days: 70 searches (7,000 units) before the 03:00 EDT reset, 86
+(8,600 units) after it. 38 channels found, mostly issue groups and PACs (A
+Stronger Michigan, Put Progress First, Kansans for Democracy, Missouri
+Promise, Civic Progress Fund). Budget rules: a new search is 100 units; a
+buyer's queries stop at the first that finds a channel; names under four
+letters are not searched; a spent budget or quota defers the remaining
+buyers instead of recording "no channel". A channel title must now contain
+a distinctive token of the buyer's names, which rejected "Maga Ky" → "Ky";
+"Ky PAC" → "Pac- Ky" and "Alliance for Economic Freedom" → "Economic
+Freedom Alliance" were blocked by hand.
+
+Two corrections came out of checking the result:
+
+- **Prefix fallback.** Duplicate station labels ("Steyerdgovernor" for Tom
+  Steyer, "Win Senate" for WinSenate) and junk folders ("US Senate", holding
+  Graham, Barr, Cassidy and Husted spots) have no channel of their own. The
+  Ad-ID prefix identifies the advertiser, so a spot family whose buyer has
+  no channel now borrows the channel of the buyer that carries at least 60%
+  of that prefix's airings among channel holders (confidence × 0.9, signal
+  `prefix`). No searches, so it runs over every buyer: 267 buyers, 130,574
+  airings.
+- **Office channels dropped.** 20 channels were officeholders' government
+  channels ("Senator Jon Husted", "USSenLindseyGraham", "Governor Kathy
+  Hochul", "Rep. Ron Estes"): office videos, not campaign ads ("Cassidy
+  Secures Over $1.3 Billion for Louisiana" had matched a TV spot). Channel
+  scoring now rejects them, and every run drops any that remain along with
+  their matches (95 here). Those buyers need a new search for their campaign
+  channel.
+
+| Airings (2,090,672) | Count | Share |
+|---|---|---|
+| Playable on YouTube | 1,024,016 | 49% |
+| of which high confidence | 230,944 | 11% |
+| of which medium | 498,725 | 24% |
+| of which through the prefix fallback | 130,574 | 6% |
+| Google link only | 233,773 | 11% |
+| Any link | 1,257,789 | 60% |
+
+| Place | Airings | Playable | High | Medium or better | Any link |
+|---|---|---|---|---|---|
+| Des Moines 50309 | 59,801 | 43,420 (73%) | 13,679 (23%) | 31,174 (52%) | 47,979 (80%) |
+| Atlanta 30303 | 82,494 | 61,932 (75%) | 13,905 (17%) | 44,083 (53%) | 66,556 (81%) |
+
+84 of the top 300 buyers still have no channel: about 70 were searched and
+nothing passed, and about 14 lost an office channel and wait for a search
+on the next quota day (~2,000 units).
+
 ### Known limits
 
 - No video for buyers without a channel; no channel for most issue groups.

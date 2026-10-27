@@ -34,6 +34,10 @@ UA = "adfall/0.1 (+research; metadata only)"
 AD_MIN, AD_MAX = 10, 95                       # seconds: what counts as an ad-length upload
 STD_LENGTHS = (10, 15, 30, 45, 60, 90)
 NEWSY = re.compile(r"\b(news|tv|wxyz|kcci|who ?13|register|politico|cbs\d*|nbc\d*|abc\d*|fox\d*|cnn|msnbc|c-span|cspan|pbs|npr|tribune|gazette|journal|press|radio|podcast|channel \d|\d+ ?news|iowa pbs|axios|the hill|forum|debate|all political ads)\b", re.I)
+OFFICIAL = re.compile(r"^(the\s+)?(u\.?s\.?\s+)?(senator|sen\.|rep\.?|representative|congress(man|woman)|governor|gov\.|lt\.?\s*governor|attorney general|secretary of state)\b"
+                      r"|^(ussen|usrep|senator|rep|gov)[A-Z]|official\s+(senate|house)|\bU\.S\.\s+Senator\b|office of", re.I)
+# an officeholder's government channel ("Senator Jon Husted", "USSenLindseyGraham", "Governor Kathy Hochul"): office
+# videos, not campaign ads; House and Senate rules keep campaign material off them, so they are never the buyer's channel
 CALLSIGN = re.compile(r"\b[KW][A-Z]{2,3}(-?(TV|DT))?\b")       # a station channel: KCCI, WXYZ-TV (case-sensitive)
 OFFICE_WORDS = [("gov", "Governor"), ("senate", "Senate"), ("house", "Congress"), ("congress", "Congress"), ("attorney", "Attorney General"),
                 ("secretary", "Secretary of State"), ("supreme", "Supreme Court"), ("mayor", "Mayor"), ("treasurer", "Treasurer"), ("auditor", "Auditor"),
@@ -73,6 +77,13 @@ def relink(con):
     con.commit()
     if n:
         log.info("pruned %d creative_video rows whose Ad-ID is gone", n)
+    off = [(sl, t) for sl, t in con.execute("SELECT buyer_slug, title FROM buyer_channel WHERE source='youtube'") if t and OFFICIAL.search(t)]
+    if off:
+        titles = [t for _, t in off]
+        m = con.execute("DELETE FROM creative_video WHERE source='youtube' AND split_part(split_part(notes, '; channel ', 2), '; pair=', 1) = ANY(%s)", (titles,)).rowcount
+        con.execute("DELETE FROM buyer_channel WHERE source='youtube' AND buyer_slug = ANY(%s)", ([sl for sl, _ in off],))
+        con.commit()
+        log.info("dropped %d official office channels (%s...) and %d matches made through them", len(off), ", ".join(titles[:3]), m)
 
 
 # ------------------------------------------------------------------ small HTTP / cache helpers
@@ -373,6 +384,8 @@ def score_channel(b, title, hits, video_titles):
     campaign filler costs 30% ("North American Mission Board" is not "American Mission")."""
     if not title or NEWSY.search(title) or CALLSIGN.search(title):
         return 0.0, "newsy"
+    if OFFICIAL.search(title):
+        return 0.0, "official office channel"
     variants = name_variants(b)
     from .video_google import GENERIC
     distinct = {t for v in variants for t in nick_tokens(v) if len(t) >= 4 and t not in CHANNEL_FILLER and t not in GENERIC}
@@ -609,8 +622,10 @@ def write_matches(con, fam, b, best, runner, ups, channel_title):
                          conf, signals, notes))
 
 
-def match_buyer(con, st, b, ch, refresh=False, detail_cap=80):
-    fams = load_families(con, b["buyer_id"])
+def match_buyer(con, st, b, ch, refresh=False, detail_cap=80, fams=None, conf_mult=1.0, extra_signal=None):
+    """Align the buyer's spot families (or the given subset) with the channel's ad-length uploads.
+    conf_mult / extra_signal mark matches made through a channel borrowed by Ad-ID prefix."""
+    fams = fams if fams is not None else load_families(con, b["buyer_id"])
     if not fams:
         return 0
     dom = dominant_length(con, b["buyer_id"])
@@ -640,7 +655,8 @@ def match_buyer(con, st, b, ch, refresh=False, detail_cap=80):
                 conf = min(conf, 0.6)                        # a digital cut, not the length the station billed
             if len(fams) > 1 and len(ups) > 1:
                 conf = min(1.0, conf + 0.05)                 # order-consistent alignment adds a little
-            signals = ",".join(x for x, on in (("date", True), ("duration", duration_score(ups[j], dom) >= 1.0), ("order", len(fams) > 1), ("title", adness(ups[j], b) >= 1.0), ("exact-date", bool(ups[j].get("exact")))) if on)
+            conf *= conf_mult
+            signals = ",".join(x for x, on in (("date", True), ("duration", duration_score(ups[j], dom) >= 1.0), ("order", len(fams) > 1), ("title", adness(ups[j], b) >= 1.0), ("exact-date", bool(ups[j].get("exact"))), (extra_signal, bool(extra_signal))) if on)
             best = (j, s, round(conf, 3), signals)
             if second > 0:
                 jj = next(jj for sc, jj in row if jj != j)
@@ -648,7 +664,7 @@ def match_buyer(con, st, b, ch, refresh=False, detail_cap=80):
             matched += 1
         elif row:                                            # unassigned (the DP preferred a neighbour): keep the best as a low-confidence guess
             s, j = row[0]
-            best = (j, s, round(min(s * 0.5, 0.35), 3), "date,unaligned")
+            best = (j, s, round(min(s * 0.5, 0.35) * conf_mult, 3), "date,unaligned" + (f",{extra_signal}" if extra_signal else ""))
         if best:
             write_matches(con, f, b, best, runner, ups, data.get("title") or ch.get("title"))
             st.count("families_matched" if best[2] >= 0.4 else "families_low")
@@ -675,6 +691,56 @@ def cmd_videos(con, st, buyers, refresh=False, detail_cap=80):
         except Exception as e:
             con.rollback(); st.fail(b["name"], f"{type(e).__name__}: {e}"); log.exception("match failed for %s", b["name"])
         st.progress(i + 1, len(buyers), every=25, label="videos")
+
+
+def prefix_channels(con, share=0.6):
+    """Ad-ID prefix -> (channel_id, channel title, holder buyer name, holder buyer id) where one channel-holding buyer
+    carries at least `share` of the prefix's airings among channel holders. The prefix identifies the advertiser in the
+    Ad-ID registry, so a duplicate station label ("Steyerdgovernor") or a junk folder ("US Senate") can borrow it."""
+    rows = con.execute("""SELECT c.prefix, b.buyer_id, b.canonical_name, bc.channel_id, bc.title, SUM(c.airings)
+                          FROM creative c JOIN buyer b USING (buyer_id)
+                          JOIN buyer_channel bc ON bc.buyer_id=b.buyer_id AND bc.source IN ('youtube','override')
+                          WHERE c.prefix IS NOT NULL AND length(c.prefix)=4 GROUP BY 1,2,3,4,5""").fetchall()
+    by = collections.defaultdict(list)
+    for pre, bid, name, cid, title, a in rows:
+        by[pre].append((a, bid, name, cid, title))
+    out = {}
+    for pre, xs in by.items():
+        xs.sort(reverse=True)
+        if xs[0][0] >= share * sum(x[0] for x in xs):
+            out[pre] = {"channel_id": xs[0][3], "title": xs[0][4], "holder": xs[0][2], "holder_id": xs[0][1]}
+    return out
+
+
+def cmd_inherit(con, st, refresh=False, detail_cap=80):
+    """Spot families of buyers with no channel of their own, matched against the channel of the buyer that owns their
+    Ad-ID prefix. No searches, so it runs over every buyer, not just the top N. Confidence x0.9, signal 'prefix'."""
+    pmap = prefix_channels(con)
+    have = {r[0] for r in con.execute("SELECT buyer_id FROM buyer_channel WHERE source IN ('youtube','override') AND buyer_id IS NOT NULL")}
+    blocked = {k for k, v in load_overrides()["channels"].items() if v.lower() in ("none", "null", "no", "-")}
+    n_b = 0
+    for b in load_buyers(con):
+        if b["buyer_id"] in have or b["slug"] in blocked:
+            continue
+        groups = collections.defaultdict(list)
+        for f in load_families(con, b["buyer_id"]):
+            m = pmap.get(f["ids"][0][:4])
+            if m and m["holder_id"] != b["buyer_id"]:
+                groups[m["channel_id"]].append((f, m))
+        for cid, fl in groups.items():
+            m = fl[0][1]
+            holder = {**b, "name": m["holder"]}               # title and ad-likeness are judged against the advertiser's own name
+            try:
+                match_buyer(con, st, holder, {"channel_id": cid, "title": m["title"]}, refresh=refresh, detail_cap=detail_cap,
+                            fams=[f for f, _ in fl], conf_mult=0.9, extra_signal="prefix")
+                st.count("inherit_families", len(fl))
+            except ApiQuotaError as e:
+                con.rollback(); st.fail(b["name"], str(e)); log.error("stopping prefix pass: %s", e); return
+            except Exception as e:
+                con.rollback(); st.fail(b["name"], f"{type(e).__name__}: {e}"); log.exception("prefix match failed for %s", b["name"])
+        if groups:
+            n_b += 1
+    log.info("prefix pass: %d buyers without a channel matched through their Ad-ID prefix's owner", n_b)
 
 
 # ------------------------------------------------------------------ overrides and link-out sources
@@ -874,6 +940,8 @@ def main():
             cmd_channels(con, st, buyers, refresh=a.refresh, rescore=a.rescore, max_searches=a.max_searches)
         if a.cmd in ("all", "videos"):
             cmd_videos(con, st, buyers, refresh=a.refresh, detail_cap=a.detail_cap)
+            if not ids:
+                cmd_inherit(con, st, refresh=a.refresh, detail_cap=a.detail_cap)
         if a.cmd in ("all", "google-ads"):
             cmd_google_ads(con, st, buyers, refresh=a.refresh)
         if a.cmd in ("all", "overrides", "channels", "videos", "google-ads"):
