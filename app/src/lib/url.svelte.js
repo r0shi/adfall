@@ -7,15 +7,15 @@ import { tl } from './time.svelte.js';
 import { view, setColorBy } from './color.svelte.js';
 
 export const ui = $state({
-  layer: 'coverage', tab: 'stations', tabB: 'stations',   // home map layer and the open popover tabs
+  layer: 'booked', tab: 'stations', tabB: 'stations',     // home map layer ('coverage' = none, contours only) and the open popover tabs
   newsDay: null,                                          // Newscasts tab night (null = tonight)
   cam: null,                                              // [zoom, lat, lon] as last reported by the map
   camRequest: null, camApplied: 0,                        // a camera the URL asked for; when the map applied it
   path: '/'
 });
 
-// Map layers the hash may name: Airshed, Over time, the tile metrics (hexlayers.js METRICS) and the comparisons
-// (difflayer.js DIFFS). Anything else falls back to Airshed instead of blanking the page.
+// Map layers the hash may name: Over time, the tile metrics (hexlayers.js METRICS) and the comparisons (difflayer.js
+// DIFFS); 'none' (or the older 'coverage') is no layer. No layer= means Money, the default; anything unknown falls back to it.
 const LAYERS = new Set(['coverage', 'animate', 'booked', 'pp', 'spots', 'ps', 'stations', 'party', 'bi', 'wk']);
 
 const f4 = (p) => `${(+p[0]).toFixed(4)},${(+p[1]).toFixed(4)}`;
@@ -27,7 +27,7 @@ export function serialize({ shared = false } = {}) {
   if (locB.p) q.push('b=' + f4(locB.p));
   if (view.by !== 'category') q.push('color=' + view.by);
   if (shared) return q.join('&');
-  if (ui.layer !== 'coverage') q.push('layer=' + ui.layer);
+  if (ui.layer !== 'booked') q.push('layer=' + (ui.layer === 'coverage' ? 'none' : ui.layer));
   if (loc.p && ui.tab !== 'stations') q.push('tab=' + ui.tab);
   if (locB.p && ui.tabB !== 'stations') q.push('tabb=' + ui.tabB);
   if (ui.newsDay && (ui.tab === 'news' || ui.tabB === 'news')) q.push('night=' + ui.newsDay);
@@ -62,7 +62,7 @@ export async function apply(hash) {
   if (s.map) ui.camRequest = s.map;            // before the pins, so the pin effect does not fly the camera away from it
   if (!samePt(s.p, loc.p)) { if (s.p) await setLocation(s.p); else if (loc.p) clearA(); }
   if (!samePt(s.b, locB.p)) { if (s.b) await setLocationB(s.b); else if (locB.p) clearB(); }
-  ui.layer = LAYERS.has(s.layer) ? s.layer : 'coverage'; ui.tab = s.tab || 'stations'; ui.tabB = s.tabb || 'stations';
+  ui.layer = s.layer === 'none' ? 'coverage' : LAYERS.has(s.layer) ? s.layer : 'booked'; ui.tab = s.tab || 'stations'; ui.tabB = s.tabb || 'stations';
   ui.newsDay = s.night || null;
   if (s.day) tl.day = s.day;
   if (s.win) tl.window = s.win; else if (s.day) tl.window = 'week';

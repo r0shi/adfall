@@ -32,9 +32,11 @@
   const isPartyAnim = $derived(ui.layer === 'animate' && tl.metric === 'party');
   spendIndex().then(d => idx = d); get('tiles/meta.json').then(m => meta = m);
   // still layers, then the comparisons; Over time is not in the list: it leads the box as its own button
-  const LAYERS = [['coverage', 'Airshed'], ['booked', 'Money'], ['pp', '$ / person'], ['spots', 'Spots'], ['ps', '$ / spot']];
+  // one layer at a time; clicking the lit one turns the map layer off ('coverage': contours only, which a pin draws anyway)
+  const LAYERS = [['booked', 'Money'], ['pp', '$ / person'], ['spots', 'Spots'], ['ps', '$ / spot']];
   const COMPARE = [['party', 'Party share'], ['bi', 'Booked − invoiced'], ['wk', 'Week vs last']];
-  let stillLayer = 'coverage';                            // where the Over time button returns to when switched off
+  const pickLayer = (k) => { ui.layer = ui.layer === k ? 'coverage' : k; };
+  let stillLayer = 'booked';                              // where the Over time button returns to when switched off
   function toggleTime() { if (ui.layer === 'animate') ui.layer = stillLayer; else { stillLayer = ui.layer; ui.layer = 'animate'; } }
   const timeLayer = $derived(ui.layer === 'animate' || ui.layer === 'wk');   // layers driven by the timeline bar; their key docks above it
   const isDiff = $derived(ui.layer in DIFFS);
@@ -112,11 +114,12 @@
         <span>Over time</span>
       </button>
       <div class="lchips">
-        <div class="chips">{#each LAYERS as [k, l]}<span class="chip" class:on={ui.layer === k} onclick={() => ui.layer = k} onkeydown={e => e.key === 'Enter' && (ui.layer = k)} role="button" tabindex="0">{l}</span>{/each}</div>
-        <div class="chips cmp">{#each COMPARE as [k, l]}<span class="chip" class:on={ui.layer === k} onclick={() => ui.layer = k} onkeydown={e => e.key === 'Enter' && (ui.layer = k)} role="button" tabindex="0">{l}</span>{/each}</div>
+        <div class="chips">{#each LAYERS as [k, l]}<span class="chip" class:on={ui.layer === k} onclick={() => pickLayer(k)} onkeydown={e => e.key === 'Enter' && pickLayer(k)} role="button" aria-pressed={ui.layer === k} tabindex="0" title={ui.layer === k ? 'Click again to turn the layer off' : ''}>{l}</span>{/each}</div>
+        <div class="chips cmp">{#each COMPARE as [k, l]}<span class="chip" class:on={ui.layer === k} onclick={() => pickLayer(k)} onkeydown={e => e.key === 'Enter' && pickLayer(k)} role="button" aria-pressed={ui.layer === k} tabindex="0" title={ui.layer === k ? 'Click again to turn the layer off' : ''}>{l}</span>{/each}</div>
       </div>
     </div>
-    {#if isTile}<div class="desc muted small">{METRICS[ui.layer][1]}. {hover ? fmtHover(hover) : 'Hover a cell.'}</div>
+    {#if ui.layer === 'coverage'}<div class="desc muted small">No map layer. Pick one above{loc.p ? '; the pin\'s station contours stay on' : ''}.</div>
+    {:else if isTile}<div class="desc muted small">{METRICS[ui.layer][1]}. {hover ? fmtHover(hover) : 'Hover a cell.'}</div>
     {:else if ui.layer === 'party'}<div class="desc muted small">{DIFFS.party.desc}. {hover ? fmtHover(hover) : 'Hover a cell.'}</div>
       <div class="legend" style="display:flex;align-items:center;gap:8px;margin-top:6px"><span style="color:rgb({REP.join(',')})">■ Republican</span><span style="flex:1;height:8px;border-radius:4px;background:linear-gradient(90deg, rgb({REP.join(',')}), rgb({MID.join(',')}), rgb({DEM.join(',')}))"></span><span style="color:rgb({DEM.join(',')})">Democratic ■</span></div>
       <div class="legend" style="display:flex;align-items:center;gap:8px;margin-top:4px"><span>less candidate $</span><span style="flex:1;height:8px;border-radius:4px;background:linear-gradient(90deg, rgba(158,160,168,.1), rgba(158,160,168,1))"></span><span>more</span></div>

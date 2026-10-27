@@ -68,12 +68,12 @@ each header gives the ratio to the other ("1.8× of A").
 ![Two pins: Cincinnati (B) and Columbus (A), each with its stations and money](docs/screenshots/compare.jpg)
 
 **Read the country as a map.** The map layers color an H3 hexagon grid (national cells, finer
-cells inside crawled coverage, and the finest in metro areas when you zoom in):
+cells inside crawled coverage, and the finest in metro areas when you zoom in). One layer shows at a time;
+clicking the lit one turns it off and leaves just the pin's station contours:
 
 | Layer | Shows |
 |---|---|
-| Airshed | Station contours only |
-| Money | Booked dollars spread over each station's coverage by Census-tract population |
+| Money (the default) | Booked dollars spread over each station's coverage by Census-tract population |
 | $ / person | Booked dollars per resident from the stations of the market you are in |
 | Spots | Aired spots reaching each cell |
 | $ / spot | What a political spot costs in your market, from fully parsed invoices |
