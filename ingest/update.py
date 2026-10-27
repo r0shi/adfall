@@ -1,20 +1,22 @@
 #!/usr/bin/env python3
-"""Incremental updater: apply the FCC file-history change feed to the local store.
+"""Daily update: find what changed in each tracked station's political-file folder and fetch it.
 
-The feed (`/api/manager/file/history.json`) lists every file added, deleted,
-moved, renamed or purged across all stations for a date range, with the folder
-path, size and timestamps. One call per 500 rows; a peak day is ~30 pages.
+Two methods. The default compares the FCC's own file count for each station-year folder
+(`folder/id/<folder>.json` -> `file_count`, one call of ~0.3 s per station) with the files we hold and
+re-walks only the station-years whose count differs: new files are added, files that vanished are marked
+deleted, and new files are downloaded. The FCC change feed (`--mode feed`, `file/history.json`) was the
+original design but is sorted newest-first and times out server-side past offset ~3,000 on any busy day
+(seen 2026-10-24, -25, -26), so a day can never be read completely.
 
-  python3 -m ingest.update                       # from last sync (or yesterday) to today
-  python3 -m ingest.update --since 2026-10-20    # explicit window
-  python3 -m ingest.update --download            # and fetch the new files
+  python3 -m ingest.update --download                  # count check for every tracked station, re-list changed ones, download
+  python3 -m ingest.update --download --only 23422,3667
+  python3 -m ingest.update --mode feed --since 2026-10-20   # the change feed, for small windows
+  python3 -m ingest.update --download --all            # re-walk every station regardless of the count (weekly safety net)
 
-Only tracked stations (those already in `opif_file`) are applied unless --stations
-adds more. Re-running a window is idempotent. A day whose feed could not be read
-is recorded as a failure and the sync marker (meta.last_history_sync) is not
-advanced past it, so the next run picks it up again.
+Only tracked stations (those already in opif_file) are updated unless --stations adds more. Re-running is idempotent.
 """
 import argparse, datetime, logging, os, re, sys, time
+from concurrent.futures import ThreadPoolExecutor
 from . import fcc, db
 from .runlog import Stage
 
@@ -85,14 +87,68 @@ def apply(con, rows, tracked, known):
     return counts
 
 
+def check_counts(con, st, facs, years, workers=4):
+    """For each (facility, year): fetch the FCC file_count of the year folder; return the station-years whose count
+    differs from the non-deleted files we hold. Folder ids are cached in opif_listing.folder_id."""
+    have = {(r[0], r[1]): r[2] for r in con.execute("""SELECT facility_id, year, COUNT(*) FILTER (WHERE deleted_at IS NULL) FROM opif_file
+                                                       WHERE facility_id = ANY(%s) AND year = ANY(%s) GROUP BY 1,2""", (facs, years))}
+    folder_ids = {(r[0], r[1]): r[2] for r in con.execute("SELECT facility_id, year, folder_id FROM opif_listing WHERE facility_id = ANY(%s)", (facs,))}
+    con.commit()
+    targets = [(fac, y) for fac in facs for y in years]
+
+    def one(key):
+        fac, year = key
+        try:
+            fid = folder_ids.get(key)
+            if not fid:
+                top = fcc.folder_by_path(str(fac), f"Political Files/{year}")
+                if not top:
+                    return key, None, None, None          # no folder for that year (yet)
+                fid = top["entity_folder_id"]
+            d = fcc.folder_by_id(str(fac), fid)
+            n = d.get("file_count")
+            return key, fid, (int(n) if n is not None else None), None
+        except fcc.FccError as e:
+            return key, folder_ids.get(key), None, str(e)[:200]
+
+    changed, done = [], 0
+    with ThreadPoolExecutor(workers) as ex:
+        for key, fid, api_count, err in ex.map(one, targets):
+            done += 1; st.attempt()
+            fac, year = key
+            if err:
+                st.fail(f"{fac}/{year}", f"count check: {err}")
+                continue
+            if api_count is None:
+                st.count("stations_no_folder")
+                continue
+            ours = have.get(key, 0)
+            con.execute("""INSERT INTO opif_listing(facility_id,year,status,files,api_count,folder_id,checked_at)
+                           VALUES (%s,%s,'empty',0,%s,%s,now()) ON CONFLICT (facility_id, year) DO UPDATE SET
+                           api_count=EXCLUDED.api_count, folder_id=EXCLUDED.folder_id, checked_at=now()""", (fac, year, api_count, fid))
+            if api_count != ours:
+                changed.append((fac, year, ours, api_count))
+            st.progress(done, len(targets), every=200, label="count check")
+    con.commit()
+    st.count("stations_checked", done); st.count("stations_changed", len(changed))
+    log.info("count check: %d station-years, %d changed (%+d files net)", done, len(changed), sum(a - o for _, _, o, a in changed))
+    return changed
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser()
     ap.add_argument("--since", help="YYYY-MM-DD; default: last sync date, else yesterday")
     ap.add_argument("--until", help="YYYY-MM-DD; default today")
     ap.add_argument("--stations", help="extra facility IDs to track, comma-separated")
+    ap.add_argument("--mode", choices=["counts", "feed"], default="counts")
+    ap.add_argument("--only", help="counts mode: restrict to these facility ids (testing)")
+    ap.add_argument("--all", action="store_true", help="counts mode: re-walk every station-year, not only the changed ones")
+    ap.add_argument("--years", default="2026")
     ap.add_argument("--download", action="store_true")
     ap.add_argument("--workers", type=int, default=4)
     a = ap.parse_args(argv)
+    if a.mode == "counts":
+        return main_counts(a)
     with Stage("update", args=vars(a), min_failures=0) as st:
         con = db.connect()
         today = datetime.date.today()
@@ -131,6 +187,40 @@ def main(argv=None):
             years = [r[0] for r in con.execute("SELECT DISTINCT year FROM opif_file WHERE NOT downloaded AND deleted_at IS NULL")]
             if years:
                 download_pending(con, st, sorted(tracked & known), years, a.workers)
+        con.close()
+
+
+def main_counts(a):
+    from .crawl import list_station, download_pending
+    with Stage("update", args=vars(a), max_fail_rate=0.02, min_failures=5) as st:
+        con = db.connect()
+        known = {r[0] for r in con.execute("SELECT facility_id FROM station")}
+        tracked = {r[0] for r in con.execute("SELECT DISTINCT facility_id FROM opif_file")}
+        if a.stations:
+            tracked |= {int(x) for x in a.stations.split(",")}
+        if a.only:
+            tracked = {int(x) for x in a.only.split(",")}
+        unknown = sorted(tracked - known)
+        if unknown:
+            st.warn("%d tracked stations are not in the station table and are skipped: %s (make stations)", len(unknown), unknown[:20])
+        facs = sorted(tracked & known)
+        years = [int(y) for y in a.years.split(",")]
+        con.commit()
+        log.info("checking %d stations for years %s", len(facs), years)
+        if a.all:
+            changed = [(fac, y, None, None) for fac in facs for y in years]
+        else:
+            changed = check_counts(con, st, facs, years, workers=a.workers)
+        for i, (fac, year, ours, theirs) in enumerate(changed, 1):
+            log.info("  [%d/%d] %s/%s: we hold %s, FCC reports %s; re-listing", i, len(changed), fac, year, ours, theirs)
+            before = con.execute("SELECT COUNT(*) FROM opif_file WHERE facility_id=%s AND year=%s", (fac, year)).fetchone()[0]
+            list_station(con, st, fac, year, relist=True, mark_missing=True)
+            after = con.execute("SELECT COUNT(*) FROM opif_file WHERE facility_id=%s AND year=%s", (fac, year)).fetchone()[0]
+            st.count("files_new", after - before)
+        con.execute("INSERT INTO meta(key,value) VALUES('last_count_check',%s) ON CONFLICT (key) DO UPDATE SET value=EXCLUDED.value", (datetime.datetime.now().isoformat(timespec="seconds"),))
+        con.commit()
+        if a.download:
+            download_pending(con, st, facs, years, a.workers)
         con.close()
 
 

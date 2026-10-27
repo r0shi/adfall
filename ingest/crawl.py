@@ -43,13 +43,15 @@ def known_stations(con, st, facs):
     return [f for f in facs if f in known]
 
 
-def list_station(con, st, fac, year, relist):
+def list_station(con, st, fac, year, relist, mark_missing=False):
+    """Walk one station-year folder into opif_file. With mark_missing, files of that station-year that a *complete*
+    walk did not see get deleted_at set (the station removed them); the count is returned via st.count('files_deleted')."""
     row = con.execute("SELECT status, files FROM opif_listing WHERE facility_id=%s AND year=%s", (fac, year)).fetchone()
     if row and row["status"] in ("complete", "empty") and not relist:
         log.info("  %s/%s: listing %s (%s files), skipping", fac, year, row["status"], row["files"])
         st.count("stations_skipped")
         return row["files"] or 0
-    n, api_count = 0, None
+    n, api_count, seen = 0, None, []
     st.attempt()
     try:
         for path, f in fcc.walk(str(fac), f"Political Files/{year}"):
@@ -63,7 +65,7 @@ def list_station(con, st, fac, year, relist):
                            VALUES(%s,%s,%s,%s,%s,%s,%s) ON CONFLICT (file_id) DO UPDATE SET
                            folder_path=EXCLUDED.folder_path, file_name=EXCLUDED.file_name, size_bytes=EXCLUDED.size_bytes, deleted_at=NULL""",
                         (f["file_manager_id"], fac, year, path, f.get("file_name"), f.get("file_size"), f.get("create_ts")))
-            n += 1
+            n += 1; seen.append(f["file_manager_id"])
             if n % 200 == 0:
                 con.commit()
     except fcc.FccError as e:
@@ -76,6 +78,12 @@ def list_station(con, st, fac, year, relist):
         st.count("stations_partial" if n else "stations_failed")
         return n
     status = "complete" if n else "empty"
+    if mark_missing:
+        gone = con.execute("""UPDATE opif_file SET deleted_at = now() WHERE facility_id=%s AND year=%s AND deleted_at IS NULL AND NOT (file_id = ANY(%s)) RETURNING file_id""",
+                           (fac, year, seen)).fetchall()
+        if gone:
+            log.info("  %s/%s: %d files no longer in the folder, marked deleted", fac, year, len(gone))
+            st.count("files_deleted", len(gone))
     con.execute("""INSERT INTO opif_listing(facility_id,year,status,files,api_count,listed_at,error) VALUES(%s,%s,%s,%s,%s,%s,NULL)
                    ON CONFLICT (facility_id, year) DO UPDATE SET status=EXCLUDED.status, files=EXCLUDED.files, api_count=EXCLUDED.api_count,
                    listed_at=EXCLUDED.listed_at, error=NULL""",

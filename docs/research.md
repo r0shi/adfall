@@ -1088,3 +1088,21 @@ step one second after this session's `make marts` took the lock, so its marts an
 steps failed with "already running", and this session's marts began one second before the daily
 job's entities rebuild committed, which left `spend_daily` empty until a second marts run at
 00:57. Nothing wrong in the stages themselves; two drivers on one database need one queue.
+
+### The change feed cannot do daily updates; folder counts can (2026-10-26)
+
+Three nightly runs in a row failed the same way: `file/history.json` for one day answers 503
+after offset ~3,000. Probing shows why. The feed is sorted newest-first and each page past
+offset 2,500 takes about a minute server-side (52 s for 500 rows at offset 2,500, 57 s for
+100 rows at offset 3,000), so the gateway times out before a day of 10,000 to 14,000 rows is a
+quarter read; `sourceService` and sort parameters are ignored. The marker `last_history_sync`
+therefore never advanced and the overnight job never brought anything in.
+
+Replacement, now the default in `ingest.update`: for each tracked station-year, read the FCC's
+own `file_count` for the year folder (`folder/id/<id>.json`, 0.3 s; the folder id is cached in
+`opif_listing.folder_id`), compare it with the non-deleted files we hold, and re-walk only the
+station-years that differ. A complete walk marks the files it did not see as deleted. The check
+over all 1,098 stations takes about six minutes with four threads; the re-walks cost roughly 20
+API calls per changed station. `--all` re-walks everything (weekly safety net against an add
+and a delete cancelling out in the count); `--mode feed` keeps the old path for small windows.
+First run on four stations: three had grown (+14 files), listed and downloaded in 71 seconds.
