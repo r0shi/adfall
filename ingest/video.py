@@ -183,7 +183,12 @@ def api_uploads(channel_id, max_n=400):
             raise
         pl = "UU" + channel_id[2:]
     while len(out) < max_n:
-        r = api_get("playlistItems", part="snippet,contentDetails", playlistId=pl, maxResults=50, **({"pageToken": token} if token else {}))
+        try:
+            r = api_get("playlistItems", part="snippet,contentDetails", playlistId=pl, maxResults=50, **({"pageToken": token} if token else {}))
+        except urllib.error.HTTPError as e:
+            if e.code == 404:                                  # a channel with no public uploads has no uploads playlist
+                return out
+            raise
         ids = [it["contentDetails"]["videoId"] for it in r.get("items", [])]
         if not ids:
             break
@@ -369,6 +374,11 @@ def score_channel(b, title, hits, video_titles):
     if not title or NEWSY.search(title) or CALLSIGN.search(title):
         return 0.0, "newsy"
     variants = name_variants(b)
+    from .video_google import GENERIC
+    distinct = {t for v in variants for t in nick_tokens(v) if len(t) >= 4 and t not in CHANNEL_FILLER and t not in GENERIC}
+    flat = re.sub(r"[^a-z0-9]", "", title.lower())
+    if distinct and not any(t in flat for t in distinct):
+        return 0.0, "no name token in title"                     # "Maga Ky" is not the channel "Ky"
     sim = max(fuzz.token_set_ratio(title, v) for v in variants) / 100
     known = {t for v in variants for t in nick_tokens(v)} | {t for v in variants for t in re.findall(r"[0-9]+", v)} | CHANNEL_FILLER | set(STATE_NAMES.get(b["state"] or "", "").lower().split())
     sig = [t for t in known if len(t) >= 4 and t not in CHANNEL_FILLER]
@@ -385,23 +395,58 @@ def score_channel(b, title, hits, video_titles):
     return round(min(conf, 1.0), 3), ev
 
 
-def find_channel(b, refresh=False):
-    """Returns (channel dict or None, method). Uses the API when a key is configured, else yt-dlp search."""
+class SearchBudgetSpent(RuntimeError):
+    """This run's allowance of new (uncached) API searches is used up; the rest wait for the next run."""
+
+
+class SearchBudget:
+    """New API searches cost 100 quota units each (cached ones are free); cap them per run."""
+    def __init__(self, n=None):
+        self.left, self.used = n, 0
+
+    def take(self):
+        if self.left is not None and self.left <= 0:
+            raise SearchBudgetSpent()
+        self.used += 1
+        if self.left is not None:
+            self.left -= 1
+
+
+def find_channel(b, refresh=False, budget=None):
+    """Returns (channel dict or None, method). Uses the API when a key is configured, else yt-dlp search.
+    On the API path the queries run one at a time and stop as soon as one finds a channel that passes,
+    since each new search costs 100 units. ApiQuotaError and SearchBudgetSpent propagate to the caller."""
     cands = collections.defaultdict(lambda: {"hits": 0, "title": "", "video_titles": []})
     method = "api-search" if api_key() else "ytdlp-search"
+    budget = budget or SearchBudget()
+
+    def pick():
+        best = None
+        for cid, c in cands.items():
+            conf, ev = score_channel(b, c["title"], c["hits"], c["video_titles"])
+            if best is None or conf > best[0]:
+                best = (conf, cid, c["title"], ev)
+        return best
+
     for q in channel_queries(b):
+        key = _cache_path("search", f"{method}-{q}")
+        fresh = refresh or not os.path.exists(key) or time.time() - os.path.getmtime(key) >= 24 * 14 * 3600
+        if method == "api-search" and fresh:
+            budget.take()
         try:
             res = cached("search", f"{method}-{q}", lambda: (api_search_channels(q) if method == "api-search" else ytdlp_search(q)), refresh=refresh, max_age_h=24 * 14)
+        except ApiQuotaError:
+            raise
         except Exception as e:
             log.warning("search %r failed: %s", q, e); res = []
         for r in res:
             c = cands[r["channel_id"]]; c["hits"] += r.get("hits", 1); c["title"] = c["title"] or r["title"]
             if r.get("video_title"): c["video_titles"].append(r["video_title"])
-    best = None
-    for cid, c in cands.items():
-        conf, ev = score_channel(b, c["title"], c["hits"], c["video_titles"])
-        if best is None or conf > best[0]:
-            best = (conf, cid, c["title"], ev)
+        if method == "api-search":
+            best = pick()
+            if best and best[0] >= 0.6:
+                break
+    best = pick()
     if not best or best[0] < 0.6:
         return None, method
     conf, cid, title, ev = best
@@ -418,9 +463,10 @@ def upsert_channel(con, b, ch, source="youtube", uploads=None):
                 (sl, bid, source, ch["channel_id"], ch["channel_url"], ch.get("title"), ch.get("matched_by"), ch.get("confidence"), uploads))
 
 
-def cmd_channels(con, st, buyers, refresh=False, rescore=False):
+def cmd_channels(con, st, buyers, refresh=False, rescore=False, max_searches=None):
     overrides = load_overrides()
     found = 0
+    budget = SearchBudget(max_searches)
     for i, b in enumerate(buyers):
         st.attempt()
         sl = slug(b["category"], b["name"])
@@ -429,7 +475,18 @@ def cmd_channels(con, st, buyers, refresh=False, rescore=False):
         existing = con.execute("SELECT confidence FROM buyer_channel WHERE buyer_slug=%s AND source='youtube'", (b["slug"],)).fetchone()
         if existing and not (refresh or rescore):
             found += 1; continue
-        ch, method = find_channel(b, refresh=refresh)
+        if api_key() and len(re.sub(r"[^a-z]", "", b["name"].lower())) < 4:
+            st.count("channels_skipped_short_name"); continue     # "Jb", "Fox": a 100-unit search would find nothing useful
+        try:
+            ch, method = find_channel(b, refresh=refresh, budget=budget)
+        except (SearchBudgetSpent, ApiQuotaError) as e:
+            have = {r[0] for r in con.execute("SELECT buyer_slug FROM buyer_channel WHERE source IN ('youtube','override')")}
+            left = sum(1 for x in buyers[i:] if x["slug"] not in have and x["slug"] not in overrides["channels"])
+            if isinstance(e, ApiQuotaError):
+                st.fail(b["name"], str(e)); log.error("stopping channel search: %s (%d buyers still to search)", e, left)
+            else:
+                log.info("channels: search budget of %s spent; %d buyers still to search (cached results are reused next run)", max_searches, left)
+            st.count("channels_deferred", left); break
         if ch:
             upsert_channel(con, b, ch); con.commit(); found += 1
             log.info("channel  %-40s -> %s (%s) conf=%.2f", b["name"][:40], ch["title"], ch["channel_id"], ch["confidence"])
@@ -440,7 +497,8 @@ def cmd_channels(con, st, buyers, refresh=False, rescore=False):
             log.info("channel  %-40s -> none (%s)", b["name"][:40], method)
             st.count("channels_none")
         st.progress(i + 1, len(buyers), every=25, label="channels")
-    log.info("channels: %d of %d buyers have one", found, len(buyers))
+    st.count("api_searches", budget.used)
+    log.info("channels: %d of %d buyers have one; %d new API searches (%d quota units)", found, len(buyers), budget.used, 100 * budget.used)
 
 
 # ------------------------------------------------------------------ creative -> video
@@ -793,6 +851,7 @@ def main():
     ap.add_argument("--refresh", action="store_true", help="ignore cached searches/listings")
     ap.add_argument("--rescore", action="store_true", help="channels: re-pick from the cached searches (after a scoring change)")
     ap.add_argument("--detail-cap", type=int, default=80, help="exact-date lookups per channel (keyless path)")
+    ap.add_argument("--max-searches", type=int, help="channels: cap on new API searches this run (100 quota units each)")
     ap.add_argument("--approx", action="store_true", help="only buyers whose YouTube matches rest on approximate dates (rerun them through the API)")
     a = ap.parse_args()
     from .runlog import Stage
@@ -812,7 +871,7 @@ def main():
             log.info("--approx: %d buyers with approximate-date matches", len(ids))
         buyers = load_buyers(con, top=None if ids else a.top, ids=ids)
         if a.cmd in ("all", "channels"):
-            cmd_channels(con, st, buyers, refresh=a.refresh, rescore=a.rescore)
+            cmd_channels(con, st, buyers, refresh=a.refresh, rescore=a.rescore, max_searches=a.max_searches)
         if a.cmd in ("all", "videos"):
             cmd_videos(con, st, buyers, refresh=a.refresh, detail_cap=a.detail_cap)
         if a.cmd in ("all", "google-ads"):
