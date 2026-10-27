@@ -294,8 +294,11 @@ seeing a half-published site:
 5. **Prune.** Set prefixes older than the newest `PUBLISH_KEEP` (3) are deleted.
 
 Set up once, on the Cloudflare side: a zone for the domain; an R2 bucket with a
-custom domain (`DATA_URL`) and a CORS rule allowing `GET` and `HEAD` with the `Range`
-header from the site's origin, exposing `ETag` and `Content-Range`; an R2 API token
+custom domain (`DATA_URL`) and the CORS policy in `scripts/cloudflare/r2-cors.json`
+(edit the origins, then paste it into the bucket's CORS policy editor in the dashboard,
+or `wrangler r2 bucket cors set <bucket> --file scripts/cloudflare/r2-cors.json` with a
+token that has R2 edit; `ExposeHeaders` is how the policy exposes `ETag` and
+`Content-Range`, no Worker is needed); an R2 API token
 with object read and write (its access key pair); a Pages project created as direct
 upload (not Git-connected, since the data is not in Git) named `PAGES_PROJECT`; and an
 account API token with Pages edit. Locally: `brew install rclone`, and the settings

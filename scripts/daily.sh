@@ -72,7 +72,7 @@ run build npm --prefix app run build                     # always; the local bui
 
 # Cloudflare: scripts/publish.sh syncs web/data to R2 and deploys the app to Pages, atomically from the visitor's side.
 # A failed export can leave web/data half-written, so it publishes only after a clean one; the previous publish stays up.
-if ! grep -q '^R2_BUCKET=.' .env 2>/dev/null; then skip publish "not configured (R2_BUCKET in .env)"
+if ! grep -qE '^(export )?R2_BUCKET=.' .env 2>/dev/null; then skip publish "not configured (R2_BUCKET in .env)"
 elif [ "$EXPORT_OK" = 1 ]; then run publish scripts/publish.sh
 else skip publish "export failed"; fi
 

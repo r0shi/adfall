@@ -1,0 +1,9 @@
+[
+  {
+    "AllowedOrigins": ["https://adfall.bitblot.com", "https://adfall.pages.dev"],
+    "AllowedMethods": ["GET", "HEAD"],
+    "AllowedHeaders": ["Range", "If-None-Match", "If-Match"],
+    "ExposeHeaders": ["ETag", "Content-Range", "Content-Length", "Accept-Ranges"],
+    "MaxAgeSeconds": 86400
+  }
+]
