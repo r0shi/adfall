@@ -325,6 +325,14 @@ The app itself recovers from a publish landing under an open tab: a new
 `_app/version.json` turns the next in-app navigation into a full load, and a failed
 chunk import reloads once (`src/lib/recover.js`).
 
+### Refreshing the video chain
+
+`scripts/video_refresh.sh [max searches]` runs the YouTube chain on its own: a budgeted
+channel search for the top buyers still without a channel (90 searches by default, 9,000
+of the Data API's 10,000 daily units), uploads re-listed and matched, the creative pages
+re-exported, and a publish. Run it just after the quota resets at midnight Pacific; the
+daily job only runs the cheap matching step, on Sundays or with `--video`.
+
 ### Maintenance
 
 ```bash
