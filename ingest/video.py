@@ -21,7 +21,7 @@ give exact durations and approximate dates), and the public watch page's uploadD
 (one small GET per ad-length upload, cached in data/video_cache/). Nothing is downloaded.
 Logs: data/logs/video-<timestamp>.log (ingest.runlog.Stage). Lock: data/locks/video.lock.
 """
-import collections, datetime, json, logging, os, re, sys, time, urllib.parse, urllib.request
+import collections, datetime, json, logging, os, re, sys, time, urllib.error, urllib.parse, urllib.request
 from rapidfuzz import fuzz
 from . import pg
 
@@ -110,9 +110,50 @@ def api_key():
 
 
 # ------------------------------------------------------------------ YouTube Data API v3 (keyed path)
+class ApiQuotaError(RuntimeError):
+    """The key is invalid, not enabled for the YouTube Data API, or out of quota: stop the run, do not fall back."""
+
+
 def api_get(method, **params):
     params["key"] = api_key()
-    return json.loads(http_get("https://www.googleapis.com/youtube/v3/" + method + "?" + urllib.parse.urlencode(params)))
+    try:
+        return json.loads(http_get("https://www.googleapis.com/youtube/v3/" + method + "?" + urllib.parse.urlencode(params)))
+    except urllib.error.HTTPError as e:
+        try:
+            err = json.loads(e.read().decode("utf-8", "replace")).get("error", {})
+        except Exception:
+            err = {}
+        reason = ",".join(x.get("reason", "") for x in err.get("errors", [])) or str(e.code)
+        if e.code in (400, 403) and re.search(r"quota|dailyLimit|keyInvalid|badRequest|accessNotConfigured|forbidden|API_KEY|rateLimit", reason + " " + err.get("message", ""), re.I):
+            raise ApiQuotaError(f"YouTube Data API refused the request ({e.code} {reason}): {err.get('message', '')[:200]}") from None
+        raise
+
+
+def validate_api_key():
+    """One videos.list call (1 quota unit) so a bad key fails before any work."""
+    r = api_get("videos", part="id", id="dQw4w9WgXcQ")
+    if "items" not in r:
+        raise ApiQuotaError(f"unexpected API response: {str(r)[:200]}")
+
+
+def buyers_with_approx_dates(con, min_share=0.2):
+    """Buyer ids whose channel's ad-length uploads mostly lack an exact date: the keyless listing gave only
+    "2 months ago" and the watch-page lookup failed (soft block). Read from the listing and date caches."""
+    out = set()
+    first = dict(con.execute("SELECT buyer_id, MIN(first_aired) FROM creative GROUP BY 1").fetchall())
+    for bid, cid in con.execute("SELECT buyer_id, channel_id FROM buyer_channel WHERE source IN ('youtube','override') AND buyer_id IS NOT NULL"):
+        p = _cache_path("uploads", cid)
+        if not os.path.exists(p) or not first.get(bid):
+            continue
+        since = (first[bid] - datetime.timedelta(days=60)).isoformat()     # the window channel_uploads() looks at
+        ads = [u for u in json.load(open(p)).get("uploads", []) if u.get("duration") and AD_MIN <= u["duration"] <= AD_MAX
+               and (not u.get("upload_date") or u["upload_date"] >= since)][:80]
+        if not ads:
+            continue
+        missing = sum(1 for u in ads if not u.get("exact") and not os.path.exists(_cache_path("dates", u["id"])))
+        if missing / len(ads) > min_share:
+            out.add(bid)
+    return out
 
 
 def iso_duration(s):
@@ -466,6 +507,10 @@ def channel_uploads(channel_id, refresh=False, detail_cap=80, since=None):
     if api_key():
         data = cached("uploads", "api-" + channel_id, lambda: {"uploads": api_uploads(channel_id)}, refresh=refresh, max_age_h=24)
         ups = data["uploads"]
+        for u in ups:                                         # share exact dates with the keyless path's cache
+            p = _cache_path("dates", u["id"])
+            if u.get("upload_date") and not os.path.exists(p):
+                json.dump({"upload_date": u["upload_date"]}, open(p, "w"))
     else:
         data = cached("uploads", channel_id, lambda: ytdlp_uploads(channel_id), refresh=refresh, max_age_h=24)
         ups = data["uploads"]
@@ -556,6 +601,9 @@ def cmd_videos(con, st, buyers, refresh=False, detail_cap=80):
             st.count("buyers_without_channel"); continue
         try:
             match_buyer(con, st, b, {"channel_id": ch[0], "title": ch[1]}, refresh=refresh, detail_cap=detail_cap)
+        except ApiQuotaError as e:
+            con.rollback(); st.fail(b["name"], str(e)); log.error("stopping: %s (%d buyers left; rerun later, cached work is kept)", e, len(buyers) - i)
+            break
         except Exception as e:
             con.rollback(); st.fail(b["name"], f"{type(e).__name__}: {e}"); log.exception("match failed for %s", b["name"])
         st.progress(i + 1, len(buyers), every=25, label="videos")
@@ -735,6 +783,7 @@ def main():
     ap.add_argument("--refresh", action="store_true", help="ignore cached searches/listings")
     ap.add_argument("--rescore", action="store_true", help="channels: re-pick from the cached searches (after a scoring change)")
     ap.add_argument("--detail-cap", type=int, default=80, help="exact-date lookups per channel (keyless path)")
+    ap.add_argument("--approx", action="store_true", help="only buyers whose YouTube matches rest on approximate dates (rerun them through the API)")
     a = ap.parse_args()
     from .runlog import Stage
     ids = {int(x) for x in a.buyers.split(",")} if a.buyers else None
@@ -745,8 +794,13 @@ def main():
     with Stage("video", args=vars(a), max_fail_rate=0.5) as st, pg.connect() as con:
         if not api_key():
             log.info("no YOUTUBE_API_KEY configured: using yt-dlp metadata + watch-page dates (keyless)")
+        elif a.cmd in ("all", "channels", "videos"):
+            validate_api_key(); log.info("YOUTUBE_API_KEY ok: using the YouTube Data API v3")
         relink(con)
-        buyers = load_buyers(con, top=a.top, ids=ids)
+        if a.approx:
+            ids = (ids or set()) | buyers_with_approx_dates(con)
+            log.info("--approx: %d buyers with approximate-date matches", len(ids))
+        buyers = load_buyers(con, top=None if ids else a.top, ids=ids)
         if a.cmd in ("all", "channels"):
             cmd_channels(con, st, buyers, refresh=a.refresh, rescore=a.rescore)
         if a.cmd in ("all", "videos"):
