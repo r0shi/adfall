@@ -17,6 +17,8 @@
 #       domain with a CORS rule for the site), CLOUDFLARE_API_TOKEN (Pages edit), CLOUDFLARE_ACCOUNT_ID; optional
 #       PAGES_PROJECT (adfall), SITE_URL (https://<project>.pages.dev; the Origin the CORS check sends), PUBLISH_KEEP (3),
 #       PUBLISH_PING (a URL to GET on success and <url>/fail on failure, healthchecks.io style).
+# Edge caching: Cloudflare caches only a default list of extensions (no .json/.pmtiles/.parquet), so add a Cache Rule
+#       on the DATA_URL hostname, "eligible for cache" with the edge TTL from the origin Cache-Control set below.
 # Tools: rclone (brew install rclone), node, wrangler (app devDependency). Log: data/logs/publish-<date>.log, and
 # data/publish.json records the last successful publish.
 cd "$(dirname "$0")/.." || exit 1
@@ -56,16 +58,18 @@ export RCLONE_CONFIG_R2_ENDPOINT="https://$R2_ACCOUNT_ID.r2.cloudflarestorage.co
 RC="rclone $DRY --checksum --fast-list --transfers 16 --checkers 32 --retries 3 --stats-one-line --stats 0 --log-level NOTICE --log-file $LOG"
 B="r2:$R2_BUCKET"
 
-# 1. live: per-entity pages, in place
+# 1. live: per-entity pages, in place. Cache-Control rides on each object: R2 serves it and the edge honours it.
 t0=$(date +%s)
+export RCLONE_HEADER_UPLOAD="Cache-Control: public, max-age=300"
 for d in creatives/id buyers stations; do [ -d "web/data/$d" ] && { $RC sync "web/data/$d" "$B/live/$d" || fail "sync of $d"; }; done
 $RC sync web/data/spend "$B/live/spend" --include '[0-9]*.json' || fail "sync of spend"
 [ -d web/data/newscasts ] && { $RC sync web/data/newscasts "$B/live/newscasts" --exclude index.json || fail "sync of newscasts"; }
 [ -s web/data/health.json ] && { $RC copyto web/data/health.json "$B/live/health.json" || fail "copy of health.json"; }
 log "-- live prefix synced in $(( $(date +%s) - t0 ))s"
 
-# 2. set: everything else, to a new prefix
+# 2. set: everything else, to a new prefix; never modified after, so browsers and the edge may keep it for a year
 t0=$(date +%s)
+export RCLONE_HEADER_UPLOAD="Cache-Control: public, max-age=31536000, immutable"
 FILTER=$(mktemp); cat > "$FILTER" <<'EOF'
 - /creatives/id/**
 - /buyers/**

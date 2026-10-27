@@ -298,7 +298,10 @@ custom domain (`DATA_URL`) and the CORS policy in `scripts/cloudflare/r2-cors.js
 (edit the origins, then paste it into the bucket's CORS policy editor in the dashboard,
 or `wrangler r2 bucket cors set <bucket> --file scripts/cloudflare/r2-cors.json` with a
 token that has R2 edit; `ExposeHeaders` is how the policy exposes `ETag` and
-`Content-Range`, no Worker is needed); an R2 API token
+`Content-Range`, no Worker is needed); a Cache Rule on the data hostname, "eligible for
+cache" with the edge TTL taken from the origin, since Cloudflare caches only a default
+list of extensions and `.json`, `.pmtiles` and `.parquet` are not on it (publish.sh
+sets `Cache-Control` on every object: a year for `v/`, five minutes for `live/`); an R2 API token
 with object read and write (its access key pair); a Pages project created as direct
 upload (not Git-connected, since the data is not in Git) named `PAGES_PROJECT`; and an
 account API token with Pages edit. Locally: `brew install rclone`, and the settings
