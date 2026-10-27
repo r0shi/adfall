@@ -47,7 +47,7 @@ run() {  # run <name> <command...>: time it into the log, remember failures
 }
 skip() { SKIPPED="$SKIPPED $1"; log "-- $1: skipped ($2)"; }
 
-run update        $PY -m ingest.update --download        # a feed failure keeps the sync marker, so tomorrow retries the day
+run update        $PY -m ingest.update --download        # folder-count check per station, re-list the changed ones, download (see ingest.update)
 run parse         $PY -m ingest.parse
 run parse-failed  $PY -m ingest.parse --only-failed
 run ocr           $PY -m ingest.ocr --workers 4
