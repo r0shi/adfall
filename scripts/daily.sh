@@ -1,9 +1,11 @@
 #!/bin/sh
-# Daily upkeep: pull the FCC change feed, parse and OCR what arrived, rebuild entities and marts, export, build the site.
-#   scripts/daily.sh [--video]      scripts/launchd/com.adfall.daily.plist runs it at 05:10
+# Upkeep: pull the FCC change feed, parse and OCR what arrived, rebuild entities and marts, export, build the site,
+# and publish it to Cloudflare when .env is configured for that (scripts/publish.sh).
+#   scripts/daily.sh [--video]      scripts/launchd/com.adfall.daily.plist runs it every 8 hours (05:10, 13:10, 21:10)
 # Steps, each a pipeline stage with its own lock, log and pipeline_run row:
 #   update --download -> parse -> parse --only-failed -> ocr -> parse --only-failed -> entities -> identity -> entities -> marts
 #   -> export + tiles (safe_export waits for entity/marts locks) -> [video + creatives export: Sundays or --video] -> npm build
+#   -> publish (only after a clean export, and only when R2_BUCKET is set in .env; the build step above stays the local one)
 # A failed step is reported and the steps that depend on it are skipped; export and build always run, so the site
 # never falls behind what the database holds. Exit 0 when every step passed, 1 otherwise.
 # Log: data/logs/daily-<date>.log (one timestamp line per step plus the stages' own output); the stage logs stay in
@@ -60,13 +62,19 @@ if run entities $PY -m ingest.entities; then
   else skip entities-2 "identity failed"; skip marts "identity failed"; fi
 else skip identity "entities failed"; skip entities-2 "entities failed"; skip marts "entities failed"; fi
 
-run export-tiles env TVW_TILES=1 scripts/safe_export.sh  # always: publish whatever the database holds now
+EXPORT_OK=0; run export-tiles env TVW_TILES=1 scripts/safe_export.sh && EXPORT_OK=1   # always: export whatever the database holds now
 
 if [ "$VIDEO" = 1 ]; then
   if run video $PY -m ingest.video videos; then run export-video scripts/safe_export.sh --only creatives,pages,details; else skip export-video "video failed"; fi
 fi
 
-run build npm --prefix app run build                     # always
+run build npm --prefix app run build                     # always; the local build (app/serve.mjs reads web/data itself)
+
+# Cloudflare: scripts/publish.sh syncs web/data to R2 and deploys the app to Pages, atomically from the visitor's side.
+# A failed export can leave web/data half-written, so it publishes only after a clean one; the previous publish stays up.
+if ! grep -q '^R2_BUCKET=.' .env 2>/dev/null; then skip publish "not configured (R2_BUCKET in .env)"
+elif [ "$EXPORT_OK" = 1 ]; then run publish scripts/publish.sh
+else skip publish "export failed"; fi
 
 log "== daily done  failed:${FAILED:- none}  skipped:${SKIPPED:- none}"
 log "timings:$TIMES"

@@ -2,7 +2,7 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-  <!-- Adfall daily update: scripts/daily.sh at 05:10 local time. See README.md, "Run it every day". -->
+  <!-- Adfall update: scripts/daily.sh every 8 hours (05:10, 13:10, 21:10 local), publishing to Cloudflare when .env is set up. See README.md, "Run it every day". -->
   <key>Label</key><string>com.adfall.daily</string>
   <key>ProgramArguments</key>
   <array>
@@ -11,10 +11,11 @@
   </array>
   <key>WorkingDirectory</key><string>/Users/alex/tv_wormhole</string>
   <key>StartCalendarInterval</key>
-  <dict>
-    <key>Hour</key><integer>5</integer>
-    <key>Minute</key><integer>10</integer>
-  </dict>
+  <array>
+    <dict><key>Hour</key><integer>5</integer><key>Minute</key><integer>10</integer></dict>
+    <dict><key>Hour</key><integer>13</integer><key>Minute</key><integer>10</integer></dict>
+    <dict><key>Hour</key><integer>21</integer><key>Minute</key><integer>10</integer></dict>
+  </array>
   <key>EnvironmentVariables</key>
   <dict>
     <key>PATH</key><string>/opt/homebrew/bin:/opt/homebrew/opt/node@22/bin:/Users/alex/.local/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin</string>

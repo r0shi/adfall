@@ -18,7 +18,7 @@ FCC public files, TV Query, contours      Census, FEC, NewsON, YouTube
                                │  make export / make tiles
                                ▼
                  web/data/   JSON · Parquet · PMTiles
-                               │  (symlinked as app/static/data)
+                               │  (served as /data; published to R2)
                                ▼
    ┌───────────────────────────────────────────────────────┐
    │  App  (SvelteKit static site: MapLibre, deck.gl,       │
@@ -27,11 +27,12 @@ FCC public files, TV Query, contours      Census, FEC, NewsON, YouTube
 ```
 
 The app never talks to Postgres and the pipeline never reads the app's exports
-back in. Either end can be started, stopped or rebuilt on its own; deploying the
-app means copying `app/build` (which includes `web/data`) to any static host.
+back in. Either end can be started, stopped or rebuilt on its own; deploying
+means putting `web/data` on any static host that answers Range requests and the
+5 MB `app/build` on another (or the same one), see [Publishing](#publishing-to-cloudflare).
 
-Status: working prototype with the 2026 cycle crawled nationally and updated daily.
-Not yet deployed. Findings, pitfalls and design live in [docs/](#documentation);
+Status: working prototype with the 2026 cycle crawled nationally and updated every
+8 hours. Not yet deployed. Findings, pitfalls and design live in [docs/](#documentation);
 where every number comes from is in [Sources, methods and limits](#sources-methods-and-limits).
 
 ## Prerequisites
@@ -68,8 +69,8 @@ against real data before any of the pipeline steps above.
 
 ```bash
 npm --prefix app run dev                       # dev server with hot reload on :5173
-npm --prefix app run build                     # static site in app/build, data included
-npm --prefix app run serve -- --host 0.0.0.0 --port 4173      # serve the build on the LAN (app/serve.mjs, reads app/build live)
+npm --prefix app run build                     # app shell in app/build (72 files, 5 MB; the data stays in web/data)
+npm --prefix app run serve -- --host 0.0.0.0 --port 4173      # serve app/build and web/data as /data on the LAN (app/serve.mjs, live)
 tailscale serve --bg 4173                      # HTTPS on the tailnet
 ALLOWED_HOSTS=your-host.ts.net,localhost npm --prefix app run dev   # restrict Host headers (any host is accepted by default)
 ```
@@ -90,8 +91,10 @@ Routes:
 Serve the build with `npm run serve`, not `vite preview`: the preview server indexes
 the build folder once at startup, so after `post_batch.sh` or `npm run build` rewrites
 it, the preview answers 404 for every new chunk until restarted and the site is blank.
-`app/serve.mjs` looks files up per request, answers Range requests for the PMTiles, and
-sends an ETag with `Cache-Control: no-cache` so browsers revalidate every data file.
+`app/serve.mjs` looks files up per request, serves `web/data` at `/data` (the dev server
+does the same through `vite.config.js`; nothing copies the 1 GB of data into the build),
+answers Range requests for the PMTiles, and sends an ETag with `Cache-Control: no-cache`
+so browsers revalidate every data file.
 `scripts/launchd/com.adfall.web.plist` keeps it running across reboots
 (`cp` it into `~/Library/LaunchAgents/` and `launchctl load -w` it, like the daily job).
 
@@ -224,20 +227,23 @@ quality.
 ### Run it every day
 
 ```bash
-scripts/daily.sh                 # update → parse → ocr → parse → refresh → export + tiles → build; add --video for the YouTube re-alignment (Sundays do it anyway)
+scripts/daily.sh                 # update → parse → ocr → parse → refresh → export + tiles → build → publish; add --video for the YouTube re-alignment (Sundays do it anyway)
 scripts/health.sh                # database answers, newest ok update and export under 30 h old → web/data/health.json, exit 1 on failure
 ```
 
 `scripts/daily.sh` runs every stage in order, logs one timestamp line per step to
 `data/logs/daily-<date>.log` (the stages' own logs stay in `data/logs/<stage>-<timestamp>.log`),
 skips the steps that depend on a failed one, and always exports and builds so the
-site reflects whatever the database holds. It steps aside when a batch driver holds
+site reflects whatever the database holds. When `.env` carries the Cloudflare settings
+it ends by running `scripts/publish.sh`, but only after a clean export (a failed one
+can leave `web/data` half-written; the previous publish stays up). It steps aside when a batch driver holds
 the `pipeline` lock, and a second copy of itself exits at once (`data/locks/daily.lock`).
 `scripts/health.sh` writes `web/data/health.json`, which the About page shows under
 the build line.
 
-Two launchd agents in `scripts/launchd/` schedule them: `com.adfall.daily` at 05:10
-local time and `com.adfall.health` hourly at :30 (and once on load). They are not
+Two launchd agents in `scripts/launchd/` schedule them: `com.adfall.daily` every 8
+hours at 05:10, 13:10 and 21:10 local time, and `com.adfall.health` hourly at :30
+(and once on load). They are not
 installed by the repository; the paths inside them are absolute, so edit them if the
 checkout is not at `/Users/alex/tv_wormhole`, then:
 
@@ -246,17 +252,72 @@ cp scripts/launchd/com.adfall.*.plist ~/Library/LaunchAgents/
 launchctl load -w ~/Library/LaunchAgents/com.adfall.daily.plist
 launchctl load -w ~/Library/LaunchAgents/com.adfall.health.plist
 launchctl list | grep adfall           # a third column of 0 is the last exit status; - means never run
-launchctl start com.adfall.daily       # run the daily job now instead of waiting for 05:10
+launchctl start com.adfall.daily       # run the update now instead of waiting for the next slot
 launchctl unload -w ~/Library/LaunchAgents/com.adfall.daily.plist   # stop scheduling it
 ```
 
 launchd's own capture of each job's stdout and stderr goes to `data/logs/launchd-daily.log`
 and `data/logs/launchd-health.log`. Agents run only while this user is logged in, and
-a run scheduled while the Mac sleeps happens at the next wake, so for a run at 05:10
-the Mac has to be awake: `sudo pmset repeat wakeorpoweron MTWRFSU 05:05:00` wakes it
-every day at 05:05 (`pmset -g sched` shows the schedule; `sudo pmset repeat cancel`
-removes it). PostGIS must already be up (`make db-up`); the health check reports when
+a run scheduled while the Mac sleeps happens at the next wake. For three runs a day
+the simplest is a Mac on power that does not sleep (`sudo pmset -c sleep 0 disksleep 0`,
+or the "Prevent automatic sleeping" switch in Energy settings); `pmset repeat wakeorpoweron`
+can wake it for one slot a day if sleeping is preferred. Unattended also means logged
+in: launchd agents and the Homebrew Postgres service run in the login session, so the
+machine needs automatic login (or FileVault left unlocked) to come back from a restart. PostGIS must already be up (`make db-up`); the health check reports when
 it is not.
+
+### Publishing to Cloudflare
+
+The build cannot go to Cloudflare Pages whole: Pages takes at most 20,000 files of
+25 MB each per deployment, and `web/data` is 90,000 files and 1 GB with seven files
+over the cap (the hex PMTiles, two Parquet marts, the weekly hex JSON). So the app
+shell goes to Pages and every data file to R2, and the app is told where at build
+time (`app/src/lib/base.js`, from `VITE_DATA_SET` and `VITE_DATA_LIVE`; unset, both
+are `/data`).
+
+`scripts/publish.sh` does it unattended, in an order that keeps a visitor from ever
+seeing a half-published site:
+
+1. **Live prefix.** Per-entity pages (one creative, buyer, station, spend file or
+   newscast night) and `health.json` are synced in place with `rclone --checksum`, so
+   only changed files upload. Each is self-contained, so one being newer than the
+   rest is harmless.
+2. **Set prefix.** Everything else, the files a view reads together (aggregates, hex
+   weights, tiles, marts, methods), is copied to `v/<build id>`, a prefix nothing
+   references yet and that is never touched again.
+3. **Verify.** The new set answers through `DATA_URL` with the right build id, a Range
+   request returns 206, and the bucket's CORS rule admits the site.
+4. **Build and deploy.** The app is built with the two bases baked in and uploaded with
+   `wrangler pages deploy`. Cloudflare switches the deployment atomically, and every
+   page of it names this set, so the switch is atomic for the browser too. A failure
+   anywhere before this point changes nothing a visitor can see.
+5. **Prune.** Set prefixes older than the newest `PUBLISH_KEEP` (3) are deleted.
+
+Set up once, on the Cloudflare side: a zone for the domain; an R2 bucket with a
+custom domain (`DATA_URL`) and a CORS rule allowing `GET` and `HEAD` with the `Range`
+header from the site's origin, exposing `ETag` and `Content-Range`; an R2 API token
+with object read and write (its access key pair); a Pages project created as direct
+upload (not Git-connected, since the data is not in Git) named `PAGES_PROJECT`; and an
+account API token with Pages edit. Locally: `brew install rclone`, and the settings
+in `.env` (the block in `.env.example`). Then
+
+```bash
+scripts/publish.sh --dry-run     # rclone in dry-run mode: what would upload, no build, no deploy
+scripts/publish.sh               # the real thing; data/publish.json records the last success
+```
+
+`scripts/daily.sh` runs it after every clean export once `R2_BUCKET` is set, so the
+8-hour schedule publishes three times a day. Each publish uploads the two large
+PMTiles afresh (about 260 MB) plus whatever else changed; at this volume R2 costs
+a few dollars a month and egress is free. `PUBLISH_PING` takes a healthchecks-style
+URL that is hit on success and with `/fail` appended on failure, which is the
+simplest way to notice an unattended machine going quiet. DuckDB's WASM engine is
+loaded from jsDelivr rather than the site so the Explore view stays under the file
+cap.
+
+The app itself recovers from a publish landing under an open tab: a new
+`_app/version.json` turns the next in-app navigation into a full load, and a failed
+chunk import reloads once (`src/lib/recover.js`).
 
 ### Maintenance
 
@@ -278,12 +339,12 @@ codes are read, run `make video` again.
 ## Repository layout
 
 ```
-app/            SvelteKit app (static adapter). app/static/data → ../../web/data
+app/            SvelteKit app (static adapter); serve.mjs serves the build plus web/data as /data
 web/data/       exports the app reads: stations.json, spend/, hex/, buyers/, creatives/, marts/*.parquet, tiles/
 ingest/         pipeline stages, one module each; runlog.py (locks, logs, ledger), pg.py (migrate, marts)
 db/migrations/  schema, applied in order by make migrate
 data/           crawl store (pdfs/, text/, ocr/), logs/, locks/, target lists, overrides, FEC files
-scripts/        build_data.py (stations.json from FCC exports), fetch_newson.py, safe_export.sh, backup.sh (+ launchd/ plist)
+scripts/        build_data.py (stations.json from FCC exports), fetch_newson.py, safe_export.sh, daily.sh, publish.sh, health.sh, backup.sh (+ launchd/ plists)
 docs/           research.md, spec.md, design.md, design-pass.md
 docker-compose.yml   alternative PostGIS service tvw-db on 127.0.0.1:5434 (default is Homebrew postgresql@17)
 ```

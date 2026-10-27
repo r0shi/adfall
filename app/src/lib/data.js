@@ -1,4 +1,5 @@
-// Static data access. Everything is a JSON artifact exported by ingest/export.py under /data.
+// Static data access. Everything is a JSON artifact exported by ingest/export.py under web/data (base.js says where it is served from).
+import { dataUrl, cacheMode } from './base.js';
 const cache = new Map();
 const wait = (ms) => new Promise(r => setTimeout(r, ms));
 // Every data file is revalidated on load (cache: 'no-cache' makes the browser send a conditional request), so a tab
@@ -7,7 +8,7 @@ const wait = (ms) => new Promise(r => setTimeout(r, ms));
 async function fetchJson(path, attempt = 0) {
   const again = (why) => attempt < 1 ? wait(900).then(() => fetchJson(path, attempt + 1)) : Promise.reject(new Error(`${path}: ${why}`));
   let r;
-  try { r = await fetch(`/data/${path}`, { cache: 'no-cache' }); } catch (e) { return again(e.message || 'network error'); }
+  try { r = await fetch(dataUrl(path), { cache: cacheMode(path) }); } catch (e) { return again(e.message || 'network error'); }
   if (r.status === 404) throw Object.assign(new Error(`${path}: HTTP 404`), { permanent: true });
   if (!r.ok) return again(`HTTP ${r.status}`);
   try { return await r.json(); } catch { return again('incomplete JSON (an export may be in progress)'); }

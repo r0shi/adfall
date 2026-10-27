@@ -1,8 +1,7 @@
-// DuckDB-WASM over the Parquet marts, in the browser. Loaded lazily by the Explore view.
-import mvpWasm from '@duckdb/duckdb-wasm/dist/duckdb-mvp.wasm?url';
-import mvpWorker from '@duckdb/duckdb-wasm/dist/duckdb-browser-mvp.worker.js?url';
-import ehWasm from '@duckdb/duckdb-wasm/dist/duckdb-eh.wasm?url';
-import ehWorker from '@duckdb/duckdb-wasm/dist/duckdb-browser-eh.worker.js?url';
+// DuckDB-WASM over the Parquet marts, in the browser. Loaded lazily by the Explore view. The engine itself (two
+// 35-40 MB WASM binaries) comes from jsDelivr at the version pinned in package.json rather than from this site: it
+// kept the build over Cloudflare Pages' 25 MB file limit, and the Explore view already needs the network for the marts.
+import { dataUrl } from './base.js';
 
 export const TABLES = ['station', 'buyer', 'buyer_station', 'station_total', 'station_daily', 'spend_daily', 'hex', 'station_hex', 'hex_total', 'creative', 'spot', 'hex_weekly_r5', 'order_', 'agency'];
 const EAGER = ['station', 'buyer', 'buyer_station', 'station_total', 'station_daily'];   // small; the rest load when a query names them
@@ -13,8 +12,9 @@ export function open(onProgress = () => {}) {
   progress = onProgress;
   return dbP ||= (async () => {
     const duckdb = await import('@duckdb/duckdb-wasm');
-    const bundle = await duckdb.selectBundle({ mvp: { mainModule: mvpWasm, mainWorker: mvpWorker }, eh: { mainModule: ehWasm, mainWorker: ehWorker } });
-    const worker = new Worker(bundle.mainWorker);
+    const bundle = await duckdb.selectBundle(duckdb.getJsDelivrBundles());
+    const workerUrl = URL.createObjectURL(new Blob([`importScripts("${bundle.mainWorker}");`], { type: 'text/javascript' }));   // a cross-origin worker needs a same-origin shim
+    const worker = new Worker(workerUrl);
     const db = new duckdb.AsyncDuckDB(new duckdb.VoidLogger(), worker);
     await db.instantiate(bundle.mainModule, bundle.pthreadWorker);
     const conn = await db.connect();
@@ -29,7 +29,7 @@ async function ensure(h, t) {
   if (loaded.has(t)) return;
   progress(`loading ${t}…`);
   try {
-    const r = await fetch(`/data/marts/${t}.parquet`);
+    const r = await fetch(dataUrl(`marts/${t}.parquet`));
     if (!r.ok) throw new Error(`${r.status}`);
     await h.db.registerFileBuffer(`${t}.parquet`, new Uint8Array(await r.arrayBuffer()));
     await h.conn.query(`CREATE VIEW ${t} AS SELECT * FROM read_parquet('${t}.parquet')`);

@@ -1,5 +1,6 @@
 // PMTiles hex density layers (from ingest/tiles.py) on a MapLibre map, shared by the home map and /map.
 import { rampExpr } from './palette.js';
+import { dataAbs } from './base.js';
 export const METRICS = {
   booked: ['Money reaching here', 'Booked $ spread over each station\'s coverage by population', 'booked'],
   pp: ['$ per person', 'Booked $ divided by people in the cell', 'pp'],
@@ -17,7 +18,7 @@ export function filterFor(layerRes, res) { return layerRes === 7 && res === 8 ? 
 export function installHexLayers(map, beforeId = 'contours-fill') {
   for (const r of RES) {
     if (map.getSource(`hex${r}`)) continue;
-    map.addSource(`hex${r}`, { type: 'vector', url: `pmtiles://${location.origin}/data/tiles/hex${r}.pmtiles` });
+    map.addSource(`hex${r}`, { type: 'vector', url: `pmtiles://${dataAbs(`tiles/hex${r}.pmtiles`)}` });
     map.addLayer({ id: `hex${r}-fill`, type: 'fill', source: `hex${r}`, 'source-layer': `hex${r}`, layout: { visibility: 'none' }, paint: { 'fill-color': '#238f70', 'fill-opacity': 0.85 } }, beforeId);
   }
 }

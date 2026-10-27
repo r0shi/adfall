@@ -14,5 +14,11 @@ const arg = (k, d) => { const i = process.argv.indexOf(k); return i > 0 && proce
 const host = arg('--host', '127.0.0.1'), port = Number(arg('--port', 4173));
 const dir = path.join(path.dirname(fileURLToPath(import.meta.url)), 'build');
 const serve = sirv(dir, { dev: true, etag: true, single: 'index.html', extensions: ['html'] });   // single: unknown routes get the SPA shell
-http.createServer((req, res) => serve(req, res, () => { res.statusCode = 404; res.end('not found'); }))
+const dataDir = path.join(path.dirname(fileURLToPath(import.meta.url)), '../web/data');          // /data is web/data itself, not a copy (vite.config.js says why)
+const data = sirv(dataDir, { dev: true, etag: true });
+const notFound = (res) => { res.statusCode = 404; res.end('not found'); };
+http.createServer((req, res) => {
+  if (req.url.startsWith('/data/')) { req.url = req.url.slice(5); return data(req, res, () => notFound(res)); }
+  serve(req, res, () => notFound(res));
+})
   .listen(port, host, () => console.log(`adfall: serving ${dir} at http://${host}:${port}`));
