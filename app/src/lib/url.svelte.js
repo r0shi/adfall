@@ -14,6 +14,10 @@ export const ui = $state({
   path: '/'
 });
 
+// Map layers the hash may name: Airshed, Over time, the tile metrics (hexlayers.js METRICS) and the comparisons
+// (difflayer.js DIFFS). Anything else falls back to Airshed instead of blanking the page.
+const LAYERS = new Set(['coverage', 'animate', 'booked', 'pp', 'spots', 'ps', 'stations', 'party', 'bi', 'wk']);
+
 const f4 = (p) => `${(+p[0]).toFixed(4)},${(+p[1]).toFixed(4)}`;
 
 /** The hash (without '#') for the current view. shared=true keeps only what makes sense on every page. */
@@ -58,7 +62,7 @@ export async function apply(hash) {
   if (s.map) ui.camRequest = s.map;            // before the pins, so the pin effect does not fly the camera away from it
   if (!samePt(s.p, loc.p)) { if (s.p) await setLocation(s.p); else if (loc.p) clearA(); }
   if (!samePt(s.b, locB.p)) { if (s.b) await setLocationB(s.b); else if (locB.p) clearB(); }
-  ui.layer = s.layer || 'coverage'; ui.tab = s.tab || 'stations'; ui.tabB = s.tabb || 'stations';
+  ui.layer = LAYERS.has(s.layer) ? s.layer : 'coverage'; ui.tab = s.tab || 'stations'; ui.tabB = s.tabb || 'stations';
   ui.newsDay = s.night || null;
   if (s.day) tl.day = s.day;
   if (s.win) tl.window = s.win; else if (s.day) tl.window = 'week';
