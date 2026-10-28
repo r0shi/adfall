@@ -33,7 +33,7 @@ means putting `web/data` on any static host that answers Range requests and the
 
 Status: working prototype, live at **[adfall.bitblot.com](https://adfall.bitblot.com)**, with the
 2026 cycle crawled nationally (FCC public files for about 1,000 stations that carry political
-buys) and refreshed by hand-started runs of the daily pipeline. Findings, pitfalls and design live
+buys) and refreshed by scheduled runs of the daily pipeline ([Run it every day](#run-it-every-day)). Findings, pitfalls and design live
 in [docs/](#documentation); where every number comes from is in
 [Sources, methods and limits](#sources-methods-and-limits).
 
