@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <!-- Adfall YouTube refresh: scripts/video_refresh.sh at 03:10 local, ten minutes after the Data API quota resets
+       (midnight Pacific = 03:00 Eastern). Channel searches are cached for 14 days, so a night with nothing new costs
+       little quota. Ends with publish.sh when .env is set up. Install with scripts/launchd/agents.sh install. -->
+  <key>Label</key><string>com.adfall.video</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>/bin/sh</string>
+    <string>/Users/alex/tv_wormhole/scripts/video_refresh.sh</string>
+    <string>90</string>
+  </array>
+  <key>WorkingDirectory</key><string>/Users/alex/tv_wormhole</string>
+  <key>StartCalendarInterval</key>
+  <dict><key>Hour</key><integer>3</integer><key>Minute</key><integer>10</integer></dict>
+  <key>EnvironmentVariables</key>
+  <dict>
+    <key>PATH</key><string>/opt/homebrew/bin:/opt/homebrew/opt/node@22/bin:/Users/alex/.local/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin</string>
+    <key>HOME</key><string>/Users/alex</string>
+  </dict>
+  <key>StandardOutPath</key><string>/Users/alex/tv_wormhole/data/logs/launchd-video.log</string>
+  <key>StandardErrorPath</key><string>/Users/alex/tv_wormhole/data/logs/launchd-video.log</string>
+  <key>Nice</key><integer>5</integer>
+  <key>ProcessType</key><string>Background</string>
+</dict>
+</plist>

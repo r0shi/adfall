@@ -7,7 +7,7 @@
   <key>Label</key><string>com.adfall.web</string>
   <key>ProgramArguments</key>
   <array>
-    <string>/Users/alex/.local/bin/node</string>
+    <string>/opt/homebrew/opt/node@22/bin/node</string>
     <string>/Users/alex/tv_wormhole/app/serve.mjs</string>
     <string>--host</string><string>0.0.0.0</string>
     <string>--port</string><string>4173</string>
@@ -17,7 +17,7 @@
   <key>KeepAlive</key><true/>
   <key>EnvironmentVariables</key>
   <dict>
-    <key>PATH</key><string>/Users/alex/.local/bin:/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin</string>
+    <key>PATH</key><string>/opt/homebrew/opt/node@22/bin:/opt/homebrew/bin:/Users/alex/.local/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin</string>
   </dict>
   <key>StandardOutPath</key><string>/Users/alex/tv_wormhole/data/logs/launchd-web.log</string>
   <key>StandardErrorPath</key><string>/Users/alex/tv_wormhole/data/logs/launchd-web.log</string>

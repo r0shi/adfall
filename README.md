@@ -321,30 +321,41 @@ the `pipeline` lock, and a second copy of itself exits at once (`data/locks/dail
 `scripts/health.sh` writes `web/data/health.json`, which the About page shows under
 the build line.
 
-Two launchd agents in `scripts/launchd/` can schedule them: `com.adfall.daily` at
-05:10, 13:10 and 21:10 local time, and `com.adfall.health` hourly at :30 (and once on
-load). They are not installed yet, here or by the repository, so today the daily run is
-started by hand; the paths inside them are absolute, so edit them if the
-checkout is not at `/Users/alex/tv_wormhole`, then:
+Five launchd agents in `scripts/launchd/` run everything unattended. They are installed on
+this Mac (since 2026-10-27) under `~/Library/LaunchAgents/`:
+
+| Agent | When | What | launchd log |
+|---|---|---|---|
+| `com.adfall.daily` | 05:10, 13:10, 21:10 | `scripts/daily.sh`: update through publish | `data/logs/launchd-daily.log` |
+| `com.adfall.video` | 03:10 | `scripts/video_refresh.sh 90`, just after the YouTube quota resets | `data/logs/launchd-video.log` |
+| `com.adfall.backup` | 03:30 | `scripts/backup.sh`: dump to `data/backups/`, keep 7 | `data/logs/backup.log` |
+| `com.adfall.health` | hourly at :30, and on load | `scripts/health.sh` → `web/data/health.json` | `data/logs/launchd-health.log` |
+| `com.adfall.web` | always (restarted if it dies) | `app/serve.mjs` on 0.0.0.0:4173 | `data/logs/launchd-web.log` |
+
+Postgres is not one of them: Homebrew runs it as its own agent, `sh.brew.postgresql@17`
+(starts at login, restarted if it dies; log `/opt/homebrew/var/log/postgresql@17.log`).
+The scripts' own run logs stay where they were (`data/logs/daily-<date>.log` and so on).
 
 ```bash
-cp scripts/launchd/com.adfall.*.plist ~/Library/LaunchAgents/
-launchctl load -w ~/Library/LaunchAgents/com.adfall.daily.plist
-launchctl load -w ~/Library/LaunchAgents/com.adfall.health.plist
-launchctl list | grep adfall           # a third column of 0 is the last exit status; - means never run
-launchctl start com.adfall.daily       # run the update now instead of waiting for the next slot
-launchctl unload -w ~/Library/LaunchAgents/com.adfall.daily.plist   # stop scheduling it
+scripts/launchd/agents.sh status              # loaded?, pid, last exit code, log, plus Postgres
+scripts/launchd/agents.sh run daily           # run a job now instead of waiting for its slot
+scripts/launchd/agents.sh restart web         # kill and start again (after editing serve.mjs)
+scripts/launchd/agents.sh stop daily          # kill a running job; it still runs at its next slot
+scripts/launchd/agents.sh install             # (re)install all five after editing a plist; or name some
+scripts/launchd/agents.sh uninstall video     # unload one and delete its copy; no name = all five
+brew services restart postgresql@17           # Postgres: start | stop | restart | info
 ```
 
-launchd's own capture of each job's stdout and stderr goes to `data/logs/launchd-daily.log`
-and `data/logs/launchd-health.log`. Agents run only while this user is logged in, and
-a run scheduled while the Mac sleeps happens at the next wake. For three runs a day
-the simplest is a Mac on power that does not sleep (`sudo pmset -c sleep 0 disksleep 0`,
-or the "Prevent automatic sleeping" switch in Energy settings); `pmset repeat wakeorpoweron`
-can wake it for one slot a day if sleeping is preferred. Unattended also means logged
-in: launchd agents and the Homebrew Postgres service run in the login session, so the
-machine needs automatic login (or FileVault left unlocked) to come back from a restart. PostGIS must already be up (`make db-up`); the health check reports when
-it is not.
+`stop web` does not keep the server down, because launchd restarts it at once. Use
+`uninstall web` for that. The plists hold absolute paths, so edit them if the
+checkout is not at `/Users/alex/tv_wormhole`, then run `install` again.
+
+Agents run only while this user is logged in, and a run scheduled while the Mac sleeps
+happens at the next wake. This Mac is set never to sleep on power (`pmset -g`). FileVault is
+on, which rules out automatic login: after a restart nothing (Postgres included) runs until
+someone logs in. `sudo fdesetup authrestart` restarts without the unlock prompt for a planned
+reboot. `sudo pmset autorestart 1` brings the Mac back after a power cut, to the login
+screen. The health check reports when the database is down.
 
 ### Publishing to Cloudflare
 

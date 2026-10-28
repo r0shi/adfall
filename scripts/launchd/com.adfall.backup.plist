@@ -1,11 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <!--
-  Nightly Postgres backup (scripts/backup.sh) at 03:30 local time. Not installed by the repo; to enable:
-    cp scripts/launchd/com.adfall.backup.plist ~/Library/LaunchAgents/
-    launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.adfall.backup.plist
-  To run it now:        launchctl kickstart gui/$(id -u)/com.adfall.backup
-  To remove:            launchctl bootout gui/$(id -u)/com.adfall.backup
+  Nightly Postgres backup (scripts/backup.sh) at 03:30 local time.
+  Install / remove:     scripts/launchd/agents.sh install backup | uninstall backup
+  To run it now:        scripts/launchd/agents.sh run backup
   Output goes to data/logs/backup.log. A missed run (Mac asleep) fires on the next wake.
 -->
 <plist version="1.0">
