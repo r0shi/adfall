@@ -19,6 +19,8 @@
   import { td, loadTimeData, retryTimeData, framerFor, geoLayers } from '$lib/timedata.svelte.js';
   import LoadPanel from '$lib/LoadPanel.svelte';
   import ColorBy from '$lib/ColorBy.svelte';
+  import { phone } from '$lib/phone.svelte.js';
+  import { slide } from 'svelte/transition';
   import { lazy, describe } from '$lib/recover.js';
   import { toGeoJSON } from '$lib/geo.js';
   import { installHexLayers, setHexLayer, resForZoom, layersFor, METRICS } from '$lib/hexlayers.js';
@@ -35,18 +37,23 @@
   // one layer at a time; clicking the lit one turns the map layer off ('coverage': contours only, which a pin draws anyway)
   const LAYERS = [['booked', 'Money'], ['pp', '$ / person'], ['spots', 'Spots'], ['ps', '$ / spot']];
   const COMPARE = [['party', 'Party share'], ['bi', 'Booked − invoiced'], ['wk', 'Week vs last']];
-  const pickLayer = (k) => { ui.layer = ui.layer === k ? 'coverage' : k; };
+  // phones: the layer choices are a drawer under the search row, opened by the layer button and closed by a pick or the map
+  let drawer = $state(false);
+  const pickLayer = (k) => { ui.layer = ui.layer === k ? 'coverage' : k; drawer = false; };
   let stillLayer = 'booked';                              // where the Over time button returns to when switched off
-  function toggleTime() { if (ui.layer === 'animate') ui.layer = stillLayer; else { stillLayer = ui.layer; ui.layer = 'animate'; } }
+  function toggleTime() { if (ui.layer === 'animate') ui.layer = stillLayer; else { stillLayer = ui.layer; ui.layer = 'animate'; if (phone.on) { collapsed = true; collapsedB = true; } } drawer = false; }
+  const layerName = $derived(ui.layer === 'animate' ? 'Over time' : ui.layer === 'coverage' ? 'Layers' : [...LAYERS, ...COMPARE].find(l => l[0] === ui.layer)?.[1] || 'Layers');
+  // playing on a phone: the pin's sheet drops to its header so the map and the bar have the screen
+  $effect(() => { if (phone.on && tl.playing) { collapsed = true; collapsedB = true; } });
   const timeLayer = $derived(ui.layer === 'animate' || ui.layer === 'wk');   // layers driven by the timeline bar; their key docks above it
   const isDiff = $derived(ui.layer in DIFFS);
   const isTile = $derived(!(ui.layer === 'coverage' || ui.layer === 'animate' || isDiff));
   const res = $derived(resForZoom(zoom, meta));          // 8 (where it exists) from zoom 9.3, 7 from 6.3, else 5
-  function ready(a) { api = a; installHexLayers(a.map); zoom = a.map.getZoom(); /* a camera from the URL hash lands before zoomend can fire */ a.onZoom(z => zoom = z); a.map.on('mousemove', e => { if (!isTile) return; const f = a.map.queryRenderedFeatures(e.point, { layers: layersFor(res) })[0]; hover = f ? f.properties : null; }); }
+  function ready(a) { api = a; installHexLayers(a.map); a.map.on('dragstart', () => drawer = false); zoom = a.map.getZoom(); /* a camera from the URL hash lands before zoomend can fire */ a.onZoom(z => zoom = z); a.map.on('mousemove', e => { if (!isTile) return; const f = a.map.queryRenderedFeatures(e.point, { layers: layersFor(res) })[0]; hover = f ? f.properties : null; }); }
   $effect(() => { if (api?.map?.getLayer('hex5-fill')) setHexLayer(api.map, { visible: isTile, res, metric: isTile ? ui.layer : 'booked', meta }); });
   $effect(() => { if (api && loc.p) { api.setContours(toGeoJSON(loc.found)); api.setMarker(loc.p); if (api.map.getZoom() < 6 && Date.now() - ui.camApplied > 1000) api.flyTo(loc.p, 6.5); } else if (api) { api.setContours({ type: 'FeatureCollection', features: [] }); api.setMarker(null); } });
   $effect(() => { if (!api) return; if (locB.p) { api.setContoursB(toGeoJSON(locB.found)); api.setMarkerB(locB.p); } else { api.setContoursB({ type: 'FeatureCollection', features: [] }); api.setMarkerB(null); } });
-  function onMapClick(p) { if (pickingB) { pickingB = false; setLocationB(p); } else setLocation(p); }
+  function onMapClick(p) { drawer = false; if (pickingB) { pickingB = false; setLocationB(p); } else setLocation(p); }
   $effect(() => { if ((isDiff || ui.layer === 'animate') && !weights && !loadErr) hexWeights(5).then(w => weights = w).catch(e => loadErr = describe(e)); });
   $effect(() => { if (isDiff && !layerMod && !loadErr) lazy(() => import('@deck.gl/geo-layers')).then(m => layerMod = m).catch(e => loadErr = describe(e)); });
   $effect(() => { if (td.status === 'ready' && !layerMod) layerMod = geoLayers(); });
@@ -106,8 +113,11 @@
 <svelte:head><title>Adfall</title></svelte:head>
 <div class="shell wide"><div class="mapwrap" style="height:100%">
   <MapView onready={ready} onclick={onMapClick} />
-  <div class="float">
-    <Search />
+  <div class="float" class:open={drawer}>
+    <Search>
+      {#snippet after()}<button type="button" class="layerbtn" class:on={ui.layer === 'animate'} aria-expanded={drawer} onclick={() => drawer = !drawer} title="Map layer">{#if ui.layer === 'animate'}<span aria-hidden="true">▶ </span>{/if}{layerName}<span class="caret" aria-hidden="true">▾</span></button>{/snippet}
+    </Search>
+    {#if !phone.on || drawer}<div transition:slide={{ duration: phone.on ? 180 : 0 }}>
     <div class="layers">
       <button class="otbtn" class:on={ui.layer === 'animate'} aria-pressed={ui.layer === 'animate'} onclick={toggleTime} title="Watch the money land day by day; playback is chosen on the bar at the bottom">
         <span class="otico" aria-hidden="true">{#if ui.layer === 'animate'}<svg viewBox="0 0 16 16" width="12" height="12"><rect x="3" y="3" width="10" height="10" rx="1.5" fill="currentColor" /></svg>{:else}<svg viewBox="0 0 16 16" width="12" height="12"><path d="M4 2.2v11.6a.8.8 0 0 0 1.2.7l9.3-5.8a.8.8 0 0 0 0-1.4L5.2 1.5A.8.8 0 0 0 4 2.2z" fill="currentColor" /></svg>{/if}</span>
@@ -118,6 +128,7 @@
         <div class="chips cmp">{#each COMPARE as [k, l]}<span class="chip" class:on={ui.layer === k} onclick={() => pickLayer(k)} onkeydown={e => e.key === 'Enter' && pickLayer(k)} role="button" aria-pressed={ui.layer === k} tabindex="0" title={ui.layer === k ? 'Click again to turn the layer off' : ''}>{l}</span>{/each}</div>
       </div>
     </div>
+    </div>{/if}
     {#if ui.layer === 'coverage'}<div class="desc muted small">No map layer. Pick one above{loc.p ? '; the pin\'s station contours stay on' : ''}.</div>
     {:else if isTile}<div class="desc muted small">{METRICS[ui.layer][1]}. {hover ? fmtHover(hover) : 'Hover a cell.'}</div>
     {:else if ui.layer === 'party'}<div class="desc muted small">{DIFFS.party.desc}. {hover ? fmtHover(hover) : 'Hover a cell.'}</div>
@@ -130,7 +141,7 @@
     {#if pickingB}<div class="small" style="margin-top:6px;color:var(--pin-b)"><b>Click the map to drop pin B.</b> <span class="chip" onclick={() => pickingB = false} role="button" tabindex="0">cancel</span></div>{/if}
   </div>
   {#if loc.p}
-    <Popover {api} anchor={loc.p} badge={locB.p ? 'A' : ''} title={loc.label} sub="{where(loc)}{loc.found.length} stations reach here{covered.length ? ` · ${covered.length} with filings · ${usd(total)} booked ${idx.year}` : ' · none crawled yet'}{cmpA}" tabs={TABS} bind:active={ui.tab} bind:collapsed onclose={() => { clearA(); clearB(); }}
+    <Popover {api} anchor={loc.p} badge={locB.p ? 'A' : ''} title={loc.label} sub={phone.on ? `${loc.found.length} stations · ${covered.length ? `${usd(total)} booked ${idx.year}` : 'none crawled yet'}${cmpA}` : `${where(loc)}${loc.found.length} stations reach here${covered.length ? ` · ${covered.length} with filings · ${usd(total)} booked ${idx.year}` : ' · none crawled yet'}${cmpA}`} tabs={TABS} bind:active={ui.tab} bind:collapsed onclose={() => { clearA(); clearB(); }}
       oncompare={locB.p ? null : () => pickingB = true} compareLabel="Compare…">
       {@render colorRow(mixA)}
       {#if ui.tab === 'stations'}<StationsTab found={loc.found} p={loc.p} {idx} {api} />
@@ -151,7 +162,7 @@
     </Popover>
   {/if}
   {#if timeLayer}
-    <div class="dock">
+    <div class="dock" style:bottom={phone.on && phone.sheetH ? `${phone.sheetH + 6}px` : null}>
       <div class="key">
         {#if ui.layer === 'animate'}
           <div class="keyhead">{isPartyAnim ? 'Candidate $ by Democratic share' : `${ANIM.find(a => a[0] === tl.metric)?.[1]} reaching each cell`}<span class="muted">{` · per ${tl.window === 'cumulative' ? 'cycle to date' : tl.window}`}</span></div>
@@ -188,6 +199,7 @@
   .lchips .chip { padding: 3px 7px; font-size: 12px; }
   .chips.cmp { padding-top: 6px; border-top: 1px dashed var(--line); }
   .desc { margin-top: 8px; }
+  .layerbtn { display: none; }
   .dock { position: absolute; left: 12px; right: 12px; bottom: 12px; z-index: 4; display: flex; flex-direction: column; align-items: flex-start; gap: 8px; pointer-events: none; }
   .dock > :global(*) { align-self: stretch; }
   .dock > .key { align-self: flex-start; }
@@ -204,11 +216,19 @@
   .colorrow .catbar { flex: 1; min-width: 40px; height: 8px; border-radius: 4px; margin: 0; }
   .credit { position: absolute; left: 12px; bottom: 6px; z-index: 3; font-size: 10.5px; max-width: 60%; }
   @media (max-width: 800px) {
-    .float { left: 6px; top: 6px; width: calc(100% - 12px); padding: 8px 10px; }
+    .float { left: 6px; top: 6px; width: calc(100% - 12px); padding: 6px; }
+    .float :global(form.search input) { padding: 8px 10px; }
+    .layerbtn { display: inline-flex; align-items: center; gap: 4px; flex: none; max-width: 42%; padding: 0 10px; font-size: 13px; color: var(--fg); background: var(--chip); border: 1px solid var(--line); white-space: nowrap; overflow: hidden; }
+    .layerbtn.on { background: var(--accent); color: #fff; border-color: var(--accent); }
+    .caret { font-size: 10px; opacity: 0.7; transition: transform 0.15s; }
+    .float.open .caret { transform: rotate(180deg); }
+    .float:not(.open) .desc { display: none; }
+    .float :global(.legend) { margin-top: 6px !important; }
     .layers { margin-top: 8px; padding-top: 8px; gap: 8px; }
     .dock { left: 6px; right: 6px; bottom: 6px; gap: 6px; }
     .key { width: auto; align-self: stretch; padding: 6px 10px; }
     .keyhover { display: none; }
+    .keyhead { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .credit { display: none; }
   }
 </style>

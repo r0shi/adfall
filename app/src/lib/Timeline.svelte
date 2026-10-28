@@ -4,6 +4,7 @@
   import { tl, setRange, step, ANIM } from './time.svelte.js';
   let { series = [], label = '', mode = 'animate' } = $props();   // series is a plain array from the page (not deep state)   // series: [[day, value], ...]
   let el, width = $state(600), dragging = $state(false), timer;
+  let opts = $state(false);                                // phones: the playback options (metric, window, trails, speed) slide out on demand
   $effect(() => { const ro = new ResizeObserver(([e]) => { width = e.contentRect.width; }); ro.observe(el); return () => ro.disconnect(); });
   $effect(() => { if (series.length && !tl.first) setRange(series[0][0], series[series.length - 1][0]); });
   $effect(() => { clearInterval(timer); if (tl.playing) timer = setInterval(() => { step(1); if (tl.day === tl.last) tl.playing = false; }, 700 / tl.speed); return () => clearInterval(timer); });
@@ -22,7 +23,7 @@
   const value = $derived(curI >= 0 && series[curI] ? fmt(tl.window === 'week' ? series.slice(Math.max(0, curI - 6), curI + 1).reduce((t, s) => t + s[1], 0) : series[curI][1]) : '');
   function toggle() { if (tl.day === tl.last) tl.day = tl.first; tl.playing = !tl.playing; }
 </script>
-<div class="tlbar">
+<div class="tlbar" class:opts>
   <div class="tlhead">
     <button class="tlplay" onclick={toggle} title={tl.playing ? 'Pause' : 'Play'} aria-label={tl.playing ? 'Pause' : 'Play'}>
       {#if tl.playing}<svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><rect x="3" y="2" width="3.5" height="12" rx="1" fill="currentColor" /><rect x="9.5" y="2" width="3.5" height="12" rx="1" fill="currentColor" /></svg>
@@ -30,6 +31,9 @@
     </button>
     <div class="tldate"><span class="tlwin">{windowLabel}</span><b>{dateLabel}</b></div>
     {#if value}<div class="tlval"><b>{value}</b><span>{label}</span></div>{/if}
+    <button class="tlopts" class:on={opts} aria-expanded={opts} onclick={() => opts = !opts} title="Playback options" aria-label="Playback options">
+      <svg viewBox="0 0 16 16" width="15" height="15" aria-hidden="true"><path d="M2 4h7M13 4h1M2 12h1M7 12h7" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" /><circle cx="11" cy="4" r="2" fill="none" stroke="currentColor" stroke-width="1.6" /><circle cx="5" cy="12" r="2" fill="none" stroke="currentColor" stroke-width="1.6" /></svg>
+    </button>
     {#if mode === 'animate'}
       <div class="seg what" role="radiogroup" aria-label="What the map shows">
         {#each ANIM as [k, l, short]}<button role="radio" aria-checked={tl.metric === k} class:on={tl.metric === k} onclick={() => tl.metric = k}><span class="long">{l}</span><span class="short">{short}</span></button>{/each}
@@ -75,7 +79,7 @@
   .seg button.on { background: var(--bg); color: var(--fg); font-weight: 600; box-shadow: 0 1px 2px rgb(0 0 0 / 0.18); }
   .what button { padding: 5px 11px; font-size: 13px; }
   .what button.on { background: var(--accent); color: #fff; }
-  .short, .speed1 { display: none; }
+  .short, .tog.speed1, .tlopts { display: none; }       /* .tog.speed1: the toggle style must not unhide the phone-only speed button */
   .tog { display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px 3px 6px; font-size: 12.5px; font-weight: 500; color: var(--muted); background: var(--chip); border: 1px solid var(--line); border-radius: 999px; }
   .tog i { width: 22px; height: 12px; border-radius: 6px; background: var(--line); position: relative; transition: background 0.15s; }
   .tog i::after { content: ''; position: absolute; top: 2px; left: 2px; width: 8px; height: 8px; border-radius: 50%; background: var(--bg); transition: left 0.15s; }
@@ -91,6 +95,11 @@
     .long { display: none; } .short { display: inline; }
     .tlfoot { gap: 6px 12px; }
     .lbl, .speeds { display: none; }
-    .speed1 { display: inline-flex; padding: 3px 10px; font-variant-numeric: tabular-nums; }
+    .tlopts { display: grid; place-items: center; width: 34px; height: 34px; padding: 0; margin-left: auto; border-radius: 50%; color: var(--muted); background: var(--chip); border: 1px solid var(--line); }
+    .tlopts.on { color: #fff; background: var(--accent); border-color: var(--accent); }
+    .tlbar:not(.opts) .what, .tlbar:not(.opts) .tlfoot { display: none; }
+    .tlhead { gap: 10px; }
+    .tlplay { width: 36px; height: 36px; }
+    .tog.speed1 { display: inline-flex; padding: 3px 10px; font-variant-numeric: tabular-nums; }
   }
 </style>
