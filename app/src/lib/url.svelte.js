@@ -25,7 +25,7 @@ export function serialize({ shared = false } = {}) {
   const q = [];
   if (loc.p) q.push('p=' + f4(loc.p));
   if (locB.p) q.push('b=' + f4(locB.p));
-  if (view.by !== 'category') q.push('color=' + view.by);
+  if (view.by !== 'party') q.push('color=' + view.by);
   if (shared) return q.join('&');
   if (ui.layer !== 'booked') q.push('layer=' + (ui.layer === 'coverage' ? 'none' : ui.layer));
   if (loc.p && ui.tab !== 'stations') q.push('tab=' + ui.tab);
@@ -68,7 +68,7 @@ export async function apply(hash) {
   if (s.win) tl.window = s.win; else if (s.day) tl.window = 'week';
   if (s.metric) tl.metric = s.metric; else if (s.day) tl.metric = 'booked';
   if (s.day) tl.trails = s.trails !== '0';
-  if (hash && hash !== '#') setColorBy(s.color === 'party' ? 'party' : 'category');
+  if (hash && hash !== '#') setColorBy(s.color === 'category' ? 'category' : 'party');
 }
 
 /** push for a deliberate change, replace for panning, playback and rapid scrubbing. */

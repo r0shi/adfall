@@ -38,7 +38,7 @@
     untrack(() => { try { (mode === 'push' ? pushState : replaceState)(h, {}); } catch { /* before the router is ready */ } });
   });
   const tabs = [['/', 'Map'], ['/buyers', 'Buyers'], ['/ads', 'Ads'], ['/explore', 'Explore'], ['/about', 'About']];
-  const hash = $derived((loc.p || view.by !== 'category') ? '#' + serialize({ shared: true }) : '');
+  const hash = $derived((loc.p || view.by !== 'party') ? '#' + serialize({ shared: true }) : '');
 </script>
 <nav class="top">
   <span class="brand">Adfall</span>

@@ -5,7 +5,7 @@
 import { CATS, catShort, PLOT_COLORS, buyers, slugOf } from './data.js';
 import { partyLabel } from './here.js';
 
-export const view = $state({ by: 'category' });
+export const view = $state({ by: 'party' });
 try { const v = localStorage.getItem('colorBy'); if (v === 'party' || v === 'category') view.by = v; } catch {}
 export function setColorBy(v) { view.by = v; try { localStorage.setItem('colorBy', v); } catch {} }
 

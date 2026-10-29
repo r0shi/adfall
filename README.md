@@ -51,7 +51,7 @@ markets overlap where you are.
 
 - *Money*: every buyer whose ads air on those stations, as a treemap or ranked bars, pivoted by
   buyer, party, office level or agency. Federal, state and local races and issue groups each get
-  a color; a **Color by: Office level | Party** switch recolors every buyer mark in the app.
+  a color; a **Color by: Party | Office level** switch recolors every buyer mark in the app.
 - *Ads*: the spots that actually aired, by their Ad-ID. A thumbnail wall puts the matched video
   first (most matched from the campaign's own YouTube channel, some from Google's Ads Transparency
   Center); opening one plays it in the panel, and spots with no public video get a summary card
@@ -159,7 +159,7 @@ Routes:
 
 | Route | What it shows |
 |---|---|
-| `/` | Map-first home. Click or search to drop a pin; the popover lists stations reaching it with newscast and FCC links, money by buyer, aired ads, the political spots in tonight's and last night's newscasts, and a timeline. The popover's "Color by" switch (also on the Buyers, Ads and station pages) colors every buyer mark by office level or by party. A second pin (B) turns on comparison. |
+| `/` | Map-first home. Click or search to drop a pin; the popover lists stations reaching it with newscast and FCC links, money by buyer, aired ads, the political spots in tonight's and last night's newscasts, and a timeline. The popover's "Color by" switch (also on the Buyers, Ads and station pages) colors every buyer mark by party (the default) or by office level. A second pin (B) turns on comparison. |
 | `/map` | The coverage map on its own, without the money layers. |
 | `/time` | Money moving across the hex grid day by day, with trails or accumulate, driven by the global timeline bar. |
 | `/buyers`, `/buyers/<slug>` | Who is buying: treemap by category, per-buyer stations, flights, dayparts, creatives. |

@@ -1,10 +1,10 @@
 <script>
-  // The "Color by: Office level | Party" switch (color.svelte.js), placed next to the marks it recolors: the pin popover's
+  // The "Color by: Party | Office level" switch (party is the default) (color.svelte.js), placed next to the marks it recolors: the pin popover's
   // share bar, and the legends on the Buyers, Ads and station pages. The choice is global and remembered per browser.
   // One pill: the label is its first (inert) segment, so it reads as a single control.
   import { view, setColorBy, PARTY_NOTE } from './color.svelte.js';
   let { label = 'Color by:' } = $props();
-  const OPTS = [['category', 'Office level', 'What the colors on buyers, tiles and bars mean: federal, state, local, issue'], ['party', 'Party', PARTY_NOTE]];
+  const OPTS = [['party', 'Party', PARTY_NOTE], ['category', 'Office level', 'What the colors on buyers, tiles and bars mean: federal, state, local, issue']];
 </script>
 <span class="colorby" role="radiogroup" aria-label={label.replace(/:$/, '')}>
   {#if label}<span class="lbl" aria-hidden="true">{label}</span>{/if}
